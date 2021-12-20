@@ -8,15 +8,14 @@ import { withTranslation } from "react-i18next";
 import { Model, serialize } from './model';
 
 const Doc = Model.register('doc', class Doc extends Model {
-  properties: {
+  static properties = {
     x: Number,
     y: Number,
   }
-
   constructor(json = {}) {
     super(json);
-    this.x = this.x || 0;
-    this.y = this.y || 0;
+    this.x = this.x || 3;
+    this.y = this.y || 4;
   }
 })
 
@@ -27,6 +26,7 @@ class App extends Component {
   }
   render () {
     const doc = new Doc();
+    console.log(doc)
     console.log(doc.serialize());
     let headerComponent = !this.state.isFullPageLayout ? <Header/> : '';
     let footerComponent = !this.state.isFullPageLayout ? <Footer/> : '';
