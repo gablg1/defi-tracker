@@ -5,6 +5,7 @@ import AppRoutes from './AppRoutes';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { withTranslation } from "react-i18next";
+import { serialize } from './model';
 
 class App extends Component {
   state = {}
@@ -16,6 +17,7 @@ class App extends Component {
     let footerComponent = !this.state.isFullPageLayout ? <Footer/> : '';
     return (
       <div className="container-scroller">
+        {serialize(String, "hello world")}
         { headerComponent }
         <div className="container-fluid page-body-wrapper">
           <div className="main-panel">

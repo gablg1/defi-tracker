@@ -25,6 +25,7 @@
     "font-awesome": "^4.7.0",
     "i18next": "^19.0.0",
     "i18next-browser-languagedetector": "^4.0.1",
+    "lodash": "^4.17.21",
     "namor": "^1.1.3",
     "node-sass": "^4.13.1",
     "nouislider-react": "^3.3.2",
