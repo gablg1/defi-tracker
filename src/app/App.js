@@ -5,7 +5,20 @@ import AppRoutes from './AppRoutes';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { withTranslation } from "react-i18next";
-import { serialize } from './model';
+import { Model, serialize } from './model';
+
+const Doc = Model.register('doc', class Doc extends Model {
+  properties: {
+    x: Number,
+    y: Number,
+  }
+
+  constructor(json = {}) {
+    super(json);
+    this.x = this.x || 0;
+    this.y = this.y || 0;
+  }
+})
 
 class App extends Component {
   state = {}
@@ -13,11 +26,12 @@ class App extends Component {
     this.onRouteChanged();
   }
   render () {
+    const doc = new Doc();
+    console.log(doc.serialize());
     let headerComponent = !this.state.isFullPageLayout ? <Header/> : '';
     let footerComponent = !this.state.isFullPageLayout ? <Footer/> : '';
     return (
       <div className="container-scroller">
-        {serialize(String, "hello world")}
         { headerComponent }
         <div className="container-fluid page-body-wrapper">
           <div className="main-panel">

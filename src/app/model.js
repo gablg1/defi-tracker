@@ -89,7 +89,7 @@ export const ValueType = (function() {
 
     static register(name, cls) {
       var ref, superclass;
-      superclass = (ref = cls.__super__) != null ? ref.constructor : void 0;
+      superclass = (ref = cls.__proto__) != null ? ref.constructor : void 0;
       // give the class a fully qualified name
       // assert '/' not in cls.__tag
       return this.register_with_absolute_tag(superclass.__tag + '/' + name, cls);
@@ -101,16 +101,17 @@ export const ValueType = (function() {
 
     static register_with_absolute_tag(absolute_tag, cls) {
       var p, ref, ref1, superclass, type;
-      superclass = (ref = cls.__super__) != null ? ref.constructor : void 0;
+      superclass = (ref = cls.__proto__) != null ? ref.constructor : void 0;
       // only inherit from registered models, with Model as the root
       // assert superclass.__isRegisteredModel
 
       // assert cls::properties['__ty']? == false
 
       // even if it's empty, every Model subclass must define its properties
-      assert(function() {
-        return cls.prototype.hasOwnProperty('properties');
-      });
+//      assert(function() {
+ //       return cls.prototype.hasOwnProperty('properties');
+ //     });
+
       // inherit properties from parent
       cls.__properties = _.extend({}, superclass.__properties, cls.prototype.properties);
       ref1 = cls.__properties;
@@ -362,5 +363,39 @@ const rebase = function(left, right, base) {
   }
 };
 
-// rebase mechanism.  Prefer left.  By picking one atomically, at least the
-// types will match.  This is reasonable default behavior.
+var Model;
+
+Model = ValueType.register_with_legacy_absolute_tag('', Model = (function() {
+  class Model extends ValueType {
+    constructor(json) {
+      super(json);
+      if (this.uniqueKey == null) {
+        // give every model a uniqueKey
+        this.regenerateKey();
+      }
+    }
+
+    regenerateKey() {
+      // We want these keys to be GUIDs
+      return this.uniqueKey = String(Math.random()).slice(2);
+    }
+
+    clone() {
+      var clone;
+      // @constructor gets the class of the current element (in this case, Block, LayoutBlock, etc)
+      clone = super.clone();
+      clone.regenerateKey();
+      return clone;
+    }
+
+  };
+
+  Model.prototype.properties = {
+    uniqueKey: String
+  };
+
+  return Model;
+
+}).call(this));
+
+export { Model };
