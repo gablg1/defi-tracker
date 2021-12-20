@@ -121,7 +121,7 @@ export class Model {
 
   static register(tag, cls) {
     const superclass = cls.__proto__;
-    this.register_with_absolute_tag(superclass.__tag + '/' + tag, cls)
+    return this.register_with_absolute_tag(superclass.__tag + '/' + tag, cls);
   }
 
   static register_with_absolute_tag(absolute_tag, cls) {

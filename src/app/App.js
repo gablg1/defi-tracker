@@ -17,7 +17,7 @@ const Doc = Model.register('doc', class Doc extends Model {
     this.x = this.x || 3;
     this.y = this.y || 4;
   }
-})
+});
 
 class App extends Component {
   state = {}
