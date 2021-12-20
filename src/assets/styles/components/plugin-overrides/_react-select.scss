@@ -1,0 +1,18 @@
+.css-2b097c-container {
+  .css-yk16xz-control {
+    background-color: #2A3038;
+    border: 1px solid $border-color;
+    &:hover {
+      border: inherit;
+    }
+    &:focus {
+      background: red;
+    }
+  }
+  .css-1pahdxg-control {
+    background-color: #2A3038;
+  }
+  .css-26l3qy-menu {
+    background-color: #2A3038;
+  }
+}

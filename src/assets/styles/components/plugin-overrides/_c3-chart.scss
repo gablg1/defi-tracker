@@ -1,0 +1,15 @@
+.c3 {
+    .c3-axis {
+        path, line {
+            stroke: $text-gray;
+        }
+        text {
+            fill: $text-gray;
+        }
+    }
+    .c3-legend-item {
+        text {
+            fill: $text-gray;
+        }
+    }
+}

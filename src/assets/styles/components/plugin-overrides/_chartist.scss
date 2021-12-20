@@ -1,0 +1,12 @@
+.ct-chart {
+    .ct-grids {
+        line {
+            stroke: $text-gray;
+        }
+    }
+    .ct-labels {
+        span {
+            color: $text-gray;
+        }
+    }
+}

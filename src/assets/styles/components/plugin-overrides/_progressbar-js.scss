@@ -1,0 +1,11 @@
+.progress {
+  border-radius: 3px;
+  .progress-bar {
+    border-radius: 3px;
+  }
+}
+
+.demo-progress-circle {
+  -webkit-transform: rotate(-90deg);
+  transform: rotate(-90deg);
+}
