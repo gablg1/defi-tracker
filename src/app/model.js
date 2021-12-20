@@ -127,12 +127,20 @@ export class Model {
   static register_with_absolute_tag(absolute_tag, cls) {
     const superclass = cls.__proto__;
     cls.__tag = absolute_tag;
+    cls.__superclass = superclass;
 
     assert(() => superclass.__isRegisteredModel || superclass == this);
     assert(() => cls.hasOwnProperty('properties'))
     assert(() => _.isEmpty(cls.properties['__ty']))
 
     cls.__properties = _.extend({}, superclass.__properties, cls.properties);
+
+    // Subclasses can remove a parent's property by redefining its type to be undefined.
+    for (var prop in cls.__properties) {
+      if (cls.__properties[prop] === undefined) {
+        delete cls.__properties[prop];
+      }
+    }
 
     if (!_.isEmpty(registeredModels[cls.__tag])) {
       throw new Error('Model already registered');
