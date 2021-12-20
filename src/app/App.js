@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 import './App.scss';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
@@ -13,26 +13,39 @@ import Spinner from '../app/shared/Spinner';
 import {CodeEditor} from './editors/CodeEditor';
 import {DataTable} from './tables/DataTables';
 
-const ABI = Model.register('abi', class ABI extends Model {
+const Contract = Model.register('contract', class Contract extends Model {
   static properties = {
-    stringifiedJson: String,
+    stringifiedAbi: String,
   }
 
   static defaultProperties = {
-    stringifiedJson: '[]',
+    stringifiedAbi: '[]',
   }
 });
 
-const UserState = Model.register('user-state', class UserState extends Model {
+const WorldState = Model.register('world-state', class WorldState extends Model {
   static properties = {
-    contractAbis: [ABI],
+    contracts: [Contract],
     defaultAddr: String,
   }
 });
 
 function App(props) {
-  const state = new UserState();
-  console.log(state);
+  const [worldState, setWorldState] = useState(null);
+  const [worldStateLoaded, setWorldStateLoaded] = useState(false);
+
+  useEffect(() => {
+    const serializedState = JSON.parse(localStorage.getItem('__serializedWorldState') || '{}');
+    setWorldState(new WorldState(serializedState));
+    setWorldStateLoaded(true);
+  }, [worldStateLoaded]);
+
+  useEffect(() => {
+    if (worldStateLoaded && worldState != null) {
+      localStorage.setItem('__serializedWorldState', JSON.stringify(worldState.serialize()));
+    }
+  }, [worldState]);
+
   return (
     <div className="container-scroller">
       <Header />
