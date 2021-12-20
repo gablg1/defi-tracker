@@ -6,6 +6,7 @@ import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { withTranslation } from "react-i18next";
 import { Model, serialize } from './model';
+import { testAll } from './test';
 
 const Doc = Model.register('doc', class Doc extends Model {
   static properties = {
@@ -23,11 +24,9 @@ class App extends Component {
   state = {}
   componentDidMount() {
     this.onRouteChanged();
+    testAll();
   }
   render () {
-    const doc = new Doc();
-    console.log(doc)
-    console.log(doc.serialize());
     let headerComponent = !this.state.isFullPageLayout ? <Header/> : '';
     let footerComponent = !this.state.isFullPageLayout ? <Footer/> : '';
     return (
