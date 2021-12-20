@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { Dropdown } from 'react-bootstrap';
-import { Link, withRouter } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Trans } from 'react-i18next';
+import { useLocation } from "react-router-dom";
+import _ from 'lodash';
 
 
-class Header extends Component {
+class InnerHeader extends Component {
   render () {
     return (
       <div className="horizontal-menu">
@@ -442,4 +444,10 @@ class Header extends Component {
 
 }
 
-export default withRouter(Header);
+function Header(props) {
+  let loc = useLocation();
+  const propsWithLocation = _.extend({}, props, {location: loc});
+  return <InnerHeader {...propsWithLocation} />
+}
+
+export default Header;

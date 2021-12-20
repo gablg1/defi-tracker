@@ -70,6 +70,22 @@ export const serialize = function(ty, value) {
   }
 };
 
+const defaultValueForType = function(ty) {
+  if (ty === String) {
+    return '';
+  } else if (ty === Number) {
+    return 0;
+  } else if (ty === Boolean) {
+    return false;
+  } else if (_.isArray(ty) && ty.length === 1) {
+    return [];
+  } else if (ty.__isRegisteredModel) {
+    return new ty();
+  } else {
+    throw new Error(`unknown type = ${ty}`);
+  }
+};
+
 
 let registeredModels = {};
 
@@ -79,10 +95,21 @@ export class Model {
     uniqueKey: String
   }
 
-  constructor (json) {
-    if (_.isEmpty(this.uniqueKey)) {
-      this.regenerateKey();
+  constructor(json = {}) {
+    if (_.isEmpty(json.uniqueKey)) {
+      json.uniqueKey = String(Math.random()).slice(2)
     }
+
+    for (let prop in this.constructor.__properties) {
+      if (json[prop] != null) {
+        this[prop] = json[prop];
+      } else if (this.constructor.defaultProperties[prop] != null) {
+        this[prop] = this.constructor.defaultProperties[prop];
+      } else {
+        this[prop] = defaultValueForType(this.constructor.__properties[prop]);
+      }
+    }
+
   }
 
   serialize() {
@@ -93,12 +120,8 @@ export class Model {
     );
   }
 
-  regenerateKey() {
-    this.uniqueKey = String(Math.random()).slice(2)
-  }
-
   static deserialize(json) {
-    assert(this.constructor.__isRegisteredModel)
+    assert(() => this.__isRegisteredModel)
     if (!_.isPlainObject(json)) {
         throw new Error("tried to deserialize a non-object")
     }
@@ -112,8 +135,8 @@ export class Model {
       throw new Error(`Type ${json.__ty} not registered`)
     }
 
-    const deserialized_members = _.map(type.__properties, (ty, prop) => {
-      return _.isEmpty(json[prop]) ? null : deserialize(ty, json[prop])
+    const deserialized_members = _.mapValues(type.__properties, (ty, prop) => {
+      return json[prop] == null ? null : deserialize(ty, json[prop])
     });
 
     return new type(deserialized_members);

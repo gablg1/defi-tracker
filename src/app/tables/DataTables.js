@@ -10,7 +10,7 @@ const defaultSorted = [{
   order: 'desc'
 }];
 
-export class DataTables extends Component {
+export class DataTable extends Component {
   render() {
     return (
       <div>
@@ -67,7 +67,7 @@ export class DataTables extends Component {
   }
 }
 
-export default DataTables
+export default DataTable
 
 var products = [
   {

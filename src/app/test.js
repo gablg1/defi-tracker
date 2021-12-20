@@ -2,19 +2,30 @@ import {assert} from './utils';
 import {Model} from './model';
 import _ from 'lodash';
 
-const testModels = () => {
-  const A = Model.register('a', class A extends Model {
-    static properties = {
-      foo: String,
-      x: Number,
-    }
-    constructor(json = {}) {
-      super(json);
-      this.foo  = this.foo || 'FOO';
-      this.x = this.x || 3;
-    }
-  });
+const A = Model.register('a', class A extends Model {
+  static properties = {
+    foo: Number,
+    x: Number,
+  }
 
+  static defaultProperties = {
+    x: 3,
+  }
+});
+
+const B = Model.register('b', class B extends A {
+  static properties = {
+    k: String,
+    singer: String,
+    x: undefined,
+  }
+
+  static defaultProperties = {
+    singer: 'Adele',
+  }
+});
+
+const testModels = () => {
   const a = new A();
 
   assert(() => A.__properties.hasOwnProperty('x'));
@@ -27,19 +38,11 @@ const testModels = () => {
   assert(() => a.serialize().__ty === 'v/a');
   assert(() => !_.isEmpty(a.uniqueKey));
   assert(() => _.keys(a.serialize()).length == 4);
+  assert(() => a.foo == 0);
+  assert(() => a.x == 3);
 
-  const B = Model.register('b', class B extends A {
-    static properties = {
-      k: String,
-      singer: String,
-      x: undefined,
-    }
-    constructor(json = {}) {
-      super(json);
-      this.k = this.k || 'kkkk';
-      this.singer = this.singer || 'Adele';
-    }
-  });
+  assert(() => A.deserialize(a.serialize()).x == 3);
+  assert(() => A.deserialize(a.serialize()).foo == 0);
 
   const b = new B();
 
@@ -54,6 +57,8 @@ const testModels = () => {
   assert(() => _.keys(b.serialize()).length == 5);
   assert(() => b.serialize().singer === 'Adele');
   assert(() => b.serialize().__ty === 'v/a/b');
+  assert(() => b.k === '');
+  assert(() => b.x == undefined);
 };
 
 
