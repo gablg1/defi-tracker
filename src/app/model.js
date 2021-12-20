@@ -94,6 +94,7 @@ export class Model {
   static __properties = {
     uniqueKey: String
   }
+  static defaultProperties = {}
 
   constructor(json = {}) {
     if (_.isEmpty(json.uniqueKey)) {

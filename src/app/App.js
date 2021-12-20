@@ -18,9 +18,8 @@ const ABI = Model.register('abi', class ABI extends Model {
     stringifiedJson: String,
   }
 
-  constructor(json = {}) {
-    super(json);
-    this.initProperties({stringifiedJson: '[]'});
+  static defaultProperties = {
+    stringifiedJson: '[]',
   }
 });
 
@@ -29,15 +28,11 @@ const UserState = Model.register('user-state', class UserState extends Model {
     contractAbis: [ABI],
     defaultAddr: String,
   }
-
-  constructor(json = {}) {
-    super(json);
-    this.initProperties({});
-  }
 });
 
 function App(props) {
-  testAll();
+  const state = new UserState();
+  console.log(state);
   return (
     <div className="container-scroller">
       <Header />
