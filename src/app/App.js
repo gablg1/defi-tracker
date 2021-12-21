@@ -9,6 +9,9 @@ import { Routes, Route } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
 
+import { isBech32Address } from '@harmony-js/utils';
+import { isValidEthereumAddress } from './utils';
+
 import {ContractManager, StateEditor} from './Pages';
 import {DataTable} from './tables/DataTables';
 import _ from 'lodash';
@@ -29,6 +32,16 @@ export const Contract = Model.register('contract', class Contract extends Model 
       return new Error("Name cannot be empty");
     }
 
+    if (!isBech32Address(this.address) && !isValidEthereumAddress(this.address)) {
+      return new Error(`Address ${this.address} is not valid`);
+    }
+
+    try {
+      JSON.parse(this.stringifiedAbi);
+    } catch(e) {
+      return new Error("ABI is not a parseable JSON");
+    }
+
 
     return false;
   }
@@ -43,6 +56,11 @@ export const WorldState = Model.register('world-state', class WorldState extends
   addContract(newContract) {
     if (_.find(this.contracts, ['address', newContract.address])) {
       throw new Error("Address already present")
+    }
+
+    const error = newContract.hasErrors();
+    if (error != false) {
+      throw error;
     }
 
     this.contracts.push(newContract);

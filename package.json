@@ -22,6 +22,7 @@
     "chartist": "^0.11.4",
     "cogo-toast": "^4.1.1",
     "compass-mixins": "^0.12.10",
+    "ethers": "^5.5.2",
     "flag-icon-css": "^3.3.0",
     "font-awesome": "^4.7.0",
     "i18next": "^19.0.0",
