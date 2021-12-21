@@ -120,7 +120,12 @@ const cols = [
   {
     dataField: 'timestamp',
     text: 'Timestamp',
-    sort: true
+    sort: true,
+    formatter: (cellContent, row) => {
+      const date = new Date(0);
+      date.setUTCSeconds(cellContent);
+      return date.toLocaleString();
+    }
   }, {
     dataField: 'hash',
     text: 'Transaction Hash',
@@ -142,7 +147,7 @@ const cols = [
   }, {
     dataField: 'to',
     text: 'To',
-    sort: true, 
+    sort: true,
     formatter: (cellContent, row) => {
       return truncateLongAddress(cellContent)
     }
