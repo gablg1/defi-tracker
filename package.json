@@ -34,6 +34,7 @@
     "chartist": "^0.11.4",
     "cogo-toast": "^4.1.1",
     "compass-mixins": "^0.12.10",
+    "console-browserify": "^1.2.0",
     "css-loader": "^6.5.1",
     "css-minimizer-webpack-plugin": "^3.2.0",
     "dotenv": "^10.0.0",
