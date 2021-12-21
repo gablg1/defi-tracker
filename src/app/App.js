@@ -40,7 +40,7 @@ export const Contract = Model.register('contract', class Contract extends Model 
       return new Error(`Address ${this.address} is not valid`);
     }
 
-    if (!Contract.validBlockchains.includes(this.blockchain)) {
+    if (!this.constructor.validBlockchains.includes(this.blockchain)) {
       return new Error(`Blockchain ${this.blockchain} is invalid`);
     }
 
@@ -61,19 +61,20 @@ export const WorldState = Model.register('world-state', class WorldState extends
   }
 
   addContract(newContract) {
-    if (_.find(this.contracts, ['address', newContract.address])) {
-      throw new Error("Address already present")
-    }
-
-    const error = newContract.anyError();
-    if (error !== false) {
-      throw error;
-    }
+    this.throwIfErrorFromChange(clone => {
+      clone.contracts.push(newContract);
+      return clone;
+    });
 
     this.contracts.push(newContract);
   }
 
   anyError() {
+    if (_.uniqBy(this.contracts, 'address').length !== this.contracts.length) {
+      throw new Error("Duplicate contract addresses found")
+    }
+
+    // Return any errors in the contracts
     return _.find(_.map(this.contracts, c => c.anyError()), e => e !== undefined);
   }
 });

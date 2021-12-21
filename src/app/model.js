@@ -121,6 +121,26 @@ export class Model {
     );
   }
 
+  clone() {
+    return this.constructor.deserialize(this.serialize());
+  }
+
+  anyErrorFromChange(changeFn) {
+    const changedClone = changeFn(this.clone());
+    return changedClone.anyError();
+  }
+
+  throwIfErrorFromChange(changeFn) {
+    const error = this.anyErrorFromChange(changeFn);
+    if (error) {
+      throw error;
+    }
+  }
+
+  anyError() {
+    throw new Error("Subclasses must override and implement this");
+  }
+
   static deserialize(json = null) {
     if (json == null) {
       return new this();
