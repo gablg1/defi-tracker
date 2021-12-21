@@ -21,13 +21,17 @@ export const Contract = Model.register('contract', class Contract extends Model 
     name: String,
     address: String,
     stringifiedAbi: String,
+    blockchain: String,
   }
 
   static defaultProperties = {
     stringifiedAbi: '[]',
+    blockchain: 'Harmony',
   }
 
-  hasErrors() {
+  static validBlockchains = ['Harmony']
+
+  anyError() {
     if (_.isEmpty(this.name)) {
       return new Error("Name cannot be empty");
     }
@@ -36,14 +40,17 @@ export const Contract = Model.register('contract', class Contract extends Model 
       return new Error(`Address ${this.address} is not valid`);
     }
 
+    if (!Contract.validBlockchains.includes(this.blockchain)) {
+      return new Error(`Blockchain ${this.blockchain} is invalid`);
+    }
+
     try {
       JSON.parse(this.stringifiedAbi);
     } catch(e) {
       return new Error("ABI is not a parseable JSON");
     }
 
-
-    return false;
+    return undefined;
   }
 });
 
@@ -58,12 +65,16 @@ export const WorldState = Model.register('world-state', class WorldState extends
       throw new Error("Address already present")
     }
 
-    const error = newContract.hasErrors();
-    if (error != false) {
+    const error = newContract.anyError();
+    if (error !== false) {
       throw error;
     }
 
     this.contracts.push(newContract);
+  }
+
+  anyError() {
+    return _.find(_.map(this.contracts, c => c.anyError()), e => e !== undefined);
   }
 });
 
@@ -74,6 +85,11 @@ function App(props) {
   const [__, forceUpdate] = useReducer(x => x + 1, 0);
 
   const handleSave = () => {
+    const error = worldState.anyError();
+    if (error) {
+      throw error;
+    }
+
     localStorage.setItem('__serializedWorldState', JSON.stringify(worldState.serialize()));
     forceUpdate();
   }

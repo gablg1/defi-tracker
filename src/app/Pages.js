@@ -54,6 +54,7 @@ export function ContractManager(props) {
                       <tr>
                         <th>Name</th>
                         <th>Address</th>
+                        <th>Blockchain</th>
                         <th>Delete</th>
                       </tr>
                     </thead>
@@ -62,6 +63,7 @@ export function ContractManager(props) {
                         <tr key={contract.address}>
                           <td>{contract.name}</td>
                           <td>{contract.address}</td>
+                          <td>{contract.blockchain}</td>
                           <td><label className="badge badge-danger">Pending</label></td>
                         </tr>
                       )}
