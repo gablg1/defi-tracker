@@ -38,7 +38,6 @@ export const WorldState = Model.register('world-state', class WorldState extends
 
     this.contracts.push(newContract);
   }
-
 });
 
 function App(props) {
@@ -61,7 +60,7 @@ function App(props) {
 
   // Load the world state upon page load
   useEffect(() => {
-    const serializedState = JSON.parse(localStorage.getItem('__serializedWorldState') || '{}');
+    const serializedState = JSON.parse(localStorage.getItem('__serializedWorldState') || null);
     setWorldState__onlyUseOnce(WorldState.deserialize(serializedState));
     setWorldStateLoaded(true);
   }, [worldStateLoaded]);

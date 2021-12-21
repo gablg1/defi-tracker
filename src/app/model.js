@@ -121,7 +121,11 @@ export class Model {
     );
   }
 
-  static deserialize(json) {
+  static deserialize(json = null) {
+    if (json == null) {
+      return new this();
+    }
+
     assert(() => this.__isRegisteredModel)
     if (!_.isPlainObject(json)) {
         throw new Error("tried to deserialize a non-object")
