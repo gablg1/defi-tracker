@@ -121,8 +121,9 @@ export function StateEditor(props) {
   const [editableJson, setEditableJson] = useState(JSON.stringify(props.worldState.serialize(), null, 2));
   const saveNewState = () => {
     try {
-      props.setWorldState(WorldState.deserialize(JSON.parse(editableJson)));
-      props.handleSave();
+      const newWorldState = WorldState.deserialize(JSON.parse(editableJson));
+      props.setWorldState(newWorldState);
+      props.handleSave(newWorldState);
       window.alert("New state saved successfully!");
     } catch (err) {
       window.alert(`Badly formatted WorldState json: ${err.message}`);

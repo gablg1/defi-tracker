@@ -84,13 +84,13 @@ function App(props) {
   // eslint-disable-next-line no-unused-vars
   const [__, forceUpdate] = useReducer(x => x + 1, 0);
 
-  const handleSave = () => {
-    const error = worldState.anyError();
+  const handleSave = (ws = worldState) => {
+    const error = ws.anyError();
     if (error) {
       throw error;
     }
 
-    localStorage.setItem('__serializedWorldState', JSON.stringify(worldState.serialize()));
+    localStorage.setItem('__serializedWorldState', JSON.stringify(ws.serialize()));
     forceUpdate();
   }
 
