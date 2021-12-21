@@ -1,9 +1,8 @@
-import React, { useReducer, useState, useEffect, Component } from 'react';
+import React, { useReducer, useState, useEffect } from 'react';
 import './App.scss';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
-import { Model, serialize } from './model';
-import { testAll } from './test';
+import { Model } from './model';
 
 import { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
@@ -45,6 +44,7 @@ export const WorldState = Model.register('world-state', class WorldState extends
 function App(props) {
   const [worldState, setWorldState__onlyUseOnce] = useState(null);
   const [worldStateLoaded, setWorldStateLoaded] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [__, forceUpdate] = useReducer(x => x + 1, 0);
 
   const handleSave = () => {
@@ -52,10 +52,12 @@ function App(props) {
     forceUpdate();
   }
 
+  /*
   const worldStateChange = (obj, attr) => (e) => {
     obj[attr] = e.target.value;
     handleSave();
   };
+  */
 
   // Load the world state upon page load
   useEffect(() => {

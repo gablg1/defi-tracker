@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 import { Form } from 'react-bootstrap';
 // import brace from "brace";
 
