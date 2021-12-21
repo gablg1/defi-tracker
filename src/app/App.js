@@ -9,7 +9,7 @@ import { Routes, Route } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
 
-import {ContractManager, StateEditor} from './ContractManager';
+import {ContractManager, StateEditor} from './Pages';
 import {DataTable} from './tables/DataTables';
 import _ from 'lodash';
 
