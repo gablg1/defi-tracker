@@ -11,11 +11,8 @@ import "brace/mode/json";
 import "brace/theme/github";
 import "brace/theme/monokai";
 
-import {Contract} from './App';
+import {Contract, WorldState} from './App';
 
-const aceHeight = {
-  minHeight: "300px"
-};
 
 export function ContractManager(props) {
   const [newContractAbi, setNewContractAbi] = useState('');
@@ -77,7 +74,7 @@ export function ContractManager(props) {
               </div>
               <div className="row">
                 <div className="col-md-6 grid-margin">
-                  <AceEditor style={aceHeight}
+                  <AceEditor style={{minHeight: '300px'}}
                     mode="json"
                     theme="monokai"
                     name="jsonEditor"
@@ -117,4 +114,52 @@ export function ContractManager(props) {
   )
 }
 
-export default ContractManager
+
+export function StateEditor(props) {
+  const [editableJson, setEditableJson] = useState(JSON.stringify(props.worldState.serialize(), null, 2));
+  const saveNewState = () => {
+    try {
+      props.setWorldState(WorldState.deserialize(JSON.parse(editableJson)));
+      props.handleSave();
+      window.alert("New state saved successfully!");
+    } catch (err) {
+      window.alert(`Badly formatted WorldState json: ${err.message}`);
+    }
+  };
+
+  return (
+    <div>
+      <div className="page-header">
+        <h3 className="page-title">World State</h3>
+      </div>
+      <div className="row">
+        <div className="col-12 grid-margin">
+          <div className="card">
+            <div className="card-body">
+              <div className="row">
+                <AceEditor style={{minHeight: '600px'}}
+                  mode="json"
+                  theme="monokai"
+                  name="jsonEditor"
+                  editorProps={{ $blockScrolling: true }}
+                  placeholder="Contract ABI goes here..."
+                  fontSize={14}
+                  showPrintMargin={true}
+                  showGutter={true}
+                  highlightActiveLine={true}
+                  height="100%"
+                  width="100%"
+                  value={editableJson}
+                  onChange={setEditableJson}
+                />
+              </div>
+              <div className="row" style={{marginTop: 50}}>
+                <button onClick={saveNewState} className="btn btn-primary btn-fw">Save new world state</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

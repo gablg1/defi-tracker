@@ -9,7 +9,7 @@ import { Routes, Route } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
 
-import ContractManager from './ContractManager';
+import {ContractManager, StateEditor} from './ContractManager';
 import {DataTable} from './tables/DataTables';
 import _ from 'lodash';
 
@@ -41,7 +41,7 @@ export const WorldState = Model.register('world-state', class WorldState extends
 });
 
 function App(props) {
-  const [worldState, setWorldState__onlyUseOnce] = useState(null);
+  const [worldState, setWorldState] = useState(null);
   const [worldStateLoaded, setWorldStateLoaded] = useState(false);
   // eslint-disable-next-line no-unused-vars
   const [__, forceUpdate] = useReducer(x => x + 1, 0);
@@ -61,7 +61,7 @@ function App(props) {
   // Load the world state upon page load
   useEffect(() => {
     const serializedState = JSON.parse(localStorage.getItem('__serializedWorldState') || null);
-    setWorldState__onlyUseOnce(WorldState.deserialize(serializedState));
+    setWorldState(WorldState.deserialize(serializedState));
     setWorldStateLoaded(true);
   }, [worldStateLoaded]);
 
@@ -79,6 +79,7 @@ function App(props) {
               <Routes>
                 <Route path="/" element={<DataTable />} />
                 <Route path="/contracts" element={<ContractManager worldState={worldState} handleSave={handleSave} />} />
+                <Route path="/state-editor" element={<StateEditor worldState={worldState} setWorldState={setWorldState} handleSave={handleSave} />} />
               </Routes>
             </Suspense>
           </div>
