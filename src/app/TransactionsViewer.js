@@ -30,7 +30,7 @@ async function getTransactionsHistory(address, filters) {
   const response = await axios.post(rpc, data);
 
   if (response.status === 200 && response.data) {
-      return response.data;
+      return response.data.result.transactions;
   } else throw new Error();
 }
 
@@ -40,7 +40,7 @@ const defaultSorted = [{
   order: 'desc'
 }];
 
-export function DataTable(props) {
+export function TransactionsViewer(props) {
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setLoading] = useState(true);
 
@@ -80,10 +80,10 @@ export function DataTable(props) {
               <div className="row">
                 <div className="col-12">
                   <ToolkitProvider
-                    keyField="id"
+                    keyField="hash"
                     bootstrap4
-                    data={ products }
-                    columns={ columns }
+                    data={ transactions }
+                    columns={ cols }
                     search
                   >
                     {
@@ -113,7 +113,7 @@ export function DataTable(props) {
   );
 }
 
-export default DataTable
+export default TransactionsViewer;
 
 var products = [
   {
@@ -317,6 +317,30 @@ var products = [
     action: ''
   },
 ];
+
+const cols = [
+  {
+    dataField: 'timestamp',
+    text: 'Timestamp',
+    sort: true
+  }, {
+    dataField: 'hash',
+    text: 'Transaction Hash',
+    sort: true
+  }, {
+    dataField: 'blockNumber',
+    text: 'Block number',
+    sort: true
+  }, {
+    dataField: 'from',
+    text: 'From',
+    sort: true
+  }, {
+    dataField: 'to',
+    text: 'To',
+    sort: true
+  }
+]
 
 const columns = [
   {

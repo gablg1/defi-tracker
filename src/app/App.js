@@ -13,7 +13,7 @@ import { isBech32Address } from '@harmony-js/utils';
 import { isValidEthereumAddress } from './utils';
 
 import {ContractManager, StateEditor} from './Pages';
-import {DataTable} from './tables/DataTables';
+import {TransactionsViewer} from './TransactionsViewer';
 import _ from 'lodash';
 
 export const Contract = Model.register('contract', class Contract extends Model {
@@ -129,7 +129,7 @@ function App(props) {
           <div className="content-wrapper">
             <Suspense fallback={<Spinner/>}>
               <Routes>
-                <Route path="/" element={<DataTable worldState={worldState} />} />
+                <Route path="/" element={<TransactionsViewer worldState={worldState} />} />
                 <Route path="/contracts" element={<ContractManager worldState={worldState} handleSave={handleSave} />} />
                 <Route path="/state-editor" element={<StateEditor worldState={worldState} setWorldState={setWorldState} handleSave={handleSave} />} />
               </Routes>
