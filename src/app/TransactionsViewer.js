@@ -6,6 +6,7 @@ import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/rea
 import {fromBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
+import {truncateLongAddress} from './utils';
 
 const { SearchBar } = Search;
 
@@ -115,209 +116,6 @@ export function TransactionsViewer(props) {
 
 export default TransactionsViewer;
 
-var products = [
-  {
-    id: 'XN-1',
-    purchasedOn: '25/09/2019',
-    customer: 'Edinburgh',
-    shipTo: 'New York',
-    basePrice: '$1500',
-    purchasedPrice: '$3200',
-    status: 'Open',
-    action: ''
-  },
-  {
-    id: 'XN-2',
-    purchasedOn: '26/09/2019',
-    customer: 'Doe',
-    shipTo: 'Brazil',
-    basePrice: '$4500',
-    purchasedPrice: '$7500',
-    status: 'Pending',
-    action: ''
-  },
-  {
-    id: 'XN-3',
-    purchasedOn: '26/09/2019',
-    customer: 'Sam',
-    shipTo: 'Tokyo',
-    basePrice: '$2100',
-    purchasedPrice: '6300',
-    status: 'Closed',
-    action: ''
-  },
-  {
-    id: 'XN-4',
-    purchasedOn: '27/09/2019',
-    customer: 'Joe',
-    shipTo: 'Netherland',
-    basePrice: '$1100',
-    purchasedPrice: '$7300',
-    status: 'Open',
-    action: ''
-  },
-  {
-    id: 'XN-5',
-    purchasedOn: '28/09/2019',
-    customer: 'Edward',
-    shipTo: 'Indonesia',
-    basePrice: '$3600',
-    purchasedPrice: '$4800',
-    status: 'Closed',
-    action: ''
-  },
-  {
-    id: 'XN-6',
-    purchasedOn: '28/09/2019',
-    customer: 'Stella',
-    shipTo: 'Japan',
-    basePrice: '$5600',
-    purchasedPrice: '$3600',
-    status: 'On hold',
-    action: ''
-  },
-  {
-    id: 'XN-7',
-    purchasedOn: '28/09/2019',
-    customer: 'Jaqueline',
-    shipTo: 'Germany',
-    basePrice: '$1100',
-    purchasedPrice: '$6300',
-    status: 'Closed',
-    action: ''
-  },
-  {
-    id: 'XN-8',
-    purchasedOn: '29/09/2019',
-    customer: 'Tim',
-    shipTo: 'Italy',
-    basePrice: '$6300',
-    purchasedPrice: '$2100',
-    status: 'Open',
-    action: ''
-  },
-  {
-    id: 'XN-9',
-    purchasedOn: '29/09/2019',
-    customer: 'John',
-    shipTo: 'Tokyo',
-    basePrice: '$2100',
-    purchasedPrice: '$6300',
-    status: 'Closed',
-    action: ''
-  },
-  {
-    id: 'XN-10',
-    purchasedOn: '29/09/2019',
-    customer: 'Tom',
-    shipTo: 'Germany',
-    basePrice: '$1100',
-    purchasedPrice: '$2300',
-    status: 'Closed',
-    action: ''
-  },
-  {
-    id: 'XN-11',
-    purchasedOn: '30/09/2019',
-    customer: 'Aleena',
-    shipTo: 'New York',
-    basePrice: '$1600',
-    purchasedPrice: '$3500',
-    status: 'Pending',
-    action: ''
-  },
-  {
-    id: 'XN-12',
-    purchasedOn: '01/10/2019',
-    customer: 'Alphy',
-    shipTo: 'Brazil',
-    basePrice: '$5500',
-    purchasedPrice: '$7200',
-    status: 'Open',
-    action: ''
-  },
-  {
-    id: 'XN-13',
-    purchasedOn: '02/10/2019',
-    customer: 'Twinkle',
-    shipTo: 'Italy',
-    basePrice: '$1560',
-    purchasedPrice: '$2530',
-    status: 'Open',
-    action: ''
-  },
-  {
-    id: 'XN-14',
-    purchasedOn: '02/10/2019',
-    customer: 'Catherine',
-    shipTo: 'Brazil',
-    basePrice: '$1600',
-    purchasedPrice: '$5600',
-    status: 'Closed',
-    action: ''
-  },
-  {
-    id: 'XN-15',
-    purchasedOn: '05/10/2019',
-    customer: 'Daniel',
-    shipTo: 'Singapore',
-    basePrice: '$6800',
-    purchasedPrice: '$9800',
-    status: 'Pending',
-    action: ''
-  },
-  {
-    id: 'XN-16',
-    purchasedOn: '07/10/2019',
-    customer: 'Tom',
-    shipTo: 'Tokyo',
-    basePrice: '$1600',
-    purchasedPrice: '$6500',
-    status: 'On hold',
-    action: ''
-  },
-  {
-    id: 'XN-17',
-    purchasedOn: '07/10/2019',
-    customer: 'Cris',
-    shipTo: 'Tokyo',
-    basePrice: '$2100',
-    purchasedPrice: '$6300',
-    status: 'Open',
-    action: ''
-  },
-  {
-    id: 'XN-18',
-    purchasedOn: '09/10/2019',
-    customer: 'Tim',
-    shipTo: 'Italy',
-    basePrice: '$6300',
-    purchasedPrice: '$2100',
-    status: 'Closed',
-    action: ''
-  },
-  {
-    id: 'XN-19',
-    purchasedOn: '11/10/2019',
-    customer: 'Jack',
-    shipTo: 'Tokyo',
-    basePrice: '$3100',
-    purchasedPrice: '$7300',
-    status: 'Pending',
-    action: ''
-  },
-  {
-    id: 'XN-20',
-    purchasedOn: '14/10/2019',
-    customer: 'Tony',
-    shipTo: 'Germany',
-    basePrice: '$1100',
-    purchasedPrice: '$2300',
-    status: 'On hold',
-    action: ''
-  },
-];
-
 const cols = [
   {
     dataField: 'timestamp',
@@ -326,7 +124,10 @@ const cols = [
   }, {
     dataField: 'hash',
     text: 'Transaction Hash',
-    sort: true
+    sort: true,
+    formatter: (cellContent, row) => {
+      return <a href={`https://explorer.harmony.one/tx/${cellContent}`}>{truncateLongAddress(cellContent)}</a>
+    }
   }, {
     dataField: 'blockNumber',
     text: 'Block number',
@@ -334,11 +135,17 @@ const cols = [
   }, {
     dataField: 'from',
     text: 'From',
-    sort: true
+    sort: true,
+    formatter: (cellContent, row) => {
+      return truncateLongAddress(cellContent)
+    }
   }, {
     dataField: 'to',
     text: 'To',
-    sort: true
+    sort: true, 
+    formatter: (cellContent, row) => {
+      return truncateLongAddress(cellContent)
+    }
   }
 ]
 
