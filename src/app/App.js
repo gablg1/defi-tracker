@@ -23,6 +23,15 @@ export const Contract = Model.register('contract', class Contract extends Model 
   static defaultProperties = {
     stringifiedAbi: '[]',
   }
+
+  hasErrors() {
+    if (_.isEmpty(this.name)) {
+      return new Error("Name cannot be empty");
+    }
+
+
+    return false;
+  }
 });
 
 export const WorldState = Model.register('world-state', class WorldState extends Model {

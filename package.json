@@ -9,6 +9,7 @@
     "@fullcalendar/interaction": "^4.3.0",
     "@fullcalendar/react": "^4.3.0",
     "@fullcalendar/timegrid": "^4.3.0",
+    "@harmony-js/core": "^0.1.57",
     "@lourenci/react-kanban": "^0.13.0",
     "@mdi/font": "^4.2.95",
     "@tinymce/tinymce-react": "^3.3.2",
