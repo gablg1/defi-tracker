@@ -64,7 +64,12 @@ export function ContractManager(props) {
                           <td>{contract.name}</td>
                           <td>{contract.address}</td>
                           <td>{contract.blockchain}</td>
-                          <td><label className="badge badge-danger">Pending</label></td>
+                          <td><button onClick={() => {
+                            if (window.confirm('Are you sure you wish to delete this item?')) {
+                              props.worldState.removeContract(contract);
+                              props.handleSave();
+                            }
+                          }} className="btn btn-danger btn-sm">Delete</button></td>
                         </tr>
                       )}
                     </tbody>

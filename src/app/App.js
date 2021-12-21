@@ -69,6 +69,14 @@ export const WorldState = Model.register('world-state', class WorldState extends
     this.contracts.push(newContract);
   }
 
+  removeContract(contract) {
+    const index = this.contracts.indexOf(contract);
+    if (index === -1) {
+      return;
+    }
+    this.contracts.splice(index, 1)
+  }
+
   anyError() {
     if (_.uniqBy(this.contracts, 'address').length !== this.contracts.length) {
       throw new Error("Duplicate contract addresses found")
