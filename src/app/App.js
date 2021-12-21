@@ -10,11 +10,14 @@ import { Routes, Route } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
 
-import {CodeEditor} from './editors/CodeEditor';
+import ContractManager from './ContractManager';
 import {DataTable} from './tables/DataTables';
+import _ from 'lodash';
 
-const Contract = Model.register('contract', class Contract extends Model {
+export const Contract = Model.register('contract', class Contract extends Model {
   static properties = {
+    name: String,
+    address: String,
     stringifiedAbi: String,
   }
 
@@ -23,17 +26,26 @@ const Contract = Model.register('contract', class Contract extends Model {
   }
 });
 
-const WorldState = Model.register('world-state', class WorldState extends Model {
+export const WorldState = Model.register('world-state', class WorldState extends Model {
   static properties = {
     contracts: [Contract],
     defaultAddr: String,
   }
+
+  addContract(newContract) {
+    if (_.find(this.contracts, ['address', newContract.address])) {
+      throw new Error("Address already present")
+    }
+
+    this.contracts.push(newContract);
+  }
+
 });
 
 function App(props) {
   const [worldState, setWorldState__onlyUseOnce] = useState(null);
   const [worldStateLoaded, setWorldStateLoaded] = useState(false);
-  const [ignored, forceUpdate] = useReducer(x => x + 1, 0);
+  const [__, forceUpdate] = useReducer(x => x + 1, 0);
 
   const handleSave = () => {
     localStorage.setItem('__serializedWorldState', JSON.stringify(worldState.serialize()));
@@ -48,7 +60,7 @@ function App(props) {
   // Load the world state upon page load
   useEffect(() => {
     const serializedState = JSON.parse(localStorage.getItem('__serializedWorldState') || '{}');
-    setWorldState__onlyUseOnce(new WorldState(serializedState));
+    setWorldState__onlyUseOnce(WorldState.deserialize(serializedState));
     setWorldStateLoaded(true);
   }, [worldStateLoaded]);
 
@@ -67,7 +79,7 @@ function App(props) {
             <Suspense fallback={<Spinner/>}>
               <Routes>
                 <Route path="/" element={<DataTable />} />
-                <Route path="/code-editor" element={<CodeEditor />} />
+                <Route path="/contracts" element={<ContractManager worldState={worldState} handleSave={handleSave} />} />
               </Routes>
             </Suspense>
           </div>
