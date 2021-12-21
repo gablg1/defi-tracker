@@ -1,8 +1,38 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min';
+
+import {fromBech32} from '@harmony-js/crypto';
+import { isBech32Address } from '@harmony-js/utils';
+import axios from 'axios';
+
 const { SearchBar } = Search;
+
+async function getTransactionsHistory(address, filters) {
+  const checksumAddress = isBech32Address(address) ? fromBech32(address) : address;
+  const rpc = 'https://api.harmony.one/';
+
+  const data = {
+      jsonrpc: '2.0',
+      id: '1',
+      method: 'hmyv2_getTransactionsHistory',
+      params: [{
+          address: checksumAddress,
+          pageIndex: filters?.page || 0,
+          pageSize: filters?.pageSize || 100000,
+          fullTx: true,
+          txType: filters?.type || 'ALL',
+          order: filters?.order
+      }]
+  };
+
+  const response = await axios.post(rpc, data);
+
+  if (response.status === 200 && response.data) {
+      return response.data;
+  } else throw new Error();
+}
 
 
 const defaultSorted = [{
@@ -10,61 +40,77 @@ const defaultSorted = [{
   order: 'desc'
 }];
 
-export class DataTable extends Component {
-  render() {
-    return (
-      <div>
-        <div className="page-header">
-          <h3 className="page-title">
-            Data table
-          </h3>
-          <nav aria-label="breadcrumb">
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item"><a href="!#" onClick={event => event.preventDefault()}>Tables</a></li>
-              <li className="breadcrumb-item active" aria-current="page">Data Tables</li>
-            </ol>
-          </nav>
-        </div>
-        <div className="row">
-          <div className="col-12">
-            <div className="card">
-              <div className="card-body">
-                <h4 className="card-title">Data Table</h4>
-                <div className="row">
-                  <div className="col-12">
-                    <ToolkitProvider
-                      keyField="id"
-                      bootstrap4
-                      data={ products }
-                      columns={ columns }
-                      search
-                    >
-                      {
-                        props => (
-                          <div>
-                            <div className="d-flex align-items-center">
-                              <p className="mb-2 mr-2">Search in table:</p>
-                              <SearchBar { ...props.searchProps } />
-                            </div>
-                            <BootstrapTable
-                              defaultSorted={ defaultSorted }
-                              pagination={ paginationFactory() }
-                              { ...props.baseProps }
-                              wrapperClasses="table-responsive"
-                            />
+export function DataTable(props) {
+  const [transactions, setTransactions] = useState([]);
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTransactions() {
+      const txData = await getTransactionsHistory(props.worldState.defaultAddr);
+      setTransactions(txData);
+      setLoading(false);
+      console.log(txData);
+
+    }
+    if (isLoading) {
+      fetchTransactions();
+    }
+
+  }, [isLoading]);
+
+
+  return (
+    <div>
+      <div className="page-header">
+        <h3 className="page-title">
+          Data table
+        </h3>
+        <nav aria-label="breadcrumb">
+          <ol className="breadcrumb">
+            <li className="breadcrumb-item"><a href="!#" onClick={event => event.preventDefault()}>Tables</a></li>
+            <li className="breadcrumb-item active" aria-current="page">Data Tables</li>
+          </ol>
+        </nav>
+      </div>
+      <div className="row">
+        <div className="col-12">
+          <div className="card">
+            <div className="card-body">
+              <h4 className="card-title">Data Table</h4>
+              <div className="row">
+                <div className="col-12">
+                  <ToolkitProvider
+                    keyField="id"
+                    bootstrap4
+                    data={ products }
+                    columns={ columns }
+                    search
+                  >
+                    {
+                      props => (
+                        <div>
+                          <div className="d-flex align-items-center">
+                            <p className="mb-2 mr-2">Search in table:</p>
+                            <SearchBar { ...props.searchProps } />
                           </div>
-                        )
-                      }
-                    </ToolkitProvider>
-                  </div>
+                          <BootstrapTable
+                            defaultSorted={ defaultSorted }
+                            pagination={ paginationFactory() }
+                            { ...props.baseProps }
+                            wrapperClasses="table-responsive"
+                          />
+                        </div>
+                      )
+                    }
+                  </ToolkitProvider>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    )
-  }
+    </div>
+  );
 }
 
 export default DataTable

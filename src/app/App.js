@@ -129,7 +129,7 @@ function App(props) {
           <div className="content-wrapper">
             <Suspense fallback={<Spinner/>}>
               <Routes>
-                <Route path="/" element={<DataTable />} />
+                <Route path="/" element={<DataTable worldState={worldState} />} />
                 <Route path="/contracts" element={<ContractManager worldState={worldState} handleSave={handleSave} />} />
                 <Route path="/state-editor" element={<StateEditor worldState={worldState} setWorldState={setWorldState} handleSave={handleSave} />} />
               </Routes>

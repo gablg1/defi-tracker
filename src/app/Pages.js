@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { Form } from 'react-bootstrap';
 
-import {fromBech32} from '@harmony-js/crypto';
-import { isBech32Address } from '@harmony-js/utils';
-import axios from 'axios';
-
 // import brace from "brace";
 
 import AceEditor from "react-ace";
@@ -175,30 +171,5 @@ export function StateEditor(props) {
       </div>
     </div>
   )
-}
-
-async function getTransactionsHistory(address, filters) {
-  const checksumAddress = isBech32Address(address) ? fromBech32(address) : address;
-  const rpc = 'https://api.harmony.one/';
-
-  const data = {
-      jsonrpc: '2.0',
-      id: '1',
-      method: 'hmyv2_getTransactionsHistory',
-      params: [{
-          address: checksumAddress,
-          pageIndex: filters?.page || 0,
-          pageSize: filters?.pageSize || 100000,
-          fullTx: true,
-          txType: filters?.type || 'ALL',
-          order: filters?.order
-      }]
-  };
-
-  const response = await axios.post(rpc, data);
-
-  if (response.status === 200 && response.data) {
-      return response.data;
-  } else throw new Error();
 }
 
