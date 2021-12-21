@@ -70,8 +70,6 @@ function App(props) {
 
   return (
     <div className="container-scroller">
-      <input type="text" className="form-control" placeholder="Testing..." value={worldState.defaultAddr}
-        onChange={worldStateChange(worldState, 'defaultAddr')} />
       <Header />
       <div className="container-fluid page-body-wrapper">
         <div className="main-panel">
