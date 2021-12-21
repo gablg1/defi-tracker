@@ -101,7 +101,7 @@ export class Model {
       json.uniqueKey = String(Math.random()).slice(2)
     }
 
-    for (let prop in this.constructor.__properties) {
+    for (const prop in this.constructor.__properties) {
       if (json[prop] != null) {
         this[prop] = json[prop];
       } else if (this.constructor.defaultProperties[prop] != null) {
@@ -153,7 +153,7 @@ export class Model {
     cls.__tag = absolute_tag;
     cls.__superclass = superclass;
 
-    assert(() => superclass.__isRegisteredModel || superclass == this);
+    assert(() => superclass.__isRegisteredModel || superclass === this);
     assert(() => cls.hasOwnProperty('properties'))
     assert(() => _.isEmpty(cls.properties['__ty']))
 
