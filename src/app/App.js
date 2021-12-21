@@ -85,6 +85,10 @@ export const WorldState = Model.register('world-state', class WorldState extends
     // Return any errors in the contracts
     return _.find(_.map(this.contracts, c => c.anyError()), e => e !== undefined);
   }
+
+  findContract(addr) {
+    return _.find(this.contracts, c => c.address === addr);
+  }
 });
 
 function App(props) {

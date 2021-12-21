@@ -37,7 +37,7 @@ async function getTransactionsHistory(address, filters) {
 
 
 const defaultSorted = [{
-  dataField: 'id',
+  dataField: 'timestamp',
   order: 'desc'
 }];
 
@@ -59,6 +59,47 @@ export function TransactionsViewer(props) {
 
   }, [isLoading]);
 
+  const cols = [
+    {
+      dataField: 'timestamp',
+      text: 'Timestamp',
+      sort: true,
+      formatter: (cellContent, row) => {
+        const date = new Date(0);
+        date.setUTCSeconds(cellContent);
+        return date.toLocaleString();
+      }
+    }, {
+      dataField: 'hash',
+      text: 'Transaction Hash',
+      sort: true,
+      formatter: (cellContent, row) => {
+        return <a href={`https://explorer.harmony.one/tx/${cellContent}`}>{truncateLongAddress(cellContent)}</a>
+      }
+    }, {
+      dataField: 'blockNumber',
+      text: 'Block number',
+      sort: true
+    }, {
+      dataField: 'from',
+      text: 'From',
+      sort: true,
+      formatter: (cellContent, row) => {
+        return truncateLongAddress(cellContent)
+      }
+    }, {
+      dataField: 'to',
+      text: 'To',
+      sort: true,
+      formatter: (cellContent, row) => {
+        const contract = props.worldState.findContract(cellContent);
+        if (contract) {
+          return <a target="_blank" href={`https://explorer.harmony.one/address/${cellContent}`}>{contract.name}</a>
+        }
+        return truncateLongAddress(cellContent)
+      }
+    }
+  ]
 
   return (
     <div>
@@ -116,43 +157,6 @@ export function TransactionsViewer(props) {
 
 export default TransactionsViewer;
 
-const cols = [
-  {
-    dataField: 'timestamp',
-    text: 'Timestamp',
-    sort: true,
-    formatter: (cellContent, row) => {
-      const date = new Date(0);
-      date.setUTCSeconds(cellContent);
-      return date.toLocaleString();
-    }
-  }, {
-    dataField: 'hash',
-    text: 'Transaction Hash',
-    sort: true,
-    formatter: (cellContent, row) => {
-      return <a href={`https://explorer.harmony.one/tx/${cellContent}`}>{truncateLongAddress(cellContent)}</a>
-    }
-  }, {
-    dataField: 'blockNumber',
-    text: 'Block number',
-    sort: true
-  }, {
-    dataField: 'from',
-    text: 'From',
-    sort: true,
-    formatter: (cellContent, row) => {
-      return truncateLongAddress(cellContent)
-    }
-  }, {
-    dataField: 'to',
-    text: 'To',
-    sort: true,
-    formatter: (cellContent, row) => {
-      return truncateLongAddress(cellContent)
-    }
-  }
-]
 
 const columns = [
   {
