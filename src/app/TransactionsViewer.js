@@ -134,7 +134,7 @@ export function TransactionsViewer(props) {
                     bootstrap4
                     data={ transactions }
                     columns={ cols }
-                    search
+                    search={{searchFormatted: true}}
                   >
                     {
                       props => (
