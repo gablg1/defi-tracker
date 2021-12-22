@@ -70,19 +70,20 @@ export function TransactionsViewer(props) {
         return date.toLocaleString();
       }
     }, {
-      dataField: 'hash',
-      text: 'Transaction Hash',
-      sort: true,
-      formatter: (cellContent, row) => {
-        return <a href={`https://explorer.harmony.one/tx/${cellContent}`}>{truncateLongAddress(cellContent)}</a>
-      }
-    }, {
       dataField: 'input',
       text: 'Method',
       sort: true,
       formatter: (cellContent, row) => {
         const call = props.worldState.decodeContractCall(cellContent);
-        return call ? formatContractCall(call) : truncateLongAddress(cellContent);
+        const badge = (text) => <div className="badge badge-pill badge-info">{text}</div>;
+        return call ? badge(call.name) : truncateLongAddress(cellContent);
+      }
+    }, {
+      dataField: 'hash',
+      text: 'Transaction Hash',
+      sort: true,
+      formatter: (cellContent, row) => {
+        return <a href={`https://explorer.harmony.one/tx/${cellContent}`}>{truncateLongAddress(cellContent)}</a>
       }
     }, {
       dataField: 'blockNumber',
@@ -105,6 +106,13 @@ export function TransactionsViewer(props) {
           return <a target="_blank" href={`https://explorer.harmony.one/address/${cellContent}`}>{contract.name}</a>
         }
         return truncateLongAddress(cellContent)
+      }
+    }, {
+      dataField: 'input',
+      text: 'Args',
+      formatter: (cellContent, row) => {
+        const call = props.worldState.decodeContractCall(cellContent);
+        return call ? formatContractCall(call) : truncateLongAddress(cellContent);
       }
     }
   ]
