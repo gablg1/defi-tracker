@@ -70,6 +70,16 @@ export const WorldState = Model.register('world-state', class WorldState extends
     this.addAllContractAbis();
   }
 
+  decodeReceiptLogs(logs) {
+    try {
+      return abiDecoder.decodeLogs(logs);
+    } catch(err) {
+      console.warn("Error decoding logs");
+      console.warn(err);
+      return undefined;
+    }
+  }
+
   decodeContractCall(encodedString) {
     return abiDecoder.decodeMethod(encodedString);
   }

@@ -3,6 +3,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min';
 
+import _ from 'lodash';
 import {fromBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
@@ -10,9 +11,9 @@ import { TransactionExplorer, AddressExplorer, formatTokenValue, formatContractC
 
 const { SearchBar } = Search;
 
+const rpc = 'https://api.harmony.one/';
 async function getTransactionsHistory(address, filters) {
   const checksumAddress = isBech32Address(address) ? fromBech32(address) : address;
-  const rpc = 'https://api.harmony.one/';
 
   const data = {
       jsonrpc: '2.0',
@@ -35,6 +36,22 @@ async function getTransactionsHistory(address, filters) {
   } else throw new Error();
 }
 
+async function getTransactionReceipt(hash) {
+    const data = {
+        jsonrpc: '2.0',
+        id: '1',
+        method: 'hmyv2_getTransactionReceipt',
+        params: [hash]
+    };
+
+    const response = await axios.post(rpc, data);
+
+    if (response.status === 200 && response.data) {
+      return response.data.result;
+    } else throw new Error();
+}
+
+
 
 const defaultSorted = [{
   dataField: 'timestamp',
@@ -43,15 +60,25 @@ const defaultSorted = [{
 
 export function TransactionsViewer(props) {
   const [transactions, setTransactions] = useState([]);
+  const [transactionReceipts, setTransactionReceipts] = useState({});
   const [isLoading, setLoading] = useState(true);
 
   // FIXME: Make the blockchain configurable in the UI
   const blockchain = 'Harmony';
   useEffect(() => {
+    async function fetchReceipt(hash) {
+      const receipt = await getTransactionReceipt(hash);
+      setTransactionReceipts(prevState => _.extend({}, prevState, {[hash]: receipt}));
+    }
+
     async function fetchTransactions() {
       const txData = await getTransactionsHistory(props.worldState.defaultAddr);
+
       setTransactions(txData);
       setLoading(false);
+
+      // Asynchronously fetch receipts
+      _.forEach(txData, tx => fetchReceipt(tx.hash));
 
     }
     if (isLoading) {
@@ -59,6 +86,15 @@ export function TransactionsViewer(props) {
     }
 
   }, [props.worldState.defaultAddr, isLoading]);
+
+  const enhancedTransactions = transactions.map(tx => {
+    const rawReceipt = transactionReceipts[tx.hash];
+    if (_.isEmpty(rawReceipt) || !props.worldState.findContract(tx.to)) {
+      return tx;
+    }
+    const decodedReceipt = _.extend({}, rawReceipt, {decodedLogs: props.worldState.decodeReceiptLogs(rawReceipt.logs)});
+    return _.extend({}, tx, {receipt: decodedReceipt})
+  });
 
   const cols = [
     {
@@ -121,11 +157,17 @@ export function TransactionsViewer(props) {
         return truncateLongAddressCopiable(cellContent)
       }
     }, {
-      dataField: 'input',
-      text: 'Args',
+      dataField: 'receipt',
+      text: 'Receipt Logs',
       formatter: (cellContent, row) => {
-        const call = props.worldState.decodeContractCall(cellContent);
-        return call ? formatContractCall(call) : truncateLongAddressCopiable(cellContent);
+        return JSON.stringify(cellContent);
+      }
+    }, {
+      dataField: 'inputArgs',
+      text: 'Args',
+      formatter: (__, row) => {
+        const call = props.worldState.decodeContractCall(row.input);
+        return call ? formatContractCall(call) : truncateLongAddressCopiable(row.input);
       }
     }
   ]
@@ -153,7 +195,7 @@ export function TransactionsViewer(props) {
                   <ToolkitProvider
                     keyField="hash"
                     bootstrap4
-                    data={ transactions }
+                    data={ enhancedTransactions }
                     columns={ cols }
                     search={{searchFormatted: true}}
                   >
