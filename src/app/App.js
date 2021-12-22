@@ -5,7 +5,7 @@ import Footer from './shared/Footer';
 import { Model } from './model';
 
 import { Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Navigate, Routes, Route } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
 
@@ -157,9 +157,10 @@ function App(props) {
           <div className="content-wrapper">
             <Suspense fallback={<Spinner/>}>
               <Routes>
-                <Route path="/" element={<TransactionsViewer worldState={worldState} />} />
+                <Route path="/transactions" element={<TransactionsViewer worldState={worldState} />} />
                 <Route path="/contracts" element={<ContractManager worldState={worldState} handleSave={handleSave} />} />
                 <Route path="/state-editor" element={<StateEditor worldState={worldState} setWorldState={setWorldState} handleSave={handleSave} />} />
+                <Route path="/" element={<Navigate replace to="/transactions" />} />
               </Routes>
             </Suspense>
           </div>

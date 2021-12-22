@@ -148,247 +148,25 @@ class InnerHeader extends Component {
         </nav>
         <nav className="bottom-navbar">
           <div className="container">
-            <ul className="nav page-navigation">
-              <li className={ this.isPathActive('/dashboard') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
-                <Link className="nav-link" to="/dashboard">
+            <ul className="nav page-navigation" style={{justifyContent: 'left'}}>
+              <li className={ this.isPathActive('/transactions') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
+                <Link className="nav-link" to="/transactions">
                   <i className="mdi mdi-speedometer menu-icon"></i>
-                  <span className="menu-title"><Trans>Dashboard</Trans></span>
+                  <span className="menu-title"><Trans>Transactions</Trans></span>
                 </Link>
               </li>
-              <li className={ this.isPathActive('/layout/RtlLayout') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
-                <Link className="nav-link" to="/layout/RtlLayout">
+              <li className={ this.isPathActive('/contracts') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
+                <Link className="nav-link" to="/contracts">
                   <i className="mdi mdi-file-restore menu-icon"></i>
-                  <span className="menu-title">RTL</span>
+                  <span className="menu-title">Contracts</span>
                 </Link>
               </li>
-              <li className={ this.isPathActive('/widgets') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
-                <Link className="nav-link" to="/widgets">
+              <li className={ this.isPathActive('/state-editor') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
+                <Link className="nav-link" to="/state-editor">
                   <i className="mdi mdi mdi-texture menu-icon"></i>
-                  <span className="menu-title"><Trans>Widgets</Trans></span>
+                  <span className="menu-title"><Trans>Debug</Trans></span>
                 </Link>
               </li>
-              <li className={ this.isPathActive('/basic-ui') ? 'nav-item menu-items mega-menu active' : this.isPathActive('/advanced-ui') ? 'nav-item menu-items mega-menu active' : this.isPathActive('/icons') ? 'nav-item menu-items mega-menu active' : 'nav-item menu-items mega-menu' }>
-                <div href="#" className="nav-link">
-                  <i className="mdi mdi-crosshairs-gps menu-icon"></i>
-                  <span className="menu-title"><Trans>UI Elements</Trans></span>
-                  <i className="menu-arrow"></i>
-                </div>
-                <div className="submenu">
-                  <div className="col-group-wrapper row">
-                    <div className="col-group col-md-4">
-                      <div className="row">
-                        <div className="col-12">
-                          <p className="category-heading"><Trans>Basic Elements</Trans></p>
-                          <div className="submenu-item">
-                            <div className="row">
-                              <div className="col-md-6">
-                                <ul>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/accordions') ? 'nav-link active' : 'nav-link' } to="/basic-ui/accordions"><Trans>Accordions</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/buttons') ? 'nav-link active' : 'nav-link' } to="/basic-ui/buttons"><Trans>Buttons</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/badges') ? 'nav-link active' : 'nav-link' } to="/basic-ui/badges"><Trans>Badges</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/breadcrumbs') ? 'nav-link active' : 'nav-link' } to="/basic-ui/breadcrumbs"><Trans>Breadcrumbs</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/dropdowns') ? 'nav-link active' : 'nav-link' } to="/basic-ui/dropdowns"><Trans>Dropdowns</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/modals') ? 'nav-link active' : 'nav-link' } to="/basic-ui/modals"><Trans>Modals</Trans></Link></li>
-                                </ul>
-                              </div>
-                              <div className="col-md-6">
-                                <ul>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/progressbar') ? 'nav-link active' : 'nav-link' } to="/basic-ui/progressbar"><Trans>Progress bar</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/pagination') ? 'nav-link active' : 'nav-link' } to="/basic-ui/pagination"><Trans>Pagination</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/tabs') ? 'nav-link active' : 'nav-link' } to="/basic-ui/tabs"><Trans>Tabs</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/typography') ? 'nav-link active' : 'nav-link' } to="/basic-ui/typography"><Trans>Typography</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/tooltips') ? 'nav-link active' : 'nav-link' } to="/basic-ui/tooltips"><Trans>Tooltips</Trans></Link></li>
-                                </ul>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-group col-md-4">
-                      <div className="row">
-                        <div className="col-12">
-                          <p className="category-heading"><Trans>Advanced Elements</Trans></p>
-                          <div className="submenu-item">
-                            <div className="row">
-                              <div className="col-md-6">
-                                <ul>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/advanced-ui/dragula') ? 'nav-link active' : 'nav-link' } to="/advanced-ui/dragula"><Trans>Dragula</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/advanced-ui/clipboard') ? 'nav-link active' : 'nav-link' } to="/advanced-ui/clipboard"><Trans>Clipboard</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/advanced-ui/context-menu') ? 'nav-link active' : 'nav-link' } to="/advanced-ui/context-menu"><Trans>Context menu</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/advanced-ui/sliders') ? 'nav-link active' : 'nav-link' } to="/advanced-ui/sliders"><Trans>Sliders</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/advanced-ui/carousel') ? 'nav-link active' : 'nav-link' } to="/advanced-ui/carousel"><Trans>Carousel</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/advanced-ui/loaders') ? 'nav-link active' : 'nav-link' } to="/advanced-ui/loaders"><Trans>Loaders</Trans></Link></li>
-                                </ul>
-                              </div>
-                              <div className="col-md-6">
-                                <ul>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/basic-ui/popups') ? 'nav-link active' : 'nav-link' } to="/basic-ui/popups"><Trans>Popups</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/notifications') ? 'nav-link active' : 'nav-link' } to="/notifications"><Trans>Notifications</Trans></Link></li>
-                                  <li className="nav-item"> <Link className={ this.isPathActive('/advanced-ui/tree-view') ? 'nav-link active' : 'nav-link' } to="/advanced-ui/tree-view"><Trans>Tree View</Trans></Link></li>
-                                </ul>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-group col-md-4">
-                      <p className="category-heading">Icons</p>
-                      <ul className="submenu-item">
-                        <li className="nav-item"> <Link className={ this.isPathActive('/icons/mdi') ? 'nav-link active' : 'nav-link' } to="/icons/mdi"><Trans>Material</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/icons/flag-icons') ? 'nav-link active' : 'nav-link' } to="/icons/flag-icons"><Trans>Flag icons</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/icons/font-awesome') ? 'nav-link active' : 'nav-link' } to="/icons/font-awesome"><Trans>Font Awesome</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/icons/simple-line') ? 'nav-link active' : 'nav-link' } to="/icons/simple-line"><Trans>Simple Line Icons</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/icons/themify') ? 'nav-link active' : 'nav-link' } to="/icons/themify"><Trans>Themify</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/icons/typicons') ? 'nav-link active' : 'nav-link' } to="/icons/typicons"><Trans>Typicons</Trans></Link></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </li>
-              <li className={ this.isPathActive('/form-elements') ? 'nav-item menu-items active' : this.isPathActive('/editors/text-editors') ? 'nav-item menu-items active' : this.isPathActive('/editors/code-editor') ? 'nav-item menu-items active' :  'nav-item menu-items' }>
-                <div className="nav-link">
-                  <i className="mdi mdi-clipboard-text menu-icon"></i>
-                  <span className="menu-title"><Trans>Forms</Trans></span>
-                  <i className="menu-arrow"></i></div>
-                <div className="submenu">
-                  <ul className="submenu-item">
-                    <li className="nav-item"> <Link className={ this.isPathActive('/form-elements/basic-elements') ? 'nav-link active' : 'nav-link' } to="/form-elements/basic-elements"><Trans>Basic Elements</Trans></Link></li>
-                    <li className="nav-item"> <Link className={ this.isPathActive('/form-elements/advanced-elements') ? 'nav-link active' : 'nav-link' } to="/form-elements/advanced-elements"><Trans>Advanced Elements</Trans></Link></li>
-                    <li className="nav-item"> <Link className={ this.isPathActive('/form-elements/validation') ? 'nav-link active' : 'nav-link' } to="/form-elements/validation"><Trans>Validation</Trans></Link></li>
-                    <li className="nav-item"> <Link className={ this.isPathActive('/form-elements/wizard') ? 'nav-link active' : 'nav-link' } to="/form-elements/wizard"><Trans>Wizard</Trans></Link></li>
-                    <li className="nav-item"> <Link className={ this.isPathActive('/editors/text-editors') ? 'nav-link active' : 'nav-link' } to="/editors/text-editors"><Trans>Text Editor</Trans></Link></li>
-                    <li className="nav-item"> <Link className={ this.isPathActive('/editors/code-editor') ? 'nav-link active' : 'nav-link' } to="/editors/code-editor"><Trans>Code Editor</Trans></Link></li>
-                  </ul>
-                </div>
-              </li>
-              <li className={ this.isPathActive('/charts') ? 'nav-item menu-items mega-menu active' : this.isPathActive('/tables') ? 'nav-item menu-items mega-menu active' : this.isPathActive('/maps') ? 'nav-item menu-items mega-menu active' : 'nav-item menu-items mega-menu' }>
-                <div className="nav-link">
-                  <i className="mdi mdi-chart-bar menu-icon"></i>
-                  <span className="menu-title"><Trans>Data</Trans></span>
-                  <i className="menu-arrow"></i></div>
-                <div className="submenu">
-                  <div className="col-group-wrapper row">
-                    <div className="col-group col-md-6">
-                      <p className="category-heading"><Trans>Charts</Trans></p>
-                      <div className="submenu-item">
-                        <div className="row">
-                          <div className="col-md-6">
-                            <ul>
-                            <li className="nav-item"> <Link className={ this.isPathActive('/charts/chart-js') ? 'nav-link active' : 'nav-link' } to="/charts/chart-js"><Trans>Chart Js</Trans></Link></li>
-                            <li className="nav-item"> <Link className={ this.isPathActive('/charts/c3-chart') ? 'nav-link active' : 'nav-link' } to="/charts/c3-chart"><Trans>C3 Charts</Trans></Link></li>
-                            <li className="nav-item"> <Link className={ this.isPathActive('/charts/chartist') ? 'nav-link active' : 'nav-link' } to="/charts/chartist"><Trans>Chartist</Trans></Link></li>
-                            <li className="nav-item"> <Link className={ this.isPathActive('/charts/google-charts') ? 'nav-link active' : 'nav-link' } to="/charts/google-charts"><Trans>Google Charts</Trans></Link></li>
-                            </ul>
-                          </div>
-                          <div className="col-md-6">
-                            <ul>
-                              <li className="nav-item"> <Link className={ this.isPathActive('/charts/sparkline-charts') ? 'nav-link active' : 'nav-link' } to="/charts/sparkline-charts"><Trans>Sparkline Charts</Trans></Link></li>
-                              <li className="nav-item"> <Link className={ this.isPathActive('/charts/guage-chart') ? 'nav-link active' : 'nav-link' } to="/charts/guage-chart"><Trans>Guage Chart</Trans></Link></li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="col-group col-md-3">
-                      <p className="category-heading"><Trans>Table</Trans></p>
-                      <ul className="submenu-item">
-                        <li className="nav-item"> <Link className={ this.isPathActive('/tables/basic-table') ? 'nav-link active' : 'nav-link' } to="/tables/basic-table"><Trans>Basic Table</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/tables/data-table') ? 'nav-link active' : 'nav-link' } to="/tables/data-table"><Trans>Data Table</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/tables/react-table') ? 'nav-link active' : 'nav-link' } to="/tables/react-table"><Trans>React Table</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/tables/sortable-table') ? 'nav-link active' : 'nav-link' } to="/tables/sortable-table"><Trans>Sortable Table</Trans></Link></li>
-                      </ul>
-                    </div>
-                    <div className="col-group col-md-3">
-                      <p className="category-heading"><Trans>Maps</Trans></p>
-                      <ul className="submenu-item">
-                        <li className="nav-item"> <Link className={ this.isPathActive('/maps/vector-map') ? 'nav-link active' : 'nav-link' } to="/maps/vector-map"><Trans>Vector Maps</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/maps/simple-map') ? 'nav-link active' : 'nav-link' } to="/maps/simple-map"><Trans>Simple Maps</Trans></Link></li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </li>
-              <li className={ this.isPathActive('/user-pages') ? 'nav-item menu-items  mega-menu active' : this.isPathActive('/error-pages') ? 'nav-item menu-items mega-menu active' : this.isPathActive('/ecommerce') ? 'nav-item menu-items mega-menu active' : this.isPathActive('/general-pages') ? 'nav-item menu-items mega-menu active' : 'nav-item menu-items mega-menu' }>
-                <div className="nav-link">
-                  <i className="mdi mdi-content-copy menu-icon"></i>
-                  <span className="menu-title"><Trans>Sample Pages</Trans></span>
-                  <i className="menu-arrow"></i></div>
-                <div className="submenu">
-                  <div className="col-group-wrapper row">
-                    <div className="col-group col-md-2">
-                      <p className="category-heading"><Trans>User Pages</Trans></p>
-                      <ul className="submenu-item">
-                        <li className="nav-item"> <Link className={ this.isPathActive('/user-pages/login-1') ? 'nav-link active' : 'nav-link' } to="/user-pages/login-1"><Trans>Login</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/user-pages/login-2') ? 'nav-link active' : 'nav-link' } to="/user-pages/login-2"><Trans>Login 2</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/user-pages/register-1') ? 'nav-link active' : 'nav-link' } to="/user-pages/register-1"><Trans>Register</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/user-pages/register-2') ? 'nav-link active' : 'nav-link' } to="/user-pages/register-2"><Trans>Register 2</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/user-pages/lockscreen') ? 'nav-link active' : 'nav-link' } to="/user-pages/lockscreen"><Trans>Lockscreen</Trans></Link></li>
-                      </ul>
-                    </div>
-                    <div className="col-group col-md-2">
-                      <p className="category-heading">Error Pages</p>
-                      <ul className="submenu-item">
-                        <li className="nav-item"> <Link className={ this.isPathActive('/error-pages/error-404') ? 'nav-link active' : 'nav-link' } to="/error-pages/error-404">404</Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/error-pages/error-500') ? 'nav-link active' : 'nav-link' } to="/error-pages/error-500">500</Link></li>
-                      </ul>
-                    </div>
-                    <div className="col-group col-md-3">
-                      <p className="category-heading">E-commerce</p>
-                      <ul className="submenu-item">
-                        <li className="nav-item"> <Link className={ this.isPathActive('/ecommerce/invoice') ? 'nav-link active' : 'nav-link' } to="/ecommerce/invoice"><Trans>Invoice</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/ecommerce/pricing') ? 'nav-link active' : 'nav-link' } to="/ecommerce/pricing"><Trans>Pricing</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/ecommerce/product-catalogue') ? 'nav-link active' : 'nav-link' } to="/ecommerce/product-catalogue"><Trans>Product Catalogue</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/ecommerce/project-list') ? 'nav-link active' : 'nav-link' } to="/ecommerce/project-list"><Trans>Project List</Trans></Link></li>
-                        <li className="nav-item"> <Link className={ this.isPathActive('/ecommerce/orders') ? 'nav-link active' : 'nav-link' } to="/ecommerce/orders"><Trans>Orders</Trans></Link></li>
-                      </ul>
-                    </div>
-                    <div className="col-group col-md-5">
-                      <p className="category-heading">General</p>
-                      <div className="row">
-                        <div className="col-md-6">
-                          <ul className="submenu-item">
-                            <li className="nav-item"> <Link className={ this.isPathActive('/general-pages/blank-page') ? 'nav-link active' : 'nav-link' } to="/general-pages/blank-page"><Trans>Blank Page</Trans></Link></li>
-                            <li className="nav-item"> <Link className={ this.isPathActive('/general-pages/profile') ? 'nav-link active' : 'nav-link' } to="/general-pages/profile"><Trans>Profile</Trans></Link></li>
-                            <li className="nav-item"> <Link className={ this.isPathActive('/general-pages/faq-1') ? 'nav-link active' : 'nav-link' } to="/general-pages/faq-1"><Trans>FAQ</Trans></Link></li>
-                            <li className="nav-item"> <Link className={ this.isPathActive('/general-pages/faq-2') ? 'nav-link active' : 'nav-link' } to="/general-pages/faq-2"><Trans>FAQ 2</Trans></Link></li>
-                            <li className="nav-item"> <Link className={ this.isPathActive('/general-pages/news-grid') ? 'nav-link active' : 'nav-link' } to="/general-pages/news-grid"><Trans>News Grid</Trans></Link></li>
-                          </ul>
-                        </div>
-                        <div className="col-md-6">
-                          <ul>
-                            <li className="nav-item"> <Link className={ this.isPathActive('/general-pages/timeline') ? 'nav-link active' : 'nav-link' } to="/general-pages/timeline"><Trans>Timeline</Trans></Link></li>
-                            <li className="nav-item"> <Link className={ this.isPathActive('/general-pages/search-results') ? 'nav-link active' : 'nav-link' } to="/general-pages/search-results"><Trans>Search Results</Trans></Link></li>
-                            <li className="nav-item"> <Link className={ this.isPathActive('/general-pages/portfolio') ? 'nav-link active' : 'nav-link' } to="/general-pages/portfolio"><Trans>Portfolio</Trans></Link></li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </li>
-              <li className={ this.isPathActive('/apps') ? 'nav-item  menu-items active' : 'nav-item menu-items' }>
-                <div className="nav-link">
-                  <i className="mdi mdi-webpack menu-icon"></i>
-                  <span className="menu-title"><Trans>Apps</Trans></span>
-                  <i className="menu-arrow"></i></div>
-                <div className="submenu">
-                  <ul className="submenu-item">
-                    <li className="nav-item"> <Link className={ this.isPathActive('/apps/kanban-board') ? 'nav-link active' : 'nav-link' } to="/apps/kanban-board"><Trans>Kanban Board</Trans></Link></li>
-                    <li className="nav-item"> <Link className={ this.isPathActive('/apps/todo-list') ? 'nav-link active' : 'nav-link' } to="/apps/todo-list"><Trans>Todo List</Trans></Link></li>
-                    <li className="nav-item"> <Link className={ this.isPathActive('/apps/chats') ? 'nav-link active' : 'nav-link' } to="/apps/chats"><Trans>Chats</Trans></Link></li>
-                    <li className="nav-item"> <Link className={ this.isPathActive('/apps/email') ? 'nav-link active' : 'nav-link' } to="/apps/email"><Trans>E-mail</Trans></Link></li>
-                    <li className="nav-item"> <Link className={ this.isPathActive('/apps/calendar') ? 'nav-link active' : 'nav-link' } to="/apps/calendar"><Trans>Calendar</Trans></Link></li>
-                    <li className="nav-item"> <Link className={ this.isPathActive('/apps/gallery') ? 'nav-link active' : 'nav-link' } to="/apps/gallery"><Trans>Gallery</Trans></Link></li>
-                  </ul>
-                </div>
-              </li>
-              <li className="nav-item menu-items">
-                <a className="nav-link" href="http://bootstrapdash.com/demo/corona/react/documentation/documentation.html" rel="noopener noreferrer" target="_blank">
-                  <i className="mdi mdi-file-document-box menu-icon"></i>
-                  <span className="menu-title"><Trans>Docs</Trans></span></a>
-              </li>     
             </ul>
           </div>
         </nav>
