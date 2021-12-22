@@ -188,6 +188,8 @@ module.exports = function (webpackEnv) {
   };
 
   return {
+    // FIXME: Ignore only source maps in node_modules
+    ignoreWarnings: [/Failed to parse source map/],
     target: ['browserslist'],
     mode: isEnvProduction ? 'production' : isEnvDevelopment && 'development',
     // Stop compilation early in production

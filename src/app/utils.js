@@ -1,6 +1,6 @@
 import {ethers} from 'ethers';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { isBech32Address } from '@harmony-js/utils';
 import { fromBech32 } from '@harmony-js/crypto';
 

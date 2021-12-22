@@ -50,14 +50,13 @@ export function TransactionsViewer(props) {
       const txData = await getTransactionsHistory(props.worldState.defaultAddr);
       setTransactions(txData);
       setLoading(false);
-      console.log(txData);
 
     }
     if (isLoading) {
       fetchTransactions();
     }
 
-  }, [isLoading]);
+  }, [props.worldState.defaultAddr, isLoading]);
 
   const cols = [
     {
@@ -103,7 +102,7 @@ export function TransactionsViewer(props) {
       formatter: (cellContent, row) => {
         const contract = props.worldState.findContract(cellContent);
         if (contract) {
-          return <a target="_blank" href={`https://explorer.harmony.one/address/${cellContent}`}>{contract.name}</a>
+          return <a target="_blank" rel="noopener noreferrer" href={`https://explorer.harmony.one/address/${cellContent}`}>{contract.name}</a>
         }
         return truncateLongAddress(cellContent)
       }
@@ -172,68 +171,3 @@ export function TransactionsViewer(props) {
 }
 
 export default TransactionsViewer;
-
-
-const columns = [
-  {
-    dataField: 'id',
-    text: 'Order #',
-    sort: true
-  }, {
-    dataField: 'purchasedOn',
-    text: 'Purchased On',
-    sort: true
-  }, {
-    dataField: 'customer',
-    text: 'Customer',
-    sort: true
-  }, {
-    dataField: 'shipTo',
-    text: 'Ship to',
-    sort: true
-  }, {
-    dataField: 'basePrice',
-    text: 'Base Price',
-    sort: true
-  }, {
-    dataField: 'purchasedPrice',
-    text: 'Purchased Price',
-    sort: true
-  }, {
-    dataField: 'status',
-    text: 'Status',
-    sort: true,
-    formatter: (cellContent, row) => {
-      if (cellContent === 'On hold') {
-        return (
-          <label className="badge badge-info">On hold</label>
-        );
-      } else if (cellContent === 'Pending' ) {
-        return (
-          <label className="badge badge-danger">Pending</label>
-        );
-      } else if (cellContent === 'Closed') {
-        return (
-          <label className="badge badge-success">Closed</label>
-        );
-      } else if (cellContent === 'Open') {
-        return (
-          <label className="badge badge-warning">Open</label>
-        );
-      }
-    }
-  }, {
-    dataField: 'action',
-    text: 'Action',
-    sort: false,
-    formatter: () => {
-      return (
-        <div>
-          <button className="btn btn-dark">
-            <i className="mdi mdi-eye-outline text-primary"></i>View
-          </button>
-        </div>
-      );
-    }
-  }
-];
