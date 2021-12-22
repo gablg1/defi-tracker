@@ -8,7 +8,7 @@ import _ from 'lodash';
 import {fromBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
-import { TransactionExplorer, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable } from './utils';
+import { transactionExplorerLink, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable } from './utils';
 
 const { SearchBar } = Search;
 
@@ -77,7 +77,24 @@ const defaultSorted = [{
 // FIXME: Make the blockchain configurable in the UI
 const blockchain = 'Harmony';
 
-const columns = (worldState) => {
+
+/*
+ * Here is the type of a transaction. The last args after the space are "enhanced"
+{
+  timestamp:
+  input:
+  value:
+  hash:
+  blockNumber:
+  from:
+  to:
+
+  inputArgs:
+  receipt:
+}
+ *
+ **/
+const buildColumns = (worldState) => {
   return [
     {
       dataField: 'timestamp',
@@ -217,7 +234,7 @@ export function TransactionsViewer(props) {
                     keyField="hash"
                     bootstrap4
                     data={ enhancedTransactions }
-                    columns={ columns(props.worldState) }
+                    columns={ buildColumns(props.worldState) }
                     search={{searchFormatted: true}}
                   >
                     {
@@ -250,7 +267,7 @@ export function TransactionsViewer(props) {
 export function SingleTransactionViewer(props) {
   let { txHash } = useParams();
   const [rawReceipt, setRawReceipt] = useState(undefined);
-  const [transaction, setTransaction] = useState(undefined);
+  const [rawTx, setRawTx] = useState(undefined);
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -259,7 +276,7 @@ export function SingleTransactionViewer(props) {
     }
 
     async function fetchTransaction(hash) {
-      setTransaction(await getTransactionByHash(hash));
+      setRawTx(await getTransactionByHash(hash));
       setLoading(false);
     }
 
@@ -270,19 +287,19 @@ export function SingleTransactionViewer(props) {
 
   }, [txHash, isLoading]);
 
-  if (isLoading || transaction === undefined) {
+  if (isLoading || rawTx === undefined) {
     return <div>Loading...</div>;
   }
 
-  const enhancedTransaction = (_.isEmpty(rawReceipt) || !props.worldState.findContract(transaction.to))
-    ? transaction
-    : _.extend({}, transaction, {
+  const transaction = (_.isEmpty(rawReceipt) || !props.worldState.findContract(rawTx.to))
+    ? rawTx
+    : _.extend({}, rawTx, {
       receipt: _.extend({}, rawReceipt, {decodedLogs: props.worldState.decodeReceiptLogs(rawReceipt.logs)})
     });
 
-
-  console.log(enhancedTransaction);
-  const cols = columns(props.worldState);
+  const cols = buildColumns(props.worldState).filter(col =>
+    ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to'].includes(col.dataField)
+  );
   return (
     <div>
       <div className="page-header">
@@ -294,24 +311,30 @@ export function SingleTransactionViewer(props) {
         <div className="col-12">
           <div className="card">
             <div className="card-body">
-              <h4 className="card-title">Basic data</h4>
-                <div className="table-responsive">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        {cols.map(col => <th key={col.dataField}>{col.text}</th>)}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        {cols.map(col =>
-                          <td key={col.dataField}>
-                            {col.formatter === undefined ? transaction[col.dataField] : col.formatter(transaction[col.dataField], transaction)}
-                          </td>)}
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+              <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <h4 className="card-title">Basic data</h4>
+                <a target="_blank" rel="noopener noreferrer"  style={{fontSize: '0.8rem'}} href={transactionExplorerLink(txHash, blockchain)}>
+                  <i style={{marginRight: 5}} className="fa fa-external-link" />
+                  View on Block Explorer
+                </a>
+              </div>
+              <div className="table-responsive">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      {cols.map(col => <th key={col.dataField}>{col.text}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      {cols.map(col =>
+                        <td key={col.dataField}>
+                          {col.formatter === undefined ? transaction[col.dataField] : col.formatter(transaction[col.dataField], transaction)}
+                        </td>)}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

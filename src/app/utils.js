@@ -70,13 +70,16 @@ export function normalizeAddress(addr) {
   return ethers.utils.getAddress(isBech32Address(addr) ? fromBech32(addr) : addr);
 }
 
-export function TransactionExplorer(props) {
-  if (props.blockchain !== 'Harmony') {
-    throw new Error(`Blockchain ${props.blockchain} not supported`);
+export function transactionExplorerLink(hash, blockchain) {
+  if (blockchain !== 'Harmony') {
+    throw new Error(`Blockchain ${blockchain} not supported`);
   }
+  return `https://explorer.harmony.one/tx/${hash}`;
+}
 
+export function TransactionExplorer(props) {
   return (
-    <a href={`https://explorer.harmony.one/tx/${props.hash}`}>
+    <a href={transactionExplorerLink(props.hash, props.blockchain)}>
       {props.display || truncateLongString(props.hash)}
     </a>
   );
