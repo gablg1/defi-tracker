@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min';
+import { Link, useParams } from 'react-router-dom';
 
 import _ from 'lodash';
 import {fromBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
-import { TransactionExplorer, AddressExplorer, formatTokenValue, formatContractCall, truncateLongAddressCopiable } from './utils';
+import { TransactionExplorer, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable } from './utils';
 
 const { SearchBar } = Search;
 
@@ -51,6 +52,21 @@ async function getTransactionReceipt(hash) {
     } else throw new Error();
 }
 
+async function getTransactionByHash(hash) {
+    const data = {
+        jsonrpc: '2.0',
+        id: '1',
+        method: 'hmyv2_getTransactionByHash',
+        params: [hash]
+    };
+
+    const response = await axios.post(rpc, data);
+
+    if (response.status === 200 && response.data) {
+      return response.data.result;
+    } else throw new Error();
+}
+
 
 
 const defaultSorted = [{
@@ -58,13 +74,93 @@ const defaultSorted = [{
   order: 'desc'
 }];
 
+// FIXME: Make the blockchain configurable in the UI
+const blockchain = 'Harmony';
+
+const columns = (worldState) => {
+  return [
+    {
+      dataField: 'timestamp',
+      text: 'Timestamp',
+      sort: true,
+      formatter: (cellContent, row) => {
+        const date = new Date(0);
+        date.setUTCSeconds(cellContent);
+        return date.toLocaleString();
+      }
+    }, {
+      dataField: 'input',
+      text: 'Method',
+      sort: true,
+      formatter: (cellContent, row) => {
+        const call = worldState.decodeContractCall(cellContent);
+        const badge = (text) => <div className="badge badge-pill badge-info">{text}</div>;
+        return call ? badge(call.name) : truncateLongAddressCopiable(cellContent);
+      }
+    }, {
+      dataField: 'value',
+      text: 'Value',
+      sort: true,
+      formatter: (cellContent, row) => {
+        return formatTokenValue(cellContent, 'ONE');
+      }
+    }, {
+      dataField: 'hash',
+      text: 'Tx Hash',
+      sort: true,
+      formatter: (cellContent, row) => {
+        return <Link to={`/tx/${cellContent}`}>{truncateLongString(cellContent)}</Link>
+      }
+    }, {
+      dataField: 'blockNumber',
+      text: 'Block #',
+      sort: true
+    }, {
+      dataField: 'from',
+      text: 'From',
+      sort: true,
+      formatter: (cellContent, row) => {
+        return truncateLongAddressCopiable(cellContent)
+      }
+    }, {
+      dataField: 'to',
+      text: 'To',
+      sort: true,
+      formatter: (cellContent, row) => {
+        const contract = worldState.findContract(cellContent);
+        if (contract) {
+          return <AddressExplorer hash={cellContent} blockchain={contract.blockchain}
+            display={
+              <div style={{display: 'flex'}}>
+                <i className="fa fa-file-text-o"/><span style={{marginLeft: 5}}>{contract.name}</span>
+              </div>
+            } />;
+        }
+        return truncateLongAddressCopiable(cellContent)
+      }
+    }, {
+      dataField: 'receipt',
+      text: 'Receipt',
+      formatter: (cellContent, row) => {
+        return JSON.stringify(cellContent);
+      }
+    }, {
+      dataField: 'inputArgs',
+      text: 'Args',
+      formatter: (__, row) => {
+        const call = worldState.decodeContractCall(row.input);
+        return call ? formatContractCall(call) : truncateLongAddressCopiable(row.input);
+      }
+    }
+  ];
+};
+
+
 export function TransactionsViewer(props) {
   const [transactions, setTransactions] = useState([]);
   const [transactionReceipts, setTransactionReceipts] = useState({});
   const [isLoading, setLoading] = useState(true);
 
-  // FIXME: Make the blockchain configurable in the UI
-  const blockchain = 'Harmony';
   useEffect(() => {
     async function fetchReceipt(hash) {
       const receipt = await getTransactionReceipt(hash);
@@ -96,81 +192,6 @@ export function TransactionsViewer(props) {
     return _.extend({}, tx, {receipt: decodedReceipt})
   });
 
-  const cols = [
-    {
-      dataField: 'timestamp',
-      text: 'Timestamp',
-      sort: true,
-      formatter: (cellContent, row) => {
-        const date = new Date(0);
-        date.setUTCSeconds(cellContent);
-        return date.toLocaleString();
-      }
-    }, {
-      dataField: 'input',
-      text: 'Method',
-      sort: true,
-      formatter: (cellContent, row) => {
-        const call = props.worldState.decodeContractCall(cellContent);
-        const badge = (text) => <div className="badge badge-pill badge-info">{text}</div>;
-        return call ? badge(call.name) : truncateLongAddressCopiable(cellContent);
-      }
-    }, {
-      dataField: 'value',
-      text: 'Value',
-      sort: true,
-      formatter: (cellContent, row) => {
-        return formatTokenValue(cellContent, 'ONE');
-      }
-    }, {
-      dataField: 'hash',
-      text: 'Transaction Hash',
-      sort: true,
-      formatter: (cellContent, row) => {
-        return <TransactionExplorer hash={cellContent} blockchain={blockchain} />;
-      }
-    }, {
-      dataField: 'blockNumber',
-      text: 'Block number',
-      sort: true
-    }, {
-      dataField: 'from',
-      text: 'From',
-      sort: true,
-      formatter: (cellContent, row) => {
-        return truncateLongAddressCopiable(cellContent)
-      }
-    }, {
-      dataField: 'to',
-      text: 'To',
-      sort: true,
-      formatter: (cellContent, row) => {
-        const contract = props.worldState.findContract(cellContent);
-        if (contract) {
-          return <AddressExplorer hash={cellContent} blockchain={contract.blockchain}
-            display={
-              <div style={{display: 'flex'}}>
-                <i className="fa fa-file-text-o"/><span style={{marginLeft: 5}}>{contract.name}</span>
-              </div>
-            } />;
-        }
-        return truncateLongAddressCopiable(cellContent)
-      }
-    }, {
-      dataField: 'receipt',
-      text: 'Receipt Logs',
-      formatter: (cellContent, row) => {
-        return JSON.stringify(cellContent);
-      }
-    }, {
-      dataField: 'inputArgs',
-      text: 'Args',
-      formatter: (__, row) => {
-        const call = props.worldState.decodeContractCall(row.input);
-        return call ? formatContractCall(call) : truncateLongAddressCopiable(row.input);
-      }
-    }
-  ]
 
   return (
     <div>
@@ -196,7 +217,7 @@ export function TransactionsViewer(props) {
                     keyField="hash"
                     bootstrap4
                     data={ enhancedTransactions }
-                    columns={ cols }
+                    columns={ columns(props.worldState) }
                     search={{searchFormatted: true}}
                   >
                     {
@@ -226,4 +247,75 @@ export function TransactionsViewer(props) {
   );
 }
 
-export default TransactionsViewer;
+export function SingleTransactionViewer(props) {
+  let { txHash } = useParams();
+  const [rawReceipt, setRawReceipt] = useState(undefined);
+  const [transaction, setTransaction] = useState(undefined);
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchReceipt(hash) {
+      setRawReceipt(await getTransactionReceipt(hash));
+    }
+
+    async function fetchTransaction(hash) {
+      setTransaction(await getTransactionByHash(hash));
+      setLoading(false);
+    }
+
+    if (isLoading) {
+      fetchTransaction(txHash);
+      fetchReceipt(txHash);
+    }
+
+  }, [txHash, isLoading]);
+
+  if (isLoading || transaction === undefined) {
+    return <div>Loading...</div>;
+  }
+
+  const enhancedTransaction = (_.isEmpty(rawReceipt) || !props.worldState.findContract(transaction.to))
+    ? transaction
+    : _.extend({}, transaction, {
+      receipt: _.extend({}, rawReceipt, {decodedLogs: props.worldState.decodeReceiptLogs(rawReceipt.logs)})
+    });
+
+
+  console.log(enhancedTransaction);
+  const cols = columns(props.worldState);
+  return (
+    <div>
+      <div className="page-header">
+        <h3 className="page-title">
+          Transaction
+        </h3>
+      </div>
+      <div className="row">
+        <div className="col-12">
+          <div className="card">
+            <div className="card-body">
+              <h4 className="card-title">Basic data</h4>
+                <div className="table-responsive">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        {cols.map(col => <th key={col.dataField}>{col.text}</th>)}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        {cols.map(col =>
+                          <td key={col.dataField}>
+                            {col.formatter === undefined ? transaction[col.dataField] : col.formatter(transaction[col.dataField], transaction)}
+                          </td>)}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

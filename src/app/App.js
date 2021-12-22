@@ -15,7 +15,7 @@ import { isValidEthereumAddress } from './utils';
 import { normalizeAddress } from './utils';
 
 import {ContractManager, StateEditor} from './Pages';
-import {TransactionsViewer} from './TransactionsViewer';
+import {SingleTransactionViewer, TransactionsViewer} from './TransactionsViewer';
 import _ from 'lodash';
 import abiDecoder from 'abi-decoder';
 const _knownAbis = {}
@@ -170,6 +170,7 @@ function App(props) {
                 <Route path="/transactions" element={<TransactionsViewer worldState={worldState} />} />
                 <Route path="/contracts" element={<ContractManager worldState={worldState} handleSave={handleSave} />} />
                 <Route path="/state-editor" element={<StateEditor worldState={worldState} setWorldState={setWorldState} handleSave={handleSave} />} />
+                <Route path="/tx/:txHash" element={<SingleTransactionViewer worldState={worldState} />} />
                 <Route path="/" element={<Navigate replace to="/transactions" />} />
               </Routes>
             </Suspense>
