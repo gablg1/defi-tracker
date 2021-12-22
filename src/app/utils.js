@@ -4,6 +4,11 @@ import { useState } from 'react';
 import { isBech32Address } from '@harmony-js/utils';
 import { fromBech32 } from '@harmony-js/crypto';
 
+export function formatTokenValue(value, tokenName) {
+  const formatedValue = (value / 10 ** 18).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+  return `${formatedValue} ${tokenName}`;
+}
+
 export function assert(fn) {
   if (!fn()) {
     throw new Error("Assertion failed");

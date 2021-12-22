@@ -6,7 +6,7 @@ import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/rea
 import {fromBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
-import { formatContractCall, truncateLongAddress } from './utils';
+import { formatTokenValue, formatContractCall, truncateLongAddress } from './utils';
 
 const { SearchBar } = Search;
 
@@ -76,6 +76,13 @@ export function TransactionsViewer(props) {
         const call = props.worldState.decodeContractCall(cellContent);
         const badge = (text) => <div className="badge badge-pill badge-info">{text}</div>;
         return call ? badge(call.name) : truncateLongAddress(cellContent);
+      }
+    }, {
+      dataField: 'value',
+      text: 'Value',
+      sort: true,
+      formatter: (cellContent, row) => {
+        return formatTokenValue(cellContent, 'ONE');
       }
     }, {
       dataField: 'hash',
