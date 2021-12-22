@@ -363,9 +363,15 @@ export function SingleTransactionViewer(props) {
                   <tbody>
                     {transaction.receipt?.decodedLogs.map((log, i) =>
                       <tr key={i}>
-                        <td>{log.address}</td>
+                        <td>{formatAddress(log.address, props.worldState)}</td>
                         <td>{log.name}</td>
-                        <td>{JSON.stringify(log)}</td>
+                        <td>
+                        {log.events.map(e =>
+                          <div>
+                          {`${e.name}: ${e.value}`}
+                          </div>
+                        )}
+                        </td>
                       </tr>
                     )}
                   </tbody>
