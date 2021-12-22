@@ -1,6 +1,8 @@
 import {ethers} from 'ethers';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
+import { isBech32Address } from '@harmony-js/utils';
+import { fromBech32 } from '@harmony-js/crypto';
 
 export function assert(fn) {
   if (!fn()) {
@@ -57,4 +59,8 @@ export function truncateLongString(addr, maxLength = 12) {
 export function formatContractCall(decodedCall) {
   const argsSeparatedByComma = decodedCall.params.map(p => `${p.name}: ${p.value}`).join(', ');
   return `${decodedCall.name}(${argsSeparatedByComma})`
+}
+
+export function normalizeAddress(addr) {
+  return ethers.utils.getAddress(isBech32Address(addr) ? fromBech32(addr) : addr);
 }

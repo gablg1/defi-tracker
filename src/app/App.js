@@ -12,6 +12,8 @@ import Spinner from '../app/shared/Spinner';
 import { isBech32Address } from '@harmony-js/utils';
 import { isValidEthereumAddress } from './utils';
 
+import { normalizeAddress } from './utils';
+
 import {ContractManager, StateEditor} from './Pages';
 import {TransactionsViewer} from './TransactionsViewer';
 import _ from 'lodash';
@@ -109,7 +111,7 @@ export const WorldState = Model.register('world-state', class WorldState extends
   }
 
   findContract(addr) {
-    return _.find(this.contracts, c => c.address === addr);
+    return _.find(this.contracts, c => normalizeAddress(c.address) === normalizeAddress(addr));
   }
 });
 
