@@ -8,7 +8,7 @@ import _ from 'lodash';
 import {fromBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
-import { transactionExplorerLink, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable } from './utils';
+import { Copiable, transactionExplorerLink, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, addressesEqual } from './utils';
 
 const { SearchBar } = Search;
 
@@ -136,31 +136,16 @@ const buildColumns = (worldState) => {
       dataField: 'from',
       text: 'From',
       sort: true,
-      formatter: (cellContent, row) => {
-        return truncateLongAddressCopiable(cellContent)
-      }
+      formatter: (cellContent, row) => formatAddress(cellContent, worldState)
     }, {
       dataField: 'to',
       text: 'To',
       sort: true,
-      formatter: (cellContent, row) => {
-        const contract = worldState.findContract(cellContent);
-        if (contract) {
-          return <AddressExplorer hash={cellContent} blockchain={contract.blockchain}
-            display={
-              <div style={{display: 'flex'}}>
-                <i className="fa fa-file-text-o"/><span style={{marginLeft: 5}}>{contract.name}</span>
-              </div>
-            } />;
-        }
-        return truncateLongAddressCopiable(cellContent)
-      }
+      formatter: (cellContent, row) => formatAddress(cellContent, worldState)
     }, {
       dataField: 'receipt',
       text: 'Receipt',
-      formatter: (cellContent, row) => {
-        return JSON.stringify(cellContent);
-      }
+      formatter: (cellContent, row) => JSON.stringify(cellContent)
     }, {
       dataField: 'inputArgs',
       text: 'Args',
@@ -171,6 +156,30 @@ const buildColumns = (worldState) => {
     }
   ];
 };
+
+function formatAddress(addr, worldState) {
+  if (addressesEqual(addr, worldState.defaultAddr)) {
+    return (
+      <Copiable textToCopy={addr} tooltipText={'Click to copy address'}>
+        <i className="fa fa-user-circle-o" />
+        <span style={{marginLeft: 5}}>Me</span>
+      </Copiable>
+    );
+  }
+
+  const contract = worldState.findContract(addr);
+  return (
+    <AddressExplorer hash={addr} blockchain={contract?.blockchain || blockchain}
+      display={
+        <div style={{display: 'flex'}}>
+          {contract && <i className="fa fa-file-text-o"/>}
+          <span style={{marginLeft: 5}}>
+            {contract?.name || truncateLongString(addr)}
+          </span>
+        </div>
+    } />
+  );
+}
 
 
 export function TransactionsViewer(props) {
@@ -209,6 +218,9 @@ export function TransactionsViewer(props) {
     return _.extend({}, tx, {receipt: decodedReceipt})
   });
 
+  const cols = buildColumns(props.worldState).filter(col =>
+    ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to'].includes(col.dataField)
+  );
 
   return (
     <div>
@@ -234,7 +246,7 @@ export function TransactionsViewer(props) {
                     keyField="hash"
                     bootstrap4
                     data={ enhancedTransactions }
-                    columns={ buildColumns(props.worldState) }
+                    columns={ cols }
                     search={{searchFormatted: true}}
                   >
                     {
@@ -332,6 +344,30 @@ export function SingleTransactionViewer(props) {
                           {col.formatter === undefined ? transaction[col.dataField] : col.formatter(transaction[col.dataField], transaction)}
                         </td>)}
                     </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <h4 className="card-title">Transaction Logs</h4>
+              </div>
+              <div className="table-responsive">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Contract</th>
+                      <th>Event</th>
+                      <th>Args</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transaction.receipt?.decodedLogs.map((log, i) =>
+                      <tr key={i}>
+                        <td>{log.address}</td>
+                        <td>{log.name}</td>
+                        <td>{JSON.stringify(log)}</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>

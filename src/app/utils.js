@@ -24,7 +24,7 @@ export function isValidEthereumAddress(addr) {
   }
 }
 
-function CopiableText(props) {
+export function Copiable(props) {
   const [copied, setCopied] = useState(false);
 
   const clickToCopy = () => {
@@ -33,19 +33,15 @@ function CopiableText(props) {
     setTimeout(() => setCopied(false), 5000);
   };
 
-  return <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">{copied ? 'Copied!' : 'Click to copy'}</Tooltip>}>
+  return <OverlayTrigger overlay={<Tooltip id="tooltip-disabled">{copied ? 'Copied!' : props.tooltipText || 'Click to copy'}</Tooltip>}>
     <span onClick={clickToCopy} className="d-inline-block" style={{cursor: 'pointer'}}>
-      {props.textToDisplay}
+      {props.children}
     </span>
   </OverlayTrigger>
 }
 
 export function truncateLongAddressCopiable(addr, maxLength = 12) {
-  return <CopiableText
-    textToCopy={addr}
-    textToDisplay={truncateLongString(addr, maxLength)}
-    />;
-
+  return <Copiable textToCopy={addr}>{truncateLongString(addr, maxLength)}</Copiable>;
 }
 
 export function truncateLongString(addr, maxLength = 12) {
@@ -68,6 +64,10 @@ export function formatContractCall(decodedCall) {
 
 export function normalizeAddress(addr) {
   return ethers.utils.getAddress(isBech32Address(addr) ? fromBech32(addr) : addr);
+}
+
+export function addressesEqual(addr1, addr2) {
+  return normalizeAddress(addr1) === normalizeAddress(addr2);
 }
 
 export function transactionExplorerLink(hash, blockchain) {
