@@ -6,7 +6,7 @@ import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/rea
 import {fromBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
-import { formatTokenValue, formatContractCall, truncateLongAddress } from './utils';
+import { TransactionExplorer, AddressExplorer, formatTokenValue, formatContractCall, truncateLongAddress } from './utils';
 
 const { SearchBar } = Search;
 
@@ -45,6 +45,8 @@ export function TransactionsViewer(props) {
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setLoading] = useState(true);
 
+  // FIXME: Make the blockchain configurable in the UI
+  const blockchain = 'Harmony';
   useEffect(() => {
     async function fetchTransactions() {
       const txData = await getTransactionsHistory(props.worldState.defaultAddr);
@@ -89,7 +91,7 @@ export function TransactionsViewer(props) {
       text: 'Transaction Hash',
       sort: true,
       formatter: (cellContent, row) => {
-        return <a href={`https://explorer.harmony.one/tx/${cellContent}`}>{truncateLongAddress(cellContent)}</a>
+        return <TransactionExplorer hash={cellContent} blockchain={blockchain} />;
       }
     }, {
       dataField: 'blockNumber',
@@ -109,7 +111,12 @@ export function TransactionsViewer(props) {
       formatter: (cellContent, row) => {
         const contract = props.worldState.findContract(cellContent);
         if (contract) {
-          return <a target="_blank" rel="noopener noreferrer" href={`https://explorer.harmony.one/address/${cellContent}`}>{contract.name}</a>
+          return <AddressExplorer hash={cellContent} blockchain={contract.blockchain}
+            display={
+              <div style={{display: 'flex'}}>
+                <i className="fa fa-file-text-o"/><span style={{marginLeft: 5}}>{contract.name}</span>
+              </div>
+            } />;
         }
         return truncateLongAddress(cellContent)
       }

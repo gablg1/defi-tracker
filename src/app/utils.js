@@ -69,3 +69,27 @@ export function formatContractCall(decodedCall) {
 export function normalizeAddress(addr) {
   return ethers.utils.getAddress(isBech32Address(addr) ? fromBech32(addr) : addr);
 }
+
+export function TransactionExplorer(props) {
+  if (props.blockchain !== 'Harmony') {
+    throw new Error(`Blockchain ${props.blockchain} not supported`);
+  }
+
+  return (
+    <a href={`https://explorer.harmony.one/tx/${props.hash}`}>
+      {props.display || truncateLongAddress(props.hash)}
+    </a>
+  );
+}
+
+export function AddressExplorer(props) {
+  if (props.blockchain !== 'Harmony') {
+    throw new Error(`Blockchain ${props.blockchain} not supported`);
+  }
+
+  return (
+    <a target="_blank" rel="noopener noreferrer" href={`https://explorer.harmony.one/address/${props.hash}`}>
+      {props.display || truncateLongAddress(props.hash)}
+    </a>
+  );
+}
