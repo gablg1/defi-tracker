@@ -6,7 +6,7 @@ import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/rea
 import {fromBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
-import {truncateLongAddress} from './utils';
+import { formatContractCall, truncateLongAddress } from './utils';
 
 const { SearchBar } = Search;
 
@@ -75,6 +75,14 @@ export function TransactionsViewer(props) {
       sort: true,
       formatter: (cellContent, row) => {
         return <a href={`https://explorer.harmony.one/tx/${cellContent}`}>{truncateLongAddress(cellContent)}</a>
+      }
+    }, {
+      dataField: 'input',
+      text: 'Method',
+      sort: true,
+      formatter: (cellContent, row) => {
+        const call = props.worldState.decodeContractCall(cellContent);
+        return call ? formatContractCall(call) : truncateLongAddress(cellContent);
       }
     }, {
       dataField: 'blockNumber',

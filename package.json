@@ -16,6 +16,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@svgr/webpack": "^5.5.0",
     "@tinymce/tinymce-react": "^3.3.2",
+    "abi-decoder": "^2.4.0",
     "axios": "^0.24.0",
     "babel-jest": "^27.4.2",
     "babel-loader": "^8.2.3",

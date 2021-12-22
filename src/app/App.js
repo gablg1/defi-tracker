@@ -15,6 +15,8 @@ import { isValidEthereumAddress } from './utils';
 import {ContractManager, StateEditor} from './Pages';
 import {TransactionsViewer} from './TransactionsViewer';
 import _ from 'lodash';
+import abiDecoder from 'abi-decoder';
+const _knownAbis = {}
 
 export const Contract = Model.register('contract', class Contract extends Model {
   static properties = {
@@ -60,6 +62,25 @@ export const WorldState = Model.register('world-state', class WorldState extends
     defaultAddr: String,
   }
 
+  constructor(json) {
+    super(json);
+
+    this.addAllContractAbis();
+  }
+
+  decodeContractCall(encodedString) {
+    return abiDecoder.decodeMethod(encodedString);
+  }
+
+  addAllContractAbis() {
+    for (const contract of this.contracts) {
+      if (!_knownAbis[contract.address]) {
+        abiDecoder.addABI(JSON.parse(contract.stringifiedAbi));
+        _knownAbis[contract.address] = true;
+      }
+    }
+  }
+
   addContract(newContract) {
     this.throwIfErrorFromChange(clone => {
       clone.contracts.push(newContract);
@@ -67,6 +88,7 @@ export const WorldState = Model.register('world-state', class WorldState extends
     });
 
     this.contracts.push(newContract);
+    this.addAllContractAbis();
   }
 
   removeContract(contract) {
