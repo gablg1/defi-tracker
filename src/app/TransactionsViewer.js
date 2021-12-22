@@ -6,7 +6,7 @@ import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/rea
 import {fromBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
-import { TransactionExplorer, AddressExplorer, formatTokenValue, formatContractCall, truncateLongAddress } from './utils';
+import { TransactionExplorer, AddressExplorer, formatTokenValue, formatContractCall, truncateLongAddressCopiable } from './utils';
 
 const { SearchBar } = Search;
 
@@ -77,7 +77,7 @@ export function TransactionsViewer(props) {
       formatter: (cellContent, row) => {
         const call = props.worldState.decodeContractCall(cellContent);
         const badge = (text) => <div className="badge badge-pill badge-info">{text}</div>;
-        return call ? badge(call.name) : truncateLongAddress(cellContent);
+        return call ? badge(call.name) : truncateLongAddressCopiable(cellContent);
       }
     }, {
       dataField: 'value',
@@ -102,7 +102,7 @@ export function TransactionsViewer(props) {
       text: 'From',
       sort: true,
       formatter: (cellContent, row) => {
-        return truncateLongAddress(cellContent)
+        return truncateLongAddressCopiable(cellContent)
       }
     }, {
       dataField: 'to',
@@ -118,14 +118,14 @@ export function TransactionsViewer(props) {
               </div>
             } />;
         }
-        return truncateLongAddress(cellContent)
+        return truncateLongAddressCopiable(cellContent)
       }
     }, {
       dataField: 'input',
       text: 'Args',
       formatter: (cellContent, row) => {
         const call = props.worldState.decodeContractCall(cellContent);
-        return call ? formatContractCall(call) : truncateLongAddress(cellContent);
+        return call ? formatContractCall(call) : truncateLongAddressCopiable(cellContent);
       }
     }
   ]

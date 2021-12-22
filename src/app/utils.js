@@ -40,7 +40,7 @@ function CopiableText(props) {
   </OverlayTrigger>
 }
 
-export function truncateLongAddress(addr, maxLength = 12) {
+export function truncateLongAddressCopiable(addr, maxLength = 12) {
   return <CopiableText
     textToCopy={addr}
     textToDisplay={truncateLongString(addr, maxLength)}
@@ -77,7 +77,7 @@ export function TransactionExplorer(props) {
 
   return (
     <a href={`https://explorer.harmony.one/tx/${props.hash}`}>
-      {props.display || truncateLongAddress(props.hash)}
+      {props.display || truncateLongString(props.hash)}
     </a>
   );
 }
@@ -89,7 +89,7 @@ export function AddressExplorer(props) {
 
   return (
     <a target="_blank" rel="noopener noreferrer" href={`https://explorer.harmony.one/address/${props.hash}`}>
-      {props.display || truncateLongAddress(props.hash)}
+      {props.display || truncateLongString(props.hash)}
     </a>
   );
 }
