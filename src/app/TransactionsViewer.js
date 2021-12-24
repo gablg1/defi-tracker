@@ -14,6 +14,8 @@ import {GeneralLedger} from './accounting';
 
 const { SearchBar } = Search;
 
+/* global BigInt */
+
 const rpc = 'https://api.s0.t.hmny.io/';
 async function getTransactionsHistory(address, filters) {
   const checksumAddress = isBech32Address(address) ? fromBech32(address) : address;
@@ -142,6 +144,13 @@ const buildColumns = (worldState) => {
         return formatTokenValue(cellContent, 'ONE');
       }
     }, {
+      dataField: 'gasFeePaid',
+      text: 'Gas Fee',
+      sort: true,
+      formatter: (cellContent, row) => {
+        return cellContent ? formatTokenValue(cellContent, 'ONE', 5) : '';
+      }
+    }, {
       dataField: 'hash',
       text: 'Tx Hash',
       sort: true,
@@ -213,9 +222,6 @@ export function TransactionsViewer(props) {
 
   useEffect(() => {
     async function fetchReceipt(hash) {
-      if (hash === '0xe01c6c5f289b8b3fa547ddea5ec36733403601df23f11f079fd6865d92599761') {
-        console.log('fetch');
-        }
       const receipt = await getTransactionReceipt(hash);
       setTransactionReceipts(prevState => _.extend({}, prevState, {[hash]: receipt}));
     }
@@ -240,11 +246,13 @@ export function TransactionsViewer(props) {
 
   let enhancedTransactions = transactions.map(tx => {
     const rawReceipt = transactionReceipts[tx.hash];
-    if (_.isEmpty(rawReceipt) || !props.worldState.findContract(tx.to)) {
+    if (_.isEmpty(rawReceipt)) {
       return _.extend({}, tx, {receipt: rawReceipt});
     }
-    const decodedReceipt = _.extend({}, rawReceipt, {decodedLogs: props.worldState.decodeReceiptLogs(rawReceipt.logs)});
-    return _.extend({}, tx, {receipt: decodedReceipt})
+    const receipt = (props.worldState.findContract(tx.to))
+      ? _.extend({}, rawReceipt, {decodedLogs: props.worldState.decodeReceiptLogs(rawReceipt.logs)})
+      : rawReceipt;
+    return _.extend({}, tx, {receipt: receipt, gasFeePaid: BigInt(tx.gasPrice) * BigInt(receipt.gasUsed)})
   });
 
   enhancedTransactions = _.sortBy(enhancedTransactions, 'timestamp');
@@ -260,7 +268,7 @@ export function TransactionsViewer(props) {
   }
 
   const cols = buildColumns(props.worldState).filter(col =>
-    ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'receipt'].includes(col.dataField)
+    ['timestamp', 'input', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'receipt'].includes(col.dataField)
   );
 
   return (
