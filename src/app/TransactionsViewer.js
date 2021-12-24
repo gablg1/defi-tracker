@@ -163,6 +163,10 @@ const buildColumns = (worldState) => {
       sort: true,
       formatter: (cellContent, row) => formatAddress(cellContent, worldState)
     }, {
+      dataField: 'stateAfter',
+      text: 'State After',
+      formatter: (cellContent, row) => cellContent ? formatTokenValue(cellContent.one || 0, 'ONE') : '',
+    }, {
       dataField: 'receipt',
       text: 'Receipt',
       formatter: (cellContent, row) => JSON.stringify(cellContent)
@@ -209,6 +213,9 @@ export function TransactionsViewer(props) {
 
   useEffect(() => {
     async function fetchReceipt(hash) {
+      if (hash === '0xe01c6c5f289b8b3fa547ddea5ec36733403601df23f11f079fd6865d92599761') {
+        console.log('fetch');
+        }
       const receipt = await getTransactionReceipt(hash);
       setTransactionReceipts(prevState => _.extend({}, prevState, {[hash]: receipt}));
     }
@@ -234,7 +241,7 @@ export function TransactionsViewer(props) {
   let enhancedTransactions = transactions.map(tx => {
     const rawReceipt = transactionReceipts[tx.hash];
     if (_.isEmpty(rawReceipt) || !props.worldState.findContract(tx.to)) {
-      return tx;
+      return _.extend({}, tx, {receipt: rawReceipt});
     }
     const decodedReceipt = _.extend({}, rawReceipt, {decodedLogs: props.worldState.decodeReceiptLogs(rawReceipt.logs)});
     return _.extend({}, tx, {receipt: decodedReceipt})
@@ -243,15 +250,17 @@ export function TransactionsViewer(props) {
   enhancedTransactions = _.sortBy(enhancedTransactions, 'timestamp');
   const gl = new GeneralLedger(props.worldState);
   for (const tx of enhancedTransactions) {
+    if (!tx.receipt) {
+      break;
+    }
+
     gl.processBlockchainTransaction(tx);
     const i = enhancedTransactions.indexOf(tx);
-    //console.log(`${i} ${tx.blockNumber}: ${formatTokenValue(gl.finalState().one, 'ONE')}`);
-    //console.log(tx.balanceAfter);
+    tx.stateAfter = gl.stateAfterTransaction(i);
   }
-  console.log(enhancedTransactions);
 
   const cols = buildColumns(props.worldState).filter(col =>
-    ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to'].includes(col.dataField)
+    ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'receipt'].includes(col.dataField)
   );
 
   return (
@@ -340,7 +349,6 @@ export function SingleTransactionViewer(props) {
     : _.extend({}, rawTx, {
       receipt: _.extend({}, rawReceipt, {decodedLogs: props.worldState.decodeReceiptLogs(rawReceipt.logs)})
   });
-  console.log(transaction);
 
   const cols = buildColumns(props.worldState).filter(col =>
     ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to'].includes(col.dataField)

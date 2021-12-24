@@ -1,5 +1,28 @@
 import _ from 'lodash';
 import {addressesEqual, assert} from './utils';
+import {ethers} from 'ethers';
+
+/* global BigInt */
+
+const BigNumber = ethers.BigNumber;
+
+const bigNumberify = (val) => {
+  return BigInt(val);
+};
+
+const sign = (me, from, to) => {
+  const fromMe = addressesEqual(me, from);
+  const toMe = addressesEqual(me, to);
+  assert(() => fromMe || toMe);
+  if (fromMe) {
+    return bigNumberify(-1);
+  } else if (toMe) {
+    return bigNumberify(+1);
+  } else {
+    return bigNumberify(0);
+  }
+
+};
 
 class GLTransaction {
   constructor(blockchainTransaction) {
@@ -19,12 +42,21 @@ export class GeneralLedger {
 
   effectOfGLTransaction(glTransaction) {
     const btx = glTransaction.blockchainTransaction;
-    const fromMe = addressesEqual(btx.from, this.worldState.defaultAddr);
-    const toMe = addressesEqual(btx.to, this.worldState.defaultAddr);
 
-    assert(() => fromMe || toMe);
+    let totalValue = BigInt(btx.value || 0) * sign(this.worldState.defaultAddr, btx.from, btx.to);
 
-    return {one: (fromMe ? -1 : +1) * btx.value};
+    for (const evt of (btx.receipt?.decodedLogs || [])) {
+      if (evt.name === "Withdrawal") {
+        const toAdd = BigInt(_.find(evt.events, {name: 'wad'}).value);
+        totalValue += toAdd;
+      }
+    }
+
+    return {one: totalValue};
+  }
+
+  stateAfterTransaction(txIndex) {
+    return this.stateBeforeTransaction(txIndex + 1);
   }
 
   stateBeforeTransaction(txIndex) {
@@ -42,7 +74,7 @@ export class GeneralLedger {
 
   applyEffect(state, effect) {
     return _.mapValues(_.extend({}, state, effect), (__, key) =>
-      (state[key] || 0) + (effect[key] || 0)
+      (state[key] || BigInt(0)) + (effect[key] || BigInt(0))
     );
   }
 

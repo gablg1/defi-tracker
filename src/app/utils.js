@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { isBech32Address } from '@harmony-js/utils';
 import { fromBech32 } from '@harmony-js/crypto';
 
+/* global BigInt */
+
 export function formatTokenValue(value, tokenName) {
-  const formatedValue = (value / 10 ** 18).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+  const formatedValue = (BigInt(value) / BigInt(10 ** 18)).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
   return `${formatedValue} ${tokenName}`;
 }
 
