@@ -5,14 +5,16 @@ import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/rea
 import { Link, useParams } from 'react-router-dom';
 
 import _ from 'lodash';
-import {fromBech32} from '@harmony-js/crypto';
+import {fromBech32, toBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
 import { Copiable, transactionExplorerLink, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, addressesEqual } from './utils';
 
+import {GeneralLedger} from './accounting';
+
 const { SearchBar } = Search;
 
-const rpc = 'https://api.harmony.one/';
+const rpc = 'https://api.s0.t.hmny.io/';
 async function getTransactionsHistory(address, filters) {
   const checksumAddress = isBech32Address(address) ? fromBech32(address) : address;
 
@@ -66,6 +68,24 @@ async function getTransactionByHash(hash) {
       return response.data.result;
     } else throw new Error();
 }
+
+async function getBalanceByBlockNumber(address, blockNumber) {
+    const data = {
+        jsonrpc: '2.0',
+        id: '1',
+        method: 'hmyv2_getBalanceByBlockNumber',
+        params: [toBech32(address), `0x${blockNumber.toString(16)}`]
+    };
+
+    const response = await axios.post(rpc, data);
+
+    if (response.status === 200 && response.data) {
+      return response.data.result;
+    } else throw new Error();
+}
+
+
+
 
 
 
@@ -199,8 +219,10 @@ export function TransactionsViewer(props) {
       setTransactions(txData);
       setLoading(false);
 
-      // Asynchronously fetch receipts
-      _.forEach(txData, tx => fetchReceipt(tx.hash));
+      // Asynchronously fetch receipts and other metadata
+      _.forEach(txData, tx => {
+        fetchReceipt(tx.hash)
+      });
 
     }
     if (isLoading) {
@@ -209,7 +231,7 @@ export function TransactionsViewer(props) {
 
   }, [props.worldState.defaultAddr, isLoading]);
 
-  const enhancedTransactions = transactions.map(tx => {
+  let enhancedTransactions = transactions.map(tx => {
     const rawReceipt = transactionReceipts[tx.hash];
     if (_.isEmpty(rawReceipt) || !props.worldState.findContract(tx.to)) {
       return tx;
@@ -217,6 +239,16 @@ export function TransactionsViewer(props) {
     const decodedReceipt = _.extend({}, rawReceipt, {decodedLogs: props.worldState.decodeReceiptLogs(rawReceipt.logs)});
     return _.extend({}, tx, {receipt: decodedReceipt})
   });
+
+  enhancedTransactions = _.sortBy(enhancedTransactions, 'timestamp');
+  const gl = new GeneralLedger(props.worldState);
+  for (const tx of enhancedTransactions) {
+    gl.processBlockchainTransaction(tx);
+    const i = enhancedTransactions.indexOf(tx);
+    //console.log(`${i} ${tx.blockNumber}: ${formatTokenValue(gl.finalState().one, 'ONE')}`);
+    //console.log(tx.balanceAfter);
+  }
+  console.log(enhancedTransactions);
 
   const cols = buildColumns(props.worldState).filter(col =>
     ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to'].includes(col.dataField)
@@ -307,7 +339,8 @@ export function SingleTransactionViewer(props) {
     ? rawTx
     : _.extend({}, rawTx, {
       receipt: _.extend({}, rawReceipt, {decodedLogs: props.worldState.decodeReceiptLogs(rawReceipt.logs)})
-    });
+  });
+  console.log(transaction);
 
   const cols = buildColumns(props.worldState).filter(col =>
     ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to'].includes(col.dataField)

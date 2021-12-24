@@ -1,4 +1,5 @@
-
+import _ from 'lodash';
+import {addressesEqual, assert} from './utils';
 
 class GLTransaction {
   constructor(blockchainTransaction) {
@@ -6,7 +7,7 @@ class GLTransaction {
   }
 }
 
-class GeneralLedger {
+export class GeneralLedger {
   constructor(worldState) {
     this.worldState = worldState;
     this.glTransactions = [];
@@ -17,7 +18,13 @@ class GeneralLedger {
   }
 
   effectOfGLTransaction(glTransaction) {
-    return {one: -5, jewel: +100}
+    const btx = glTransaction.blockchainTransaction;
+    const fromMe = addressesEqual(btx.from, this.worldState.defaultAddr);
+    const toMe = addressesEqual(btx.to, this.worldState.defaultAddr);
+
+    assert(() => fromMe || toMe);
+
+    return {one: (fromMe ? -1 : +1) * btx.value};
   }
 
   stateBeforeTransaction(txIndex) {
@@ -29,9 +36,17 @@ class GeneralLedger {
       throw new Error("Transaction index too large");
     }
 
-    const prevState = stateBeforeTransaction(txIndex - 1);
-    effectOfGLTransaction(this.glTransactions)
-
+    const prevState = this.stateBeforeTransaction(txIndex - 1);
+    return this.applyEffect(prevState, this.effectOfGLTransaction(this.glTransactions[txIndex - 1]));
   }
 
+  applyEffect(state, effect) {
+    return _.mapValues(_.extend({}, state, effect), (__, key) =>
+      (state[key] || 0) + (effect[key] || 0)
+    );
+  }
+
+  finalState() {
+    return this.stateBeforeTransaction(this.glTransactions.length);
+  }
 }
