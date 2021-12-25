@@ -20,6 +20,30 @@ import _ from 'lodash';
 import abiDecoder from 'abi-decoder';
 const _knownAbis = {}
 
+export const Asset = Model.register('asset', class Asset extends Model {
+  static properties = {
+    tokenName: String,
+    contractAddress: String,
+  }
+});
+
+export const Rule = Model.register('rule', class Rule extends Model {
+  static properties = {
+    effectCode: String,
+    filterCode: String,
+  }
+
+  shouldApply(evt) {
+    return new Function('evt', this.filterCode)(evt);
+  }
+
+  apply(evt) {
+    return new Function('evt', this.effectCode)(evt);
+  }
+
+
+});
+
 export const Contract = Model.register('contract', class Contract extends Model {
   static properties = {
     name: String,
@@ -61,6 +85,7 @@ export const Contract = Model.register('contract', class Contract extends Model 
 export const WorldState = Model.register('world-state', class WorldState extends Model {
   static properties = {
     contracts: [Contract],
+    rules: [Rule],
     defaultAddr: String,
   }
 
@@ -122,6 +147,10 @@ export const WorldState = Model.register('world-state', class WorldState extends
 
   findContract(addr) {
     return _.find(this.contracts, c => normalizeAddress(c.address) === normalizeAddress(addr));
+  }
+
+  anyApplicableEventRule(evt) {
+    return _.find(this.rules, r => r.shouldApply(evt));
   }
 });
 

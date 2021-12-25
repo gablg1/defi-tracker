@@ -292,6 +292,7 @@ export function TransactionsViewer(props) {
               <div className="row">
                 <div className="col-12">
                   <ToolkitProvider
+                    sizePerPage={50}
                     keyField="hash"
                     bootstrap4
                     data={ enhancedTransactions }

@@ -4,8 +4,6 @@ import {ethers} from 'ethers';
 
 /* global BigInt */
 
-const BigNumber = ethers.BigNumber;
-
 const bigNumberify = (val) => {
   return BigInt(val);
 };
@@ -23,6 +21,19 @@ const sign = (me, from, to) => {
   }
 
 };
+
+class AccountingEffect {
+  constructor(deltaJson) {
+    this.deltaJson = deltaJson
+  }
+
+  plus(effect) {
+    return new AccountingEffect(_.mapValues(_.extend({}, this.deltaJson, effect), (__, key) =>
+      (this.deltaJson[key] || BigInt(0)) + (effect[key] || BigInt(0))
+    ));
+  }
+}
+
 
 class GLTransaction {
   constructor(blockchainTransaction) {
@@ -42,19 +53,25 @@ export class GeneralLedger {
 
   effectOfGLTransaction(glTransaction) {
     const btx = glTransaction.blockchainTransaction;
+    const oneValue = BigInt(btx.value || 0) * sign(this.worldState.defaultAddr, btx.from, btx.to) - btx.gasFeePaid;
 
-    let totalValue = BigInt(btx.value || 0) * sign(this.worldState.defaultAddr, btx.from, btx.to);
-
-    totalValue -= btx.gasFeePaid;
+    let effect = new AccountingEffect({one: oneValue});
 
     for (const evt of (btx.receipt?.decodedLogs || [])) {
+      const rule = this.worldState.anyApplicableEventRule(evt);
+      if (rule) {
+        effect = effect.plus(rule.apply(evt));
+      }
+      /*
+       * TODO: Implement dynamically
       if (evt.name === "Withdrawal") {
         const toAdd = BigInt(_.find(evt.events, {name: 'wad'}).value);
         totalValue += toAdd;
       }
+      */
     }
 
-    return {one: totalValue};
+    return effect;
   }
 
   stateAfterTransaction(txIndex) {
@@ -63,7 +80,7 @@ export class GeneralLedger {
 
   stateBeforeTransaction(txIndex) {
     if (txIndex === 0) {
-      return {};
+      return new AccountingEffect({});
     }
 
     if (txIndex > this.glTransactions.length) {
@@ -71,13 +88,7 @@ export class GeneralLedger {
     }
 
     const prevState = this.stateBeforeTransaction(txIndex - 1);
-    return this.applyEffect(prevState, this.effectOfGLTransaction(this.glTransactions[txIndex - 1]));
-  }
-
-  applyEffect(state, effect) {
-    return _.mapValues(_.extend({}, state, effect), (__, key) =>
-      (state[key] || BigInt(0)) + (effect[key] || BigInt(0))
-    );
+    return prevState.plus(this.effectOfGLTransaction(this.glTransactions[txIndex - 1]));
   }
 
   finalState() {
