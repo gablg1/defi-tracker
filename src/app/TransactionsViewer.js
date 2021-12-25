@@ -264,7 +264,8 @@ export function TransactionsViewer(props) {
 
     gl.processBlockchainTransaction(tx);
     const i = enhancedTransactions.indexOf(tx);
-    tx.stateAfter = gl.stateAfterTransaction(i);
+    tx.stateAfter = gl.stateAfterTransaction(i).toJson();
+    console.log(tx.stateAfter);
   }
 
   const cols = buildColumns(props.worldState).filter(col =>

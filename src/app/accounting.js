@@ -22,15 +22,20 @@ const sign = (me, from, to) => {
 
 };
 
-class AccountingEffect {
-  constructor(deltaJson) {
-    this.deltaJson = deltaJson
+class Balances {
+  constructor(json) {
+    this.json = json;
   }
 
   plus(effect) {
-    return new AccountingEffect(_.mapValues(_.extend({}, this.deltaJson, effect), (__, key) =>
-      (this.deltaJson[key] || BigInt(0)) + (effect[key] || BigInt(0))
+    assert(() => effect instanceof Balances);
+    return new Balances(_.mapValues(_.extend({}, this.json, effect.json), (__, key) =>
+      (this.json[key] || BigInt(0)) + (effect.json[key] || BigInt(0))
     ));
+  }
+
+  toJson() {
+    return this.json;
   }
 }
 
@@ -55,7 +60,7 @@ export class GeneralLedger {
     const btx = glTransaction.blockchainTransaction;
     const oneValue = BigInt(btx.value || 0) * sign(this.worldState.defaultAddr, btx.from, btx.to) - btx.gasFeePaid;
 
-    let effect = new AccountingEffect({one: oneValue});
+    let effect = new Balances({one: oneValue});
 
     for (const evt of (btx.receipt?.decodedLogs || [])) {
       const rule = this.worldState.anyApplicableEventRule(evt);
@@ -80,7 +85,7 @@ export class GeneralLedger {
 
   stateBeforeTransaction(txIndex) {
     if (txIndex === 0) {
-      return new AccountingEffect({});
+      return new Balances({});
     }
 
     if (txIndex > this.glTransactions.length) {
