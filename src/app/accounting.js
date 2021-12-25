@@ -45,6 +45,8 @@ export class GeneralLedger {
 
     let totalValue = BigInt(btx.value || 0) * sign(this.worldState.defaultAddr, btx.from, btx.to);
 
+    totalValue -= btx.gasFeePaid;
+
     for (const evt of (btx.receipt?.decodedLogs || [])) {
       if (evt.name === "Withdrawal") {
         const toAdd = BigInt(_.find(evt.events, {name: 'wad'}).value);
