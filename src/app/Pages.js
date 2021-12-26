@@ -236,12 +236,18 @@ export const buildColumns = (worldState) => {
     }, {
       dataField: 'effectOfRule',
       text: 'Rule Effect',
-      formatter: (cellContent, row) =>
-        <div>
-        {_.map((row.filteredByRule ? cellContent.toJson() : {}), (effect, token) =>
-          <div key={token}>{addSign(formatTokenValue(effect, token))}</div>
-        )}
-        </div>
+      formatter: (cellContent, row) => {
+        if (cellContent instanceof Error) {
+          return <div style={{background: 'purple'}}>{cellContent.message}</div>;
+        }
+        return (
+          <div>
+          {_.map((row.filteredByRule === true ? cellContent.toJson() : {}), (effect, token) =>
+            <div key={token}>{addSign(formatTokenValue(effect, token))}</div>
+          )}
+          </div>
+        );
+      }
     }
   ];
 };
@@ -284,36 +290,24 @@ export function EventRuleManager(props) {
 
   const cols = buildColumns(props.worldState);
 
-  let eventsAfterShouldApply = events;
+  const eventsAfterShouldApply = events.map(evt => {
+    const shouldApply = rule.shouldApply(evt, evt.tx, props.worldState);
+    return _.extend({}, evt, {filteredByRule: shouldApply});
+  });
 
-  let evalError = undefined;
-  try {
-    eventsAfterShouldApply = events.map(evt => {
-      const shouldApply = rule.shouldApply(evt, evt.tx, props.worldState);
-      if (shouldApply !== false && shouldApply !== true) {
-        throw new Error(`Filter function must return either true or false. Returned: ${shouldApply}`);
-      }
-      return _.extend({}, evt, {filteredByRule: shouldApply});
-    });
-  } catch(err) {
-    evalError = err;
-  }
+  const eventsAfterApply = eventsAfterShouldApply.map(evt => {
+    if (evt.filteredByRule !== true) {
+      return evt;
+    }
 
-  let eventsAfterApply = eventsAfterShouldApply;
-  try {
-    eventsAfterApply = eventsAfterShouldApply.map(evt => {
-      if (!evt.filteredByRule) {
-        return evt;
-      }
+    const effect = rule.apply(evt, evt.tx, props.worldState);
+    return _.extend({}, evt, {effectOfRule: effect});
+  });
 
-      const effect = rule.apply(evt, evt.tx, props.worldState);
-      return _.extend({}, evt, {effectOfRule: effect});
-    });
-  } catch(err) {
-    evalError = err;
-  }
+  const rowStyler = (row, rowIndex) => (row.filteredByRule === true) ? {background: 'red'} : {};
 
-  const rowStyler = (row, rowIndex) => (row.filteredByRule) ? {background: 'red'} : {};
+  const filterError = _.find(_.map(eventsAfterApply, 'filteredByRule'), val => val instanceof Error);
+  const effectError = _.find(_.map(eventsAfterApply, 'effectOfRule'), val => val instanceof Error);
 
   return (
     <div>
@@ -366,10 +360,11 @@ export function EventRuleManager(props) {
                   </Form.Group>
                   <button onClick={saveRule} className="btn btn-primary btn-fw">Save</button>
                 </form>
-                {evalError && rule.filterCode != '' &&
-                  <div style={{background: 'red'}}>
-                  {evalError.message}
-                  </div>
+                {filterError && rule.filterCode != '' &&
+                  <div style={{background: 'red'}}>{filterError.message}</div>
+                }
+                {effectError && rule.effectCode != '' &&
+                  <div style={{background: 'red'}}>{effectError.message}</div>
                 }
               </div>
               <div className="row">

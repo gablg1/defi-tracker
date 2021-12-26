@@ -37,14 +37,30 @@ export const Rule = Model.register('rule', class Rule extends Model {
 
   shouldApply(evt, tx, worldState) {
     const isMyAddr = addr => addressesEqual(worldState.defaultAddr, addr);
-    return new Function('evt, tx, isMyAddr', this.filterCode)(evt, tx, isMyAddr);
+    let ret;
+    try {
+      ret = new Function('evt, tx, isMyAddr', this.filterCode)(evt, tx, isMyAddr);
+    } catch(err) {
+      return err;
+    }
+
+    if (ret !== false && ret !== true) {
+      return new Error(`Filter function must return either true or false. Returned: ${ret}`);
+    }
+    return ret;
   }
 
   apply(evt, tx, worldState) {
     const isMyAddr = addr => addressesEqual(worldState.defaultAddr, addr);
-    const effect = new Function('evt, tx, isMyAddr', this.effectCode)(evt, tx, isMyAddr);
+    let effect;
+    try {
+      effect = new Function('evt, tx, isMyAddr', this.effectCode)(evt, tx, isMyAddr);
+    } catch(err) {
+      return err;
+    }
+
     if (!(effect instanceof Object)) { // FIXME: || _.some(_.values(effect), v => !(v instanceof Number))) {
-      throw new Error(`Effect must return an object of integers representing token deltas. Returned: ${effect}`);
+      return new Error(`Effect must return an object of integers representing token deltas. Returned: ${effect}`);
     }
     return new Balances(effect);
   }
