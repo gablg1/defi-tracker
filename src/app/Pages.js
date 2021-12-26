@@ -205,7 +205,7 @@ export function EventRuleManager(props) {
     return <div>Loading...</div>;
   }
 
-  const allEvents = _.flatten(transactions.map(tx => tx.events));
+  const allEvents = _.flatten(transactions.map(tx => tx.events || []));
   console.log(allEvents);
 
   const dataFieldsToInclude = ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to', 'stateAfter'];

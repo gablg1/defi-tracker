@@ -8,7 +8,7 @@ import _ from 'lodash';
 import {fromBech32, toBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
-import { Copiable, transactionExplorerLink, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, addressesEqual } from './utils';
+import { assert, Copiable, transactionExplorerLink, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, addressesEqual } from './utils';
 
 import {GeneralLedger} from './accounting';
 
@@ -229,14 +229,21 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
   if (_.isEmpty(rawReceipt)) {
     return _.extend({}, tx, {receipt: rawReceipt});
   }
-  const contract = worldState.findContract(tx.to);
-  const receipt = (contract)
+  const receipt = (worldState.findContract(tx.to))
     ? _.extend({}, rawReceipt, {decodedLogs: worldState.decodeReceiptLogs(rawReceipt.logs)})
     : rawReceipt;
   return _.extend({}, tx, {
     receipt: receipt,
     gasFeePaid: BigInt(tx.gasPrice) * BigInt(receipt.gasUsed),
-    events: receipt.decodedLogs?.map(evt => _.extend({}, evt, {tx: tx, contract: contract})),
+    events: receipt.decodedLogs?.map(evt => {
+      return {
+        name: evt.name,
+        args: evt.events,
+        contractAddress: evt.address,
+        contract: worldState.findContract(evt.address),
+        tx: tx,
+      };
+    }),
   })
 }
 
