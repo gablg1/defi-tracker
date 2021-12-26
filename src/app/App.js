@@ -37,7 +37,7 @@ export const Rule = Model.register('rule', class Rule extends Model {
     return new Function('evt, gltx', this.filterCode)(evt, glTransaction);
   }
 
-  apply(evt, contract) {
+  apply(evt, glTransaction) {
     return new Function('evt, gltx', this.effectCode)(evt, glTransaction);
   }
 
