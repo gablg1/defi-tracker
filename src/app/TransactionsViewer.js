@@ -223,12 +223,13 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
   return _.extend(enhancedTx, {
     receipt: receipt,
     gasFeePaid: BigInt(enhancedTx.gasPrice) * BigInt(receipt.gasUsed),
-    events: receipt.decodedLogs?.map(evt => {
+    events: receipt.decodedLogs?.map((evt, i) => {
       let args = {};
       for (const arg of evt.events) {
         args[arg.name] = {type: arg.type, value: arg.value};
       }
       return {
+        timestamp: `${tx.timestamp},${i}`,
         name: evt.name,
         args: args,
         contractAddress: evt.address,

@@ -238,7 +238,7 @@ export const buildColumns = (worldState) => {
       text: 'Rule Effect',
       formatter: (cellContent, row) =>
         <div>
-        {_.map(cellContent.toJson(), (effect, token) =>
+        {_.map((row.filteredByRule ? cellContent.toJson() : {}), (effect, token) =>
           <div key={token}>{addSign(formatTokenValue(effect, token))}</div>
         )}
         </div>
@@ -414,7 +414,7 @@ export function EventRuleManager(props) {
               <div className="row">
                 <ToolkitProvider
                   sizePerPage={50}
-                  keyField="hash"
+                  keyField="timestamp"
                   bootstrap4
                   data={ eventsAfterApply }
                   columns={ cols }
