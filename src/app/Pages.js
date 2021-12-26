@@ -185,13 +185,13 @@ export const buildColumns = (worldState) => {
   return [
     {
       dataField: 'tx',
-      text: 'Transaction',
+      text: 'tx.hash',
       sort: true,
       formatter: (cellContent, row) =>
         <Link to={`/tx/${cellContent}`}>{truncateLongString(cellContent.hash)}</Link>
     }, {
       dataField: 'methodCall',
-      text: 'Method',
+      text: 'tx.methodCall',
       sort: true,
       formatter: (cellContent, row) => {
         return (row.tx.methodCall)
@@ -200,26 +200,26 @@ export const buildColumns = (worldState) => {
       }
     }, {
       dataField: 'from',
-      text: 'Tx From',
+      text: 'tx.from',
       sort: true,
       formatter: (cellContent, row) => formatAddress(row.tx.from, worldState)
     }, {
       dataField: 'to',
-      text: 'Tx To',
+      text: 'tx.to',
       sort: true,
       formatter: (cellContent, row) => formatAddress(row.tx.to, worldState)
     }, {
       dataField: 'name',
-      text: 'Event',
+      text: 'evt.name',
       sort: true,
     }, {
       dataField: 'contractAddress',
-      text: 'Contract',
+      text: 'evt.contract',
       sort: true,
       formatter: (cellContent, row) => formatAddress(cellContent, worldState),
     }, {
       dataField: 'args',
-      text: 'Args',
+      text: 'evt.args',
       formatter: (cellContent, row) => {
         return (
           <div>
@@ -233,6 +233,10 @@ export const buildColumns = (worldState) => {
           </div>
         );
       },
+    }, {
+      dataField: 'effectOfRule',
+      text: 'Rule Effect',
+      formatter: (cellContent, row) => JSON.stringify(cellContent),
     }
   ];
 };
@@ -292,7 +296,7 @@ export function EventRuleManager(props) {
 
       const effect = rule.apply(evt, evt.tx, props.worldState);
 
-      if (!(effect instanceof Object) || _.some(_.values(effect), v => !(v instanceof Number))) {
+      if (!(effect instanceof Object)) { // FIXME: || _.some(_.values(effect), v => !(v instanceof Number))) {
         throw new Error(`Effect must return an object of integers representing token deltas. Returned: ${effect}`);
       }
       return _.extend({}, evt, {effectOfRule: effect});
