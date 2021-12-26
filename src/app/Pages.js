@@ -268,8 +268,12 @@ export function EventRuleManager(props) {
   const setRuleFields = (fieldObj) => {
     return setRule(_.extend(new Rule(), rule, fieldObj));
   };
-
   const [ruleIndexBeingEdited, setRuleIndexBeingEdited] = useState(-1);
+  const resetRuleState = () => {
+    setRuleIndexBeingEdited(-1);
+    setRule(new Rule())
+  };
+
   const saveRule = (e) => {
     e.preventDefault();
 
@@ -279,12 +283,14 @@ export function EventRuleManager(props) {
 
     props.worldState.rules.splice(ruleIndexBeingEdited, 1, rule);
     props.handleSave();
+    resetRuleState();
   }
 
   const addNewRule = (e) => {
     e.preventDefault();
     props.worldState.addRule(rule.clone());
     props.handleSave();
+    resetRuleState();
   };
 
   // Load Transactions and Events
@@ -330,7 +336,7 @@ export function EventRuleManager(props) {
         <div className="col-12 grid-margin">
           <div className="card">
             <div className="card-body">
-              <div onClick={() => setRuleIndexBeingEdited(-1)}>
+              <div onClick={resetRuleState}>
                 <div className="row">
                   <h4 className="card-title">Existing Rules</h4>
                 </div>
