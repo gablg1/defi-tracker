@@ -14,7 +14,7 @@ import { isValidEthereumAddress } from './utils';
 
 import { normalizeAddress } from './utils';
 
-import {ContractManager, StateEditor} from './Pages';
+import {RuleManager, ContractManager, StateEditor} from './Pages';
 import {SingleTransactionViewer, TransactionsViewer} from './TransactionsViewer';
 import _ from 'lodash';
 import abiDecoder from 'abi-decoder';
@@ -29,16 +29,17 @@ export const Asset = Model.register('asset', class Asset extends Model {
 
 export const Rule = Model.register('rule', class Rule extends Model {
   static properties = {
+    name: String,
     effectCode: String,
     filterCode: String,
   }
 
   shouldApply(evt, glTransaction) {
-    return new Function('evt, gltx', this.filterCode)(evt, glTransaction);
+    return new Function('evt, gltx, myAddr', this.filterCode)(evt, glTransaction, glTransaction.worldState.defaultAddr);
   }
 
   apply(evt, glTransaction) {
-    return new Function('evt, gltx', this.effectCode)(evt, glTransaction);
+    return new Function('evt, gltx, myAddr', this.effectCode)(evt, glTransaction, glTransaction.worldState.defaultAddr);
   }
 
 
@@ -136,6 +137,23 @@ export const WorldState = Model.register('world-state', class WorldState extends
     this.contracts.splice(index, 1)
   }
 
+  addRule(newRule) {
+    this.throwIfErrorFromChange(clone => {
+      clone.rules.push(newRule);
+      return clone;
+    });
+
+    this.rules.push(newRule);
+  }
+
+  removeRule(rule) {
+    const index = this.rules.indexOf(rule);
+    if (index === -1) {
+      return;
+    }
+    this.rules.splice(index, 1)
+  }
+
   anyError() {
     if (_.uniqBy(this.contracts, 'address').length !== this.contracts.length) {
       throw new Error("Duplicate contract addresses found")
@@ -198,6 +216,7 @@ function App(props) {
               <Routes>
                 <Route path="/transactions" element={<TransactionsViewer worldState={worldState} />} />
                 <Route path="/contracts" element={<ContractManager worldState={worldState} handleSave={handleSave} />} />
+                <Route path="/rules" element={<RuleManager worldState={worldState} handleSave={handleSave} />} />
                 <Route path="/state-editor" element={<StateEditor worldState={worldState} setWorldState={setWorldState} handleSave={handleSave} />} />
                 <Route path="/tx/:txHash" element={<SingleTransactionViewer worldState={worldState} />} />
                 <Route path="/" element={<Navigate replace to="/transactions" />} />

@@ -7,12 +7,13 @@ import AceEditor from "react-ace";
 
 // Import a Mode (language)
 import "brace/mode/json";
+import 'brace/mode/javascript';
 
 // Import a Theme (okadia, github, xcode etc)
 import "brace/theme/github";
 import "brace/theme/monokai";
 
-import {Contract, WorldState} from './App';
+import {Rule, Contract, WorldState} from './App';
 
 
 export function ContractManager(props) {
@@ -172,4 +173,123 @@ export function StateEditor(props) {
     </div>
   )
 }
+
+export function RuleManager(props) {
+  const [newRuleName, setNewRuleName] = useState('');
+  const [newFilterCode, setNewFilterCode] = useState('');
+  const [newEffectCode, setNewEffectCode] = useState('');
+
+  const addNewRule = (e) => {
+    // Prevent form from submitting
+    e.preventDefault();
+
+    try {
+      props.worldState.addRule(new Rule({name: newRuleName, filterCode: newFilterCode, effectCode: newEffectCode}));
+      props.handleSave();
+
+      setNewRuleName('');
+      setNewFilterCode('');
+      setNewEffectCode('');
+    } catch (err) {
+      window.alert(`Rule creation failed: ${err.message}`);
+    }
+  }
+
+  return (
+    <div>
+      <div className="page-header">
+        <h3 className="page-title">Rules</h3>
+      </div>
+      <div className="row">
+        <div className="col-12 grid-margin">
+          <div className="card">
+            <div className="card-body">
+              <div className="row">
+                <h4 className="card-title">Existing Rules</h4>
+              </div>
+              <div className="row">
+                <div className="table-responsive">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Filter Code</th>
+                        <th>Effect Code</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {props.worldState.rules.map((rule) =>
+                        <tr key={rule.uniqueKey}>
+                          <td>{rule.name}</td>
+                          <td>{rule.filterCode}</td>
+                          <td>{rule.effectCode}</td>
+                          <td><button onClick={() => {
+                            if (window.confirm('Are you sure you wish to delete this item?')) {
+                              props.worldState.removeRule(rule);
+                              props.handleSave();
+                            }
+                          }} className="btn btn-danger btn-sm">Delete</button></td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="row">
+                <h4 className="card-title">Add new Rule</h4>
+              </div>
+              <div className="row">
+                <form className="forms-sample">
+                  <Form.Group>
+                    <label htmlFor="exampleInputUsername1">Rule name</label>
+                    <Form.Control type="text" id="exampleInputUsername1" placeholder="MyRule"
+                        value={newRuleName} onChange={(e) => setNewRuleName(e.target.value)} />
+                  </Form.Group>
+                  <button onClick={addNewRule} className="btn btn-primary btn-fw">Add</button>
+                </form>
+              </div>
+              <div className="row">
+                <div className="col-md-6 grid-margin">
+                  <AceEditor style={{minHeight: '300px'}}
+                    mode="javascript"
+                    theme="monokai"
+                    name="jsEditor"
+                    editorProps={{ $blockScrolling: true }}
+                    placeholder="return evt.name == 'Transfer' && gltx.tx.from == myAddr;"
+                    fontSize={14}
+                    showPrintMargin={true}
+                    showGutter={true}
+                    highlightActiveLine={true}
+                    height="100%"
+                    width="100%"
+                    value={newFilterCode}
+                    onChange={setNewFilterCode}
+                  />
+                </div>
+                <div className="col-md-6 grid-margin">
+                  <AceEditor style={{minHeight: '300px'}}
+                    mode="javascript"
+                    theme="monokai"
+                    name="jsEditor"
+                    editorProps={{ $blockScrolling: true }}
+                    placeholder="return {jewel: evt.value};"
+                    fontSize={14}
+                    showPrintMargin={true}
+                    showGutter={true}
+                    highlightActiveLine={true}
+                    height="100%"
+                    width="100%"
+                    value={newEffectCode}
+                    onChange={setNewEffectCode}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 
