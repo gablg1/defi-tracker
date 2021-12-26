@@ -237,6 +237,15 @@ export const buildColumns = (worldState) => {
         )}
         </div>
     }, {
+      dataField: 'rules',
+      text: 'Matched Rules',
+      formatter: (cellContent, row) =>
+        <div>
+        {_.map(cellContent, (rule) =>
+          <div className="badge badge-pill badge-success">{rule.name}</div>
+        )}
+        </div>
+    }, {
       dataField: 'effectOfRule',
       text: `This Rule's Effect`,
       formatter: (cellContent, row) => {
@@ -311,7 +320,9 @@ export function EventRuleManager(props) {
   const filterError = _.find(_.map(eventsAfterApply, 'filteredByRule'), val => val instanceof Error);
   const effectError = _.find(_.map(eventsAfterApply, 'effectOfRule'), val => val instanceof Error);
 
-  const eventsToShow = showOnlyAffectedEvents ? eventsAfterApply.filter(evt => evt.filteredByRule === true) : eventsAfterApply;
+  const eventsToShow = _.map(showOnlyAffectedEvents ? eventsAfterApply.filter(evt => evt.filteredByRule === true) : eventsAfterApply, evt =>
+    _.extend({}, evt, {rules: props.worldState.rulesThatApply(evt, evt.tx)})
+  );
 
   return (
     <div>
@@ -341,7 +352,7 @@ export function EventRuleManager(props) {
                             setRule(rule);
                             evt.stopPropagation();
                           }}>
-                            <td><div className="badge badge-pill badge-info">{rule.name}</div></td>
+                            <td><div className="badge badge-pill badge-success">{rule.name}</div></td>
                             <td><button onClick={() => {
                               if (window.confirm('Are you sure you wish to delete this item?')) {
                                 props.worldState.removeRule(rule);
@@ -373,50 +384,56 @@ export function EventRuleManager(props) {
                     <button onClick={addNewRule} className="btn btn-primary btn-fw">Add new rule</button>
                   </div>
                 </form>
-                {filterError && rule.filterCode != '' &&
-                  <div style={{background: 'red'}}>{filterError.message}</div>
-                }
-                {effectError && rule.effectCode != '' &&
-                  <div style={{background: 'red'}}>{effectError.message}</div>
-                }
               </div>
               <div className="row">
                 <div className="col-md-6 grid-margin">
-                  <AceEditor style={{minHeight: '100px'}}
-                    mode="javascript"
-                    theme="monokai"
-                    name="jsEditor"
-                    editorProps={{ $blockScrolling: true }}
-                    placeholder="return evt.name == 'Transfer' && gltx.tx.from == myAddr;"
-                    fontSize={14}
-                    showPrintMargin={true}
-                    showGutter={true}
-                    highlightActiveLine={true}
-                    height="100%"
-                    width="100%"
-                    value={rule.filterCode}
-                    onChange={val => setRuleFields({filterCode: val})}
-                  />
+                  <div>
+                    <label>Filter</label>
+                    <AceEditor style={{minHeight: '100px'}}
+                      mode="javascript"
+                      theme="monokai"
+                      name="jsEditor"
+                      editorProps={{ $blockScrolling: true }}
+                      placeholder="return evt.name == 'Transfer' && gltx.tx.from == myAddr;"
+                      fontSize={14}
+                      showPrintMargin={true}
+                      showGutter={true}
+                      highlightActiveLine={true}
+                      height="100%"
+                      width="100%"
+                      value={rule.filterCode}
+                      onChange={val => setRuleFields({filterCode: val})}
+                    />
+                    {filterError && rule.filterCode != '' &&
+                      <div style={{background: 'red'}}>{filterError.message}</div>
+                    }
+                  </div>
                 </div>
                 <div className="col-md-6 grid-margin">
-                  <AceEditor style={{minHeight: '100px'}}
-                    mode="javascript"
-                    theme="monokai"
-                    name="jsEditor"
-                    editorProps={{ $blockScrolling: true }}
-                    placeholder="return {jewel: evt.value};"
-                    fontSize={14}
-                    showPrintMargin={true}
-                    showGutter={true}
-                    highlightActiveLine={true}
-                    height="100%"
-                    width="100%"
-                    value={rule.effectCode}
-                    onChange={val => setRuleFields({effectCode: val})}
-                  />
+                  <div>
+                    <label>Effect</label>
+                    <AceEditor style={{minHeight: '100px'}}
+                      mode="javascript"
+                      theme="monokai"
+                      name="jsEditor"
+                      editorProps={{ $blockScrolling: true }}
+                      placeholder="return {jewel: evt.value};"
+                      fontSize={14}
+                      showPrintMargin={true}
+                      showGutter={true}
+                      highlightActiveLine={true}
+                      height="100%"
+                      width="100%"
+                      value={rule.effectCode}
+                      onChange={val => setRuleFields({effectCode: val})}
+                    />
+                    {effectError && rule.effectCode != '' &&
+                      <div style={{background: 'red'}}>{effectError.message}</div>
+                    }
+                  </div>
                 </div>
               </div>
-              <div className="row" style={{marginTop: 20, justifyContent: 'space-between'}}>
+              <div className="row mt-3" style={{justifyContent: 'space-between'}}>
                 <h4 className="card-title">Event Rule Simulator</h4>
                 <label className="form-check-label text-muted">
                   <input type="checkbox" value={showOnlyAffectedEvents}

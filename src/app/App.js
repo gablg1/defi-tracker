@@ -188,8 +188,8 @@ export const WorldState = Model.register('world-state', class WorldState extends
     return _.find(this.contracts, c => normalizeAddress(c.address) === normalizeAddress(addr));
   }
 
-  anyApplicableEventRule(evt, tx) {
-    return _.find(this.rules, r => r.shouldApply(evt, tx, this));
+  rulesThatApply(evt, tx) {
+    return _.filter(this.rules, r => r.shouldApply(evt, tx, this));
   }
 });
 

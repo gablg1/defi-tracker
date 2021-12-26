@@ -65,17 +65,9 @@ export class GeneralLedger {
     let effect = new Balances({one: oneValue});
 
     for (const evt of (btx.events || [])) {
-      const rule = this.worldState.anyApplicableEventRule(evt, glTransaction.blockchainTransaction);
-      if (rule) {
+      for (const rule of this.worldState.rulesThatApply(evt, btx)) {
         effect = effect.plus(rule.apply(evt, btx, this.worldState));
       }
-      /*
-       * TODO: Implement dynamically
-      if (evt.name === "Withdrawal") {
-        const toAdd = BigInt(_.find(evt.events, {name: 'wad'}).value);
-        totalValue += toAdd;
-      }
-      */
     }
 
     return effect;
