@@ -181,7 +181,12 @@ export const buildColumns = (worldState) => {
     }, {
       dataField: 'stateAfter',
       text: 'State After',
-      formatter: (cellContent, row) => cellContent ? formatTokenValue(cellContent.one || 0, 'ONE') : '',
+      formatter: (cellContent, row) =>
+        <div>
+        {_.map(cellContent, (balance, token) =>
+          <div key={token}>{formatTokenValue(balance, token)}</div>
+        )}
+        </div>
     }, {
       dataField: 'receipt',
       text: 'Receipt',

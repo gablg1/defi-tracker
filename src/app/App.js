@@ -12,6 +12,7 @@ import Spinner from '../app/shared/Spinner';
 import { isBech32Address } from '@harmony-js/utils';
 import { isValidEthereumAddress } from './utils';
 
+import {Balances} from './accounting';
 import { addressesEqual, normalizeAddress } from './utils';
 
 import {EventRuleManager, ContractManager, StateEditor} from './Pages';
@@ -41,7 +42,11 @@ export const Rule = Model.register('rule', class Rule extends Model {
 
   apply(evt, tx, worldState) {
     const isMyAddr = addr => addressesEqual(worldState.defaultAddr, addr);
-    return new Function('evt, tx, isMyAddr', this.effectCode)(evt, tx, isMyAddr);
+    const effect = new Function('evt, tx, isMyAddr', this.effectCode)(evt, tx, isMyAddr);
+    if (!(effect instanceof Object)) { // FIXME: || _.some(_.values(effect), v => !(v instanceof Number))) {
+      throw new Error(`Effect must return an object of integers representing token deltas. Returned: ${effect}`);
+    }
+    return new Balances(effect);
   }
 });
 

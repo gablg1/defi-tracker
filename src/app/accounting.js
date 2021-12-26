@@ -22,9 +22,9 @@ const sign = (me, from, to) => {
 
 };
 
-class Balances {
+export class Balances {
   constructor(json) {
-    this.json = json;
+    this.json = _.mapValues(json, val => BigInt(val));
   }
 
   plus(effect) {
@@ -64,7 +64,7 @@ export class GeneralLedger {
 
     let effect = new Balances({one: oneValue});
 
-    for (const evt of (btx.receipt?.decodedLogs || [])) {
+    for (const evt of (btx.events || [])) {
       const rule = this.worldState.anyApplicableEventRule(evt, glTransaction.blockchainTransaction);
       if (rule) {
         effect = effect.plus(rule.apply(evt, btx, this.worldState));

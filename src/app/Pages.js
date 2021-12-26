@@ -238,7 +238,7 @@ export const buildColumns = (worldState) => {
       text: 'Rule Effect',
       formatter: (cellContent, row) =>
         <div>
-        {_.map(cellContent, (effect, token) =>
+        {_.map(cellContent.toJson(), (effect, token) =>
           <div key={token}>{addSign(formatTokenValue(effect, token))}</div>
         )}
         </div>
@@ -307,23 +307,13 @@ export function EventRuleManager(props) {
       }
 
       const effect = rule.apply(evt, evt.tx, props.worldState);
-
-      if (!(effect instanceof Object)) { // FIXME: || _.some(_.values(effect), v => !(v instanceof Number))) {
-        throw new Error(`Effect must return an object of integers representing token deltas. Returned: ${effect}`);
-      }
       return _.extend({}, evt, {effectOfRule: effect});
     });
   } catch(err) {
     evalError = err;
   }
 
-  const rowStyler = (row, rowIndex) => {
-    if (row.filteredByRule) {
-      return {background: 'red'};
-    } else {
-      return {};
-    }
-  }
+  const rowStyler = (row, rowIndex) => (row.filteredByRule) ? {background: 'red'} : {};
 
   return (
     <div>
@@ -343,8 +333,6 @@ export function EventRuleManager(props) {
                     <thead>
                       <tr>
                         <th>Name</th>
-                        <th>Filter Code</th>
-                        <th>Effect Code</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -353,9 +341,7 @@ export function EventRuleManager(props) {
                           setRuleIndexBeingEdited(i);
                           setRule(rule);
                         }}>
-                          <td>{rule.name}</td>
-                          <td>{rule.filterCode}</td>
-                          <td>{rule.effectCode}</td>
+                          <td><div className="badge badge-pill badge-info">{rule.name}</div></td>
                           <td><button onClick={() => {
                             if (window.confirm('Are you sure you wish to delete this item?')) {
                               props.worldState.removeRule(rule);
