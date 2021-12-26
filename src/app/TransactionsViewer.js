@@ -135,13 +135,13 @@ export const buildColumns = (worldState) => {
         return date.toLocaleString();
       }
     }, {
-      dataField: 'input',
+      dataField: 'methodCall',
       text: 'Method',
       sort: true,
       formatter: (cellContent, row) => {
-        const call = worldState.decodeContractCall(cellContent);
-        const badge = (text) => <div className="badge badge-pill badge-info">{text}</div>;
-        return call ? badge(call.name) : truncateLongAddressCopiable(cellContent);
+        return cellContent instanceof String
+          ? truncateLongAddressCopiable(cellContent)
+          : <div className="badge badge-pill badge-info">{cellContent.name}</div>;
       }
     }, {
       dataField: 'value',
@@ -203,22 +203,28 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
     return tx;
   }
 
+  let enhancedTx = _.extend({}, tx, {
+    receipt: rawReceipt,
+    methodCall: worldState.decodeContractCall(tx.input) || tx.input,
+  });
+
   if (_.isEmpty(rawReceipt)) {
-    return _.extend({}, tx, {receipt: rawReceipt});
+    return enhancedTx;
   }
-  const receipt = (worldState.findContract(tx.to))
+
+  const receipt = (worldState.findContract(enhancedTx.to))
     ? _.extend({}, rawReceipt, {decodedLogs: worldState.decodeReceiptLogs(rawReceipt.logs)})
     : rawReceipt;
-  return _.extend({}, tx, {
+  return _.extend(enhancedTx, {
     receipt: receipt,
-    gasFeePaid: BigInt(tx.gasPrice) * BigInt(receipt.gasUsed),
+    gasFeePaid: BigInt(enhancedTx.gasPrice) * BigInt(receipt.gasUsed),
     events: receipt.decodedLogs?.map(evt => {
       return {
         name: evt.name,
         args: evt.events,
         contractAddress: evt.address,
         contract: worldState.findContract(evt.address),
-        tx: tx,
+        tx: enhancedTx,
       };
     }),
   })
@@ -306,7 +312,7 @@ export function TransactionsViewer(props) {
     ));
   }
 
-  const dataFieldsToInclude = ['timestamp', 'input', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'receipt'];
+  const dataFieldsToInclude = ['timestamp', 'methodCall', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'receipt'];
   const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
 
   return (
@@ -375,7 +381,7 @@ export function SingleTransactionViewer(props) {
   }
 
   const cols = buildColumns(props.worldState).filter(col =>
-    ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to'].includes(col.dataField)
+    ['timestamp', 'methodCall', 'value', 'hash', 'blockNumber', 'from', 'to'].includes(col.dataField)
   );
   return (
     <div>

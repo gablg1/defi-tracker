@@ -4,8 +4,9 @@ import _ from 'lodash';
 import ToolkitProvider from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
+import { Link } from 'react-router-dom';
 
-import {formatAddress} from './utils';
+import {formatAddress, truncateLongString } from './utils';
 
 // import brace from "brace";
 
@@ -186,20 +187,31 @@ export const buildColumns = (worldState) => {
       dataField: 'tx',
       text: 'Transaction',
       sort: true,
-      formatter: (cellContent, row) => cellContent.hash,
+      formatter: (cellContent, row) =>
+        <Link to={`/tx/${cellContent}`}>{truncateLongString(cellContent.hash)}</Link>
+    }, {
+      dataField: 'from',
+      text: 'Tx From',
+      sort: true,
+      formatter: (cellContent, row) => formatAddress(row.tx.from, worldState)
+    }, {
+      dataField: 'to',
+      text: 'Tx To',
+      sort: true,
+      formatter: (cellContent, row) => formatAddress(row.tx.to, worldState)
     }, {
       dataField: 'name',
       text: 'Event',
       sort: true,
     }, {
-      dataField: 'args',
-      text: 'Args',
-      formatter: (cellContent, row) => 'TODO',
-    }, {
       dataField: 'contractAddress',
       text: 'Contract',
       sort: true,
       formatter: (cellContent, row) => formatAddress(cellContent, worldState),
+    }, {
+      dataField: 'args',
+      text: 'Args',
+      formatter: (cellContent, row) => JSON.stringify(cellContent),
     }
   ];
 };
