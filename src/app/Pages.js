@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Form } from 'react-bootstrap';
+import _ from 'lodash';
 
 // import brace from "brace";
 
@@ -175,21 +176,20 @@ export function StateEditor(props) {
 }
 
 export function RuleManager(props) {
-  const [newRuleName, setNewRuleName] = useState('');
-  const [newFilterCode, setNewFilterCode] = useState('');
-  const [newEffectCode, setNewEffectCode] = useState('');
+  const [rule, setRule] = useState(new Rule());
+  const setRuleFields = (fieldObj) => {
+    return setRule(_.extend(new Rule(), rule, fieldObj));
+  };
 
   const addNewRule = (e) => {
     // Prevent form from submitting
     e.preventDefault();
 
     try {
-      props.worldState.addRule(new Rule({name: newRuleName, filterCode: newFilterCode, effectCode: newEffectCode}));
+      props.worldState.addRule(rule);
       props.handleSave();
 
-      setNewRuleName('');
-      setNewFilterCode('');
-      setNewEffectCode('');
+      setRule(new Rule());
     } catch (err) {
       window.alert(`Rule creation failed: ${err.message}`);
     }
@@ -243,7 +243,7 @@ export function RuleManager(props) {
                   <Form.Group>
                     <label htmlFor="exampleInputUsername1">Rule name</label>
                     <Form.Control type="text" id="exampleInputUsername1" placeholder="MyRule"
-                        value={newRuleName} onChange={(e) => setNewRuleName(e.target.value)} />
+                        value={rule.name} onChange={(e) => setRuleFields({name: e.target.value})} />
                   </Form.Group>
                   <button onClick={addNewRule} className="btn btn-primary btn-fw">Add</button>
                 </form>
@@ -262,8 +262,8 @@ export function RuleManager(props) {
                     highlightActiveLine={true}
                     height="100%"
                     width="100%"
-                    value={newFilterCode}
-                    onChange={setNewFilterCode}
+                    value={rule.filterCode}
+                    onChange={val => setRuleFields({filterCode: val})}
                   />
                 </div>
                 <div className="col-md-6 grid-margin">
@@ -279,8 +279,8 @@ export function RuleManager(props) {
                     highlightActiveLine={true}
                     height="100%"
                     width="100%"
-                    value={newEffectCode}
-                    onChange={setNewEffectCode}
+                    value={rule.effectCode}
+                    onChange={val => setRuleFields({effectCode: val})}
                   />
                 </div>
               </div>
