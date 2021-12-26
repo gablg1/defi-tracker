@@ -225,7 +225,7 @@ export const buildColumns = (worldState) => {
           <div>
           {_.map(cellContent, (arg, name) =>
             <div key={name}>
-              <Copiable tooltipText={`Value: ${arg.value}`}>
+              <Copiable textToCopy={arg.value} tooltipText={`Value (click to copy): ${arg.value}`}>
               {`${name}: ${arg.type}`}
               </Copiable>
             </div>
