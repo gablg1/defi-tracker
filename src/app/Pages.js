@@ -6,7 +6,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import { Link } from 'react-router-dom';
 
-import {Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
+import {formatTokenValue, Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
 
 // import brace from "brace";
 
@@ -22,6 +22,9 @@ import "brace/theme/monokai";
 
 import {Rule, Contract, WorldState} from './App';
 import {useTransactionsForAddress } from './TransactionsViewer';
+
+const addSign = (valueString) =>
+  (valueString.startsWith('+') || valueString.startsWith('-')) ? valueString : `+${valueString}`;
 
 export function ContractManager(props) {
   const [newContractAbi, setNewContractAbi] = useState('');
@@ -220,23 +223,25 @@ export const buildColumns = (worldState) => {
     }, {
       dataField: 'args',
       text: 'evt.args',
-      formatter: (cellContent, row) => {
-        return (
-          <div>
-          {_.map(cellContent, (arg, name) =>
-            <div key={name}>
-              <Copiable textToCopy={arg.value} tooltipText={`Value (click to copy): ${arg.value}`}>
-              {`${name}: ${arg.type}`}
-              </Copiable>
-            </div>
-          )}
+      formatter: (cellContent, row) =>
+        <div>
+        {_.map(cellContent, (arg, name) =>
+          <div key={name}>
+            <Copiable textToCopy={arg.value} tooltipText={`Value (click to copy): ${arg.value}`}>
+            {`${name}: ${arg.type}`}
+            </Copiable>
           </div>
-        );
-      },
+        )}
+        </div>
     }, {
       dataField: 'effectOfRule',
       text: 'Rule Effect',
-      formatter: (cellContent, row) => JSON.stringify(cellContent),
+      formatter: (cellContent, row) =>
+        <div>
+        {_.map(cellContent, (effect, token) =>
+          <div key={token}>{addSign(formatTokenValue(effect, token))}</div>
+        )}
+        </div>
     }
   ];
 };
