@@ -12,6 +12,15 @@ import { Copiable, transactionExplorerLink, AddressExplorer, formatTokenValue, f
 
 import {GeneralLedger} from './accounting';
 
+import cachedTxDataString from './data';
+
+const cachedTxData = JSON.parse(cachedTxDataString, (key, value) => {
+  if (value.ty === 'bigint') {
+    return BigInt(value.value);
+  }
+  return value;
+});
+
 const { SearchBar } = Search;
 
 /* global BigInt */
@@ -248,6 +257,10 @@ export function useTransactionsForAddress(addr, worldState) {
 
   }, [addr, isLoading]);
 
+  if (addr === '0xEba220F7256B2F5e5d73dB6dDA83c99c1D916570') {
+    return [false, false, cachedTxData];
+  }
+
 
   let enhancedTransactions = transactions.map(tx => enhanceTransaction(tx, transactionReceipts[tx.hash], worldState));
   enhancedTransactions = _.sortBy(enhancedTransactions, 'timestamp');
@@ -293,6 +306,14 @@ export function useTransaction(hash, worldState) {
 
 export function TransactionsViewer(props) {
   const [isLoading, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
+  const shouldWriteData = false;
+  if (!isLoadingReceipts && shouldWriteData) {
+    console.log(JSON.stringify(transactions, (key, value) =>
+            typeof value === 'bigint'
+                ? {ty: 'bigint', value: value.toString()}
+                : value // return everything else unchanged));
+    ));
+  }
 
   const dataFieldsToInclude = ['timestamp', 'input', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'receipt'];
   const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
