@@ -248,6 +248,7 @@ export function useTransactionsForAddress(addr, worldState) {
 
   }, [addr, isLoading]);
 
+
   let enhancedTransactions = transactions.map(tx => enhanceTransaction(tx, transactionReceipts[tx.hash], worldState));
   enhancedTransactions = _.sortBy(enhancedTransactions, 'timestamp');
   const gl = new GeneralLedger(worldState);
@@ -261,7 +262,8 @@ export function useTransactionsForAddress(addr, worldState) {
     tx.stateAfter = gl.stateAfterTransaction(i).toJson();
   }
 
-  return [isLoading, enhancedTransactions];
+  const isLoadingReceipts = _.some(enhancedTransactions, tx => _.isEmpty(tx.receipt));
+  return [isLoading, isLoadingReceipts, enhancedTransactions];
 }
 
 export function useTransaction(hash, worldState) {
@@ -290,7 +292,7 @@ export function useTransaction(hash, worldState) {
 }
 
 export function TransactionsViewer(props) {
-  const [isLoading, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
+  const [isLoading, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
 
   const dataFieldsToInclude = ['timestamp', 'input', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'receipt'];
   const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));

@@ -178,8 +178,10 @@ export function StateEditor(props) {
   )
 }
 
-export function RuleManager(props) {
-  const [isLoadingTxs, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
+export function EventRuleManager(props) {
+  const [isLoadingTxs, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
+
+  const allEvents = _.flatten(transactions.map(tx => tx.events));
 
   const [rule, setRule] = useState(new Rule());
   const setRuleFields = (fieldObj) => {
@@ -224,7 +226,7 @@ export function RuleManager(props) {
   return (
     <div>
       <div className="page-header">
-        <h3 className="page-title">Rules</h3>
+        <h3 className="page-title">Event Rules</h3>
       </div>
       <div className="row">
         <div className="col-12 grid-margin">
@@ -316,7 +318,7 @@ export function RuleManager(props) {
                 </div>
               </div>
               <div className="row" style={{marginTop: 20}}>
-                <h4 className="card-title">Rule Simulator</h4>
+                <h4 className="card-title">Event Rule Simulator</h4>
               </div>
               <div className="row">
                 <ToolkitProvider

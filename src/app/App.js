@@ -14,7 +14,7 @@ import { isValidEthereumAddress } from './utils';
 
 import { addressesEqual, normalizeAddress } from './utils';
 
-import {RuleManager, ContractManager, StateEditor} from './Pages';
+import {EventRuleManager, ContractManager, StateEditor} from './Pages';
 import {SingleTransactionViewer, TransactionsViewer} from './TransactionsViewer';
 import _ from 'lodash';
 import abiDecoder from 'abi-decoder';
@@ -216,7 +216,7 @@ function App(props) {
               <Routes>
                 <Route path="/transactions" element={<TransactionsViewer worldState={worldState} />} />
                 <Route path="/contracts" element={<ContractManager worldState={worldState} handleSave={handleSave} />} />
-                <Route path="/rules" element={<RuleManager worldState={worldState} handleSave={handleSave} />} />
+                <Route path="/rules" element={<EventRuleManager worldState={worldState} handleSave={handleSave} />} />
                 <Route path="/state-editor" element={<StateEditor worldState={worldState} setWorldState={setWorldState} handleSave={handleSave} />} />
                 <Route path="/tx/:txHash" element={<SingleTransactionViewer worldState={worldState} />} />
                 <Route path="/" element={<Navigate replace to="/transactions" />} />
