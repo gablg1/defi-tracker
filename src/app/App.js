@@ -33,12 +33,12 @@ export const Rule = Model.register('rule', class Rule extends Model {
     filterCode: String,
   }
 
-  shouldApply(evt) {
-    return new Function('evt', this.filterCode)(evt);
+  shouldApply(evt, glTransaction) {
+    return new Function('evt, gltx', this.filterCode)(evt, glTransaction);
   }
 
-  apply(evt) {
-    return new Function('evt', this.effectCode)(evt);
+  apply(evt, contract) {
+    return new Function('evt, gltx', this.effectCode)(evt, glTransaction);
   }
 
 
@@ -149,8 +149,8 @@ export const WorldState = Model.register('world-state', class WorldState extends
     return _.find(this.contracts, c => normalizeAddress(c.address) === normalizeAddress(addr));
   }
 
-  anyApplicableEventRule(evt) {
-    return _.find(this.rules, r => r.shouldApply(evt));
+  anyApplicableEventRule(evt, glTransaction) {
+    return _.find(this.rules, r => r.shouldApply(evt, glTransaction));
   }
 });
 

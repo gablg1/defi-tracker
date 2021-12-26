@@ -41,8 +41,10 @@ class Balances {
 
 
 class GLTransaction {
-  constructor(blockchainTransaction) {
+  constructor(blockchainTransaction, worldState) {
     this.blockchainTransaction = blockchainTransaction;
+    this.worldState = worldState;
+    this.contract = worldState.findContract(blockchainTransaction.to);
   }
 }
 
@@ -53,7 +55,7 @@ export class GeneralLedger {
   }
 
   processBlockchainTransaction(blockchainTransaction) {
-    this.glTransactions.push(new GLTransaction(blockchainTransaction))
+    this.glTransactions.push(new GLTransaction(blockchainTransaction, this.worldState))
   }
 
   effectOfGLTransaction(glTransaction) {
@@ -63,9 +65,9 @@ export class GeneralLedger {
     let effect = new Balances({one: oneValue});
 
     for (const evt of (btx.receipt?.decodedLogs || [])) {
-      const rule = this.worldState.anyApplicableEventRule(evt);
+      const rule = this.worldState.anyApplicableEventRule(evt, glTransaction);
       if (rule) {
-        effect = effect.plus(rule.apply(evt));
+        effect = effect.plus(rule.apply(evt, glTransaction));
       }
       /*
        * TODO: Implement dynamically
