@@ -8,7 +8,7 @@ import _ from 'lodash';
 import {fromBech32, toBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
-import { assert, Copiable, transactionExplorerLink, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, addressesEqual } from './utils';
+import { formatAddress, assert, Copiable, transactionExplorerLink, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, addressesEqual } from './utils';
 
 import {GeneralLedger} from './accounting';
 
@@ -197,29 +197,6 @@ export const buildColumns = (worldState) => {
   ];
 };
 
-function formatAddress(addr, worldState) {
-  if (addressesEqual(addr, worldState.defaultAddr)) {
-    return (
-      <Copiable textToCopy={addr} tooltipText={'Click to copy address'}>
-        <i className="fa fa-user-circle-o" />
-        <span style={{marginLeft: 5}}>Me</span>
-      </Copiable>
-    );
-  }
-
-  const contract = worldState.findContract(addr);
-  return (
-    <AddressExplorer hash={addr} blockchain={contract?.blockchain || blockchain}
-      display={
-        <div style={{display: 'flex'}}>
-          {contract && <i className="fa fa-file-text-o"/>}
-          <span style={{marginLeft: 5}}>
-            {contract?.name || truncateLongString(addr)}
-          </span>
-        </div>
-    } />
-  );
-}
 
 const enhanceTransaction = (tx, rawReceipt, worldState) => {
   if (_.isEmpty(tx)) {

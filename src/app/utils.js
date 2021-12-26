@@ -98,3 +98,31 @@ export function AddressExplorer(props) {
     </a>
   );
 }
+
+
+// TODO
+const blockchain = 'Harmony';
+
+export function formatAddress(addr, worldState) {
+  if (addressesEqual(addr, worldState.defaultAddr)) {
+    return (
+      <Copiable textToCopy={addr} tooltipText={'Click to copy address'}>
+        <i className="fa fa-user-circle-o" />
+        <span style={{marginLeft: 5}}>Me</span>
+      </Copiable>
+    );
+  }
+
+  const contract = worldState.findContract(addr);
+  return (
+    <AddressExplorer hash={addr} blockchain={contract?.blockchain || blockchain}
+      display={
+        <div style={{display: 'flex'}}>
+          {contract && <i className="fa fa-file-text-o"/>}
+          <span style={{marginLeft: 5}}>
+            {contract?.name || truncateLongString(addr)}
+          </span>
+        </div>
+    } />
+  );
+}

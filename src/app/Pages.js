@@ -5,6 +5,8 @@ import ToolkitProvider from 'react-bootstrap-table2-toolkit/dist/react-bootstrap
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 
+import {formatAddress} from './utils';
+
 // import brace from "brace";
 
 import AceEditor from "react-ace";
@@ -18,7 +20,7 @@ import "brace/theme/github";
 import "brace/theme/monokai";
 
 import {Rule, Contract, WorldState} from './App';
-import {useTransactionsForAddress, buildColumns} from './TransactionsViewer';
+import {useTransactionsForAddress } from './TransactionsViewer';
 
 export function ContractManager(props) {
   const [newContractAbi, setNewContractAbi] = useState('');
@@ -178,6 +180,30 @@ export function StateEditor(props) {
   )
 }
 
+export const buildColumns = (worldState) => {
+  return [
+    {
+      dataField: 'tx',
+      text: 'Transaction',
+      sort: true,
+      formatter: (cellContent, row) => cellContent.hash,
+    }, {
+      dataField: 'name',
+      text: 'Event',
+      sort: true,
+    }, {
+      dataField: 'args',
+      text: 'Args',
+      formatter: (cellContent, row) => 'TODO',
+    }, {
+      dataField: 'contractAddress',
+      text: 'Contract',
+      sort: true,
+      formatter: (cellContent, row) => formatAddress(cellContent, worldState),
+    }
+  ];
+};
+
 export function EventRuleManager(props) {
   // Rule Management state
   const [rule, setRule] = useState(new Rule());
@@ -205,11 +231,11 @@ export function EventRuleManager(props) {
     return <div>Loading...</div>;
   }
 
-  const allEvents = _.flatten(transactions.map(tx => tx.events || []));
-  console.log(allEvents);
+  const events = _.flatten(transactions.map(tx => tx.events || []));
 
-  const dataFieldsToInclude = ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to', 'stateAfter'];
-  const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
+  const cols = buildColumns(props.worldState);
+
+  let eventsAfterApply = events;
 
   let transactionsAfterApply = transactions;
   let evalError = undefined;
@@ -331,7 +357,7 @@ export function EventRuleManager(props) {
                   sizePerPage={50}
                   keyField="hash"
                   bootstrap4
-                  data={ transactionsAfterApply }
+                  data={ eventsAfterApply }
                   columns={ cols }
                   search={{searchFormatted: true}}
                 >
