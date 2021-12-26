@@ -214,8 +214,17 @@ function formatAddress(addr, worldState) {
   );
 }
 
+const enhanceTransaction = (tx, rawReceipt, worldState) => {
+  if (_.isEmpty(rawReceipt)) {
+    return _.extend({}, tx, {receipt: rawReceipt});
+  }
+  const receipt = (worldState.findContract(tx.to))
+    ? _.extend({}, rawReceipt, {decodedLogs: worldState.decodeReceiptLogs(rawReceipt.logs)})
+    : rawReceipt;
+  return _.extend({}, tx, {receipt: receipt, gasFeePaid: BigInt(tx.gasPrice) * BigInt(receipt.gasUsed)})
+}
 
-export function TransactionsViewer(props) {
+export function useTransactionsForAddress(addr, worldState) {
   const [transactions, setTransactions] = useState([]);
   const [transactionReceipts, setTransactionReceipts] = useState({});
   const [isLoading, setLoading] = useState(true);
@@ -227,7 +236,7 @@ export function TransactionsViewer(props) {
     }
 
     async function fetchTransactions() {
-      const txData = await getTransactionsHistory(props.worldState.defaultAddr);
+      const txData = await getTransactionsHistory(addr);
 
       setTransactions(txData);
       setLoading(false);
@@ -242,21 +251,11 @@ export function TransactionsViewer(props) {
       fetchTransactions();
     }
 
-  }, [props.worldState.defaultAddr, isLoading]);
+  }, [addr, isLoading]);
 
-  let enhancedTransactions = transactions.map(tx => {
-    const rawReceipt = transactionReceipts[tx.hash];
-    if (_.isEmpty(rawReceipt)) {
-      return _.extend({}, tx, {receipt: rawReceipt});
-    }
-    const receipt = (props.worldState.findContract(tx.to))
-      ? _.extend({}, rawReceipt, {decodedLogs: props.worldState.decodeReceiptLogs(rawReceipt.logs)})
-      : rawReceipt;
-    return _.extend({}, tx, {receipt: receipt, gasFeePaid: BigInt(tx.gasPrice) * BigInt(receipt.gasUsed)})
-  });
-
+  let enhancedTransactions = transactions.map(tx => enhanceTransaction(tx, transactionReceipts[tx.hash], worldState));
   enhancedTransactions = _.sortBy(enhancedTransactions, 'timestamp');
-  const gl = new GeneralLedger(props.worldState);
+  const gl = new GeneralLedger(worldState);
   for (const tx of enhancedTransactions) {
     if (!tx.receipt) {
       break;
@@ -265,8 +264,39 @@ export function TransactionsViewer(props) {
     gl.processBlockchainTransaction(tx);
     const i = enhancedTransactions.indexOf(tx);
     tx.stateAfter = gl.stateAfterTransaction(i).toJson();
-    console.log(tx.stateAfter);
   }
+
+  return [isLoading, enhancedTransactions];
+}
+
+export function useTransaction(hash, worldState) {
+  const [rawReceipt, setRawReceipt] = useState(undefined);
+  const [rawTx, setRawTx] = useState(undefined);
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchReceipt(hash) {
+      setRawReceipt(await getTransactionReceipt(hash));
+    }
+
+    async function fetchTransaction(hash) {
+      setRawTx(await getTransactionByHash(hash));
+      setLoading(false);
+    }
+
+    if (isLoading) {
+      fetchTransaction(hash);
+      fetchReceipt(hash);
+    }
+
+  }, [hash, isLoading]);
+
+  return [isLoading, enhanceTransaction(rawTx, rawReceipt, worldState)];
+}
+
+
+export function TransactionsViewer(props) {
+  const [isLoading, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
 
   const cols = buildColumns(props.worldState).filter(col =>
     ['timestamp', 'input', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'receipt'].includes(col.dataField)
@@ -296,7 +326,7 @@ export function TransactionsViewer(props) {
                     sizePerPage={50}
                     keyField="hash"
                     bootstrap4
-                    data={ enhancedTransactions }
+                    data={ transactions }
                     columns={ cols }
                     search={{searchFormatted: true}}
                   >
@@ -327,38 +357,15 @@ export function TransactionsViewer(props) {
   );
 }
 
+
 export function SingleTransactionViewer(props) {
   let { txHash } = useParams();
-  const [rawReceipt, setRawReceipt] = useState(undefined);
-  const [rawTx, setRawTx] = useState(undefined);
-  const [isLoading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function fetchReceipt(hash) {
-      setRawReceipt(await getTransactionReceipt(hash));
-    }
+  const [isLoading, transaction] = useTransaction(txHash, props.worldState);
 
-    async function fetchTransaction(hash) {
-      setRawTx(await getTransactionByHash(hash));
-      setLoading(false);
-    }
-
-    if (isLoading) {
-      fetchTransaction(txHash);
-      fetchReceipt(txHash);
-    }
-
-  }, [txHash, isLoading]);
-
-  if (isLoading || rawTx === undefined) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
-
-  const transaction = (_.isEmpty(rawReceipt) || !props.worldState.findContract(rawTx.to))
-    ? rawTx
-    : _.extend({}, rawTx, {
-      receipt: _.extend({}, rawReceipt, {decodedLogs: props.worldState.decodeReceiptLogs(rawReceipt.logs)})
-  });
 
   const cols = buildColumns(props.worldState).filter(col =>
     ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to'].includes(col.dataField)
