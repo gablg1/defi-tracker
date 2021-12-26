@@ -23,6 +23,9 @@ import "brace/theme/monokai";
 import {Rule, Contract, WorldState} from './App';
 import {useTransactionsForAddress } from './TransactionsViewer';
 
+
+const filterColor = '#474747';
+
 const addSign = (valueString) =>
   (valueString.startsWith('+') || valueString.startsWith('-')) ? valueString : `+${valueString}`;
 
@@ -302,7 +305,7 @@ export function EventRuleManager(props) {
     return _.extend({}, evt, {effectOfRule: effect});
   });
 
-  const rowStyler = (row, rowIndex) => (row.filteredByRule === true) ? {background: '#474747'} : {};
+  const rowStyler = (row, rowIndex) => (row.filteredByRule === true) ? {background: filterColor} : {};
 
   const filterError = _.find(_.map(eventsAfterApply, 'filteredByRule'), val => val instanceof Error);
   const effectError = _.find(_.map(eventsAfterApply, 'effectOfRule'), val => val instanceof Error);
@@ -316,34 +319,37 @@ export function EventRuleManager(props) {
         <div className="col-12 grid-margin">
           <div className="card">
             <div className="card-body">
-              <div className="row">
-                <h4 className="card-title">Existing Rules</h4>
-              </div>
-              <div className="row">
-                <div className="table-responsive">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {props.worldState.rules.map((rule, i) =>
-                        <tr style={ruleIndexBeingEdited == i ? {background: 'gray'} : {}} key={rule.uniqueKey} onClick={() => {
-                          setRuleIndexBeingEdited(i);
-                          setRule(rule);
-                        }}>
-                          <td><div className="badge badge-pill badge-info">{rule.name}</div></td>
-                          <td><button onClick={() => {
-                            if (window.confirm('Are you sure you wish to delete this item?')) {
-                              props.worldState.removeRule(rule);
-                              props.handleSave();
-                            }
-                          }} className="btn btn-danger btn-sm">Delete</button></td>
+              <div onClick={() => setRuleIndexBeingEdited(-1)}>
+                <div className="row">
+                  <h4 className="card-title">Existing Rules</h4>
+                </div>
+                <div className="row">
+                  <div className="table-responsive">
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {props.worldState.rules.map((rule, i) =>
+                          <tr style={ruleIndexBeingEdited == i ? {background: filterColor} : {}} key={rule.uniqueKey} onClick={(evt) => {
+                            setRuleIndexBeingEdited(i);
+                            setRule(rule);
+                            evt.stopPropagation();
+                          }}>
+                            <td><div className="badge badge-pill badge-info">{rule.name}</div></td>
+                            <td><button onClick={() => {
+                              if (window.confirm('Are you sure you wish to delete this item?')) {
+                                props.worldState.removeRule(rule);
+                                props.handleSave();
+                              }
+                            }} className="btn btn-danger btn-sm">Delete</button></td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
               <div className="row" style={{marginTop: 20}}>
@@ -357,9 +363,11 @@ export function EventRuleManager(props) {
                         value={rule.name} onChange={(e) => setRuleFields({name: e.target.value})} />
                   </Form.Group>
                   <div>
+                    <button disabled={ruleIndexBeingEdited < 0 || ruleIndexBeingEdited >= props.worldState.rules.length} onClick={saveRule}
+                      className="btn btn-primary btn-fw">
+                      Save
+                    </button>
                     <button onClick={addNewRule} className="btn btn-primary btn-fw mr-2">Add new rule</button>
-                    {ruleIndexBeingEdited >= 0 && ruleIndexBeingEdited < props.worldState.rules.length &&
-                      <button onClick={saveRule} className="btn btn-primary btn-fw">Save</button>}
                   </div>
                 </form>
                 {filterError && rule.filterCode != '' &&

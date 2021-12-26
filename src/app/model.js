@@ -98,7 +98,7 @@ export class Model {
 
   constructor(json = {}) {
     if (_.isEmpty(json.uniqueKey)) {
-      json.uniqueKey = String(Math.random()).slice(2)
+      this.regenerateKey();
     }
 
     for (const prop in this.constructor.__properties) {
@@ -113,6 +113,11 @@ export class Model {
 
   }
 
+  regenerateKey() {
+    this.uniqueKey = String(Math.random()).slice(2);
+  }
+
+
   serialize() {
     return _.extend({__ty: this.constructor.__tag},
       _.mapValues(this.constructor.__properties, (ty, prop) => {
@@ -122,7 +127,9 @@ export class Model {
   }
 
   clone() {
-    return this.constructor.deserialize(this.serialize());
+    const newObj = this.constructor.deserialize(this.serialize());
+    newObj.regenerateKey();
+    return newObj;
   }
 
   anyErrorFromChange(changeFn) {
