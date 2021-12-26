@@ -6,7 +6,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import { Link } from 'react-router-dom';
 
-import {formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
+import {Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
 
 // import brace from "brace";
 
@@ -220,7 +220,19 @@ export const buildColumns = (worldState) => {
     }, {
       dataField: 'args',
       text: 'Args',
-      formatter: (cellContent, row) => JSON.stringify(cellContent),
+      formatter: (cellContent, row) => {
+        return (
+          <div>
+          {_.map(cellContent, (arg, name) =>
+            <div key={name}>
+              <Copiable tooltipText={`Value: ${arg.value}`}>
+              {`${name}: ${arg.type}`}
+              </Copiable>
+            </div>
+          )}
+          </div>
+        );
+      },
     }
   ];
 };
@@ -256,16 +268,34 @@ export function EventRuleManager(props) {
 
   const cols = buildColumns(props.worldState);
 
-  let eventsAfterApply = events;
+  let eventsAfterShouldApply = events;
 
   let evalError = undefined;
   try {
-    eventsAfterApply = events.map(evt => {
+    eventsAfterShouldApply = events.map(evt => {
       const shouldApply = rule.shouldApply(evt, evt.tx, props.worldState);
       if (shouldApply !== false && shouldApply !== true) {
         throw new Error(`Filter function must return either true or false. Returned: ${shouldApply}`);
       }
       return _.extend({}, evt, {filteredByRule: shouldApply});
+    });
+  } catch(err) {
+    evalError = err;
+  }
+
+  let eventsAfterApply = eventsAfterShouldApply;
+  try {
+    eventsAfterApply = eventsAfterShouldApply.map(evt => {
+      if (!evt.filteredByRule) {
+        return evt;
+      }
+
+      const effect = rule.apply(evt, evt.tx, props.worldState);
+
+      if (!(effect instanceof Object) || _.some(_.values(effect), v => !(v instanceof Number))) {
+        throw new Error(`Effect must return an object of integers representing token deltas. Returned: ${effect}`);
+      }
+      return _.extend({}, evt, {effectOfRule: effect});
     });
   } catch(err) {
     evalError = err;
