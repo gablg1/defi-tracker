@@ -238,7 +238,7 @@ export const buildColumns = (worldState) => {
         </div>
     }, {
       dataField: 'effectOfRule',
-      text: 'Rule Effect',
+      text: `This Rule's Effect`,
       formatter: (cellContent, row) => {
         if (cellContent instanceof Error) {
           return <div style={{background: 'purple'}}>{cellContent.message}</div>;
@@ -257,6 +257,7 @@ export const buildColumns = (worldState) => {
 
 export function EventRuleManager(props) {
   // Rule Management state
+  const [showOnlyAffectedEvents, setShowOnlyAffectedEvents] = useState(false);
   const [rule, setRule] = useState(new Rule());
   const setRuleFields = (fieldObj) => {
     return setRule(_.extend(new Rule(), rule, fieldObj));
@@ -310,6 +311,8 @@ export function EventRuleManager(props) {
   const filterError = _.find(_.map(eventsAfterApply, 'filteredByRule'), val => val instanceof Error);
   const effectError = _.find(_.map(eventsAfterApply, 'effectOfRule'), val => val instanceof Error);
 
+  const eventsToShow = showOnlyAffectedEvents ? eventsAfterApply.filter(evt => evt.filteredByRule === true) : eventsAfterApply;
+
   return (
     <div>
       <div className="page-header">
@@ -355,7 +358,7 @@ export function EventRuleManager(props) {
               <div className="row" style={{marginTop: 20}}>
                 <h4 className="card-title">Rule</h4>
               </div>
-              <div className="row">
+              <div className="row mb-3">
                 <form className="forms-sample">
                   <Form.Group>
                     <label htmlFor="exampleInputUsername1">Rule name</label>
@@ -364,10 +367,10 @@ export function EventRuleManager(props) {
                   </Form.Group>
                   <div>
                     <button disabled={ruleIndexBeingEdited < 0 || ruleIndexBeingEdited >= props.worldState.rules.length} onClick={saveRule}
-                      className="btn btn-primary btn-fw">
+                      className="btn btn-primary btn-fw mr-3">
                       Save
                     </button>
-                    <button onClick={addNewRule} className="btn btn-primary btn-fw mr-2">Add new rule</button>
+                    <button onClick={addNewRule} className="btn btn-primary btn-fw">Add new rule</button>
                   </div>
                 </form>
                 {filterError && rule.filterCode != '' &&
@@ -379,7 +382,7 @@ export function EventRuleManager(props) {
               </div>
               <div className="row">
                 <div className="col-md-6 grid-margin">
-                  <AceEditor style={{minHeight: '300px'}}
+                  <AceEditor style={{minHeight: '100px'}}
                     mode="javascript"
                     theme="monokai"
                     name="jsEditor"
@@ -396,7 +399,7 @@ export function EventRuleManager(props) {
                   />
                 </div>
                 <div className="col-md-6 grid-margin">
-                  <AceEditor style={{minHeight: '300px'}}
+                  <AceEditor style={{minHeight: '100px'}}
                     mode="javascript"
                     theme="monokai"
                     name="jsEditor"
@@ -413,15 +416,21 @@ export function EventRuleManager(props) {
                   />
                 </div>
               </div>
-              <div className="row" style={{marginTop: 20}}>
+              <div className="row" style={{marginTop: 20, justifyContent: 'space-between'}}>
                 <h4 className="card-title">Event Rule Simulator</h4>
+                <label className="form-check-label text-muted">
+                  <input type="checkbox" value={showOnlyAffectedEvents}
+                    onClick={() => setShowOnlyAffectedEvents(!showOnlyAffectedEvents)} className="form-check-input"/>
+                  <i className="input-helper"></i>
+                  Show only affected events
+                </label>
               </div>
               <div className="row">
                 <ToolkitProvider
                   sizePerPage={50}
                   keyField="timestamp"
                   bootstrap4
-                  data={ eventsAfterApply }
+                  data={ eventsToShow }
                   columns={ cols }
                   search={{searchFormatted: true}}
                 >

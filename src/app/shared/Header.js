@@ -161,6 +161,12 @@ class InnerHeader extends Component {
                   <span className="menu-title">Contracts</span>
                 </Link>
               </li>
+              <li className={ this.isPathActive('/rules') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
+                <Link className="nav-link" to="/rules">
+                  <i className="mdi mdi mdi-texture menu-icon"></i>
+                  <span className="menu-title"><Trans>Rules</Trans></span>
+                </Link>
+              </li>
               <li className={ this.isPathActive('/state-editor') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
                 <Link className="nav-link" to="/state-editor">
                   <i className="mdi mdi mdi-texture menu-icon"></i>
