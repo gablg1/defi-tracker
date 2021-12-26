@@ -65,9 +65,9 @@ export class GeneralLedger {
     let effect = new Balances({one: oneValue});
 
     for (const evt of (btx.receipt?.decodedLogs || [])) {
-      const rule = this.worldState.anyApplicableEventRule(evt, glTransaction);
+      const rule = this.worldState.anyApplicableEventRule(evt, glTransaction.blockchainTransaction);
       if (rule) {
-        effect = effect.plus(rule.apply(evt, glTransaction));
+        effect = effect.plus(rule.apply(evt, btx, this.worldState));
       }
       /*
        * TODO: Implement dynamically

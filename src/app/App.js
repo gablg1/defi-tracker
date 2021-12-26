@@ -12,7 +12,7 @@ import Spinner from '../app/shared/Spinner';
 import { isBech32Address } from '@harmony-js/utils';
 import { isValidEthereumAddress } from './utils';
 
-import { normalizeAddress } from './utils';
+import { addressesEqual, normalizeAddress } from './utils';
 
 import {RuleManager, ContractManager, StateEditor} from './Pages';
 import {SingleTransactionViewer, TransactionsViewer} from './TransactionsViewer';
@@ -34,15 +34,15 @@ export const Rule = Model.register('rule', class Rule extends Model {
     filterCode: String,
   }
 
-  shouldApply(evt, glTransaction) {
-    return new Function('evt, gltx, myAddr', this.filterCode)(evt, glTransaction, glTransaction.worldState.defaultAddr);
+  shouldApply(evt, tx, worldState) {
+    const isMyAddr = addr => addressesEqual(worldState.defaultAddr, addr);
+    return new Function('evt, tx, isMyAddr', this.filterCode)(evt, tx, isMyAddr);
   }
 
-  apply(evt, glTransaction) {
-    return new Function('evt, gltx, myAddr', this.effectCode)(evt, glTransaction, glTransaction.worldState.defaultAddr);
+  apply(evt, tx, worldState) {
+    const isMyAddr = addr => addressesEqual(worldState.defaultAddr, addr);
+    return new Function('evt, tx, isMyAddr', this.effectCode)(evt, tx, isMyAddr);
   }
-
-
 });
 
 export const Contract = Model.register('contract', class Contract extends Model {
@@ -167,8 +167,8 @@ export const WorldState = Model.register('world-state', class WorldState extends
     return _.find(this.contracts, c => normalizeAddress(c.address) === normalizeAddress(addr));
   }
 
-  anyApplicableEventRule(evt, glTransaction) {
-    return _.find(this.rules, r => r.shouldApply(evt, glTransaction));
+  anyApplicableEventRule(evt, tx) {
+    return _.find(this.rules, r => r.shouldApply(evt, tx, this));
   }
 });
 

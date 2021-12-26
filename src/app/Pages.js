@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Form } from 'react-bootstrap';
 import _ from 'lodash';
+import ToolkitProvider from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min';
+import BootstrapTable from 'react-bootstrap-table-next';
+import paginationFactory from 'react-bootstrap-table2-paginator';
 
 // import brace from "brace";
 
@@ -15,7 +18,7 @@ import "brace/theme/github";
 import "brace/theme/monokai";
 
 import {Rule, Contract, WorldState} from './App';
-
+import {useTransactionsForAddress, buildColumns} from './TransactionsViewer';
 
 export function ContractManager(props) {
   const [newContractAbi, setNewContractAbi] = useState('');
@@ -176,6 +179,8 @@ export function StateEditor(props) {
 }
 
 export function RuleManager(props) {
+  const [isLoadingTxs, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
+
   const [rule, setRule] = useState(new Rule());
   const setRuleFields = (fieldObj) => {
     return setRule(_.extend(new Rule(), rule, fieldObj));
@@ -192,6 +197,27 @@ export function RuleManager(props) {
       setRule(new Rule());
     } catch (err) {
       window.alert(`Rule creation failed: ${err.message}`);
+    }
+  }
+
+  const dataFieldsToInclude = ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to', 'stateAfter'];
+  const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
+
+  let transactionsAfterApply = transactions;
+  let evalError = undefined;
+  try {
+    transactionsAfterApply = transactions.map(tx => {
+      return _.extend({}, tx, {filteredByRule: rule.shouldApply(tx, tx, props.worldState)});
+    });
+  } catch(err) {
+    evalError = err;
+  }
+
+  const rowStyler = (row, rowIndex) => {
+    if (row.filteredByRule) {
+      return {background: 'red'};
+    } else {
+      return {};
     }
   }
 
@@ -235,7 +261,7 @@ export function RuleManager(props) {
                   </table>
                 </div>
               </div>
-              <div className="row">
+              <div className="row" style={{marginTop: 20}}>
                 <h4 className="card-title">Add new Rule</h4>
               </div>
               <div className="row">
@@ -247,6 +273,11 @@ export function RuleManager(props) {
                   </Form.Group>
                   <button onClick={addNewRule} className="btn btn-primary btn-fw">Add</button>
                 </form>
+                {evalError &&
+                  <div style={{background: 'red'}}>
+                  {evalError.message}
+                  </div>
+                }
               </div>
               <div className="row">
                 <div className="col-md-6 grid-margin">
@@ -283,6 +314,33 @@ export function RuleManager(props) {
                     onChange={val => setRuleFields({effectCode: val})}
                   />
                 </div>
+              </div>
+              <div className="row" style={{marginTop: 20}}>
+                <h4 className="card-title">Rule Simulator</h4>
+              </div>
+              <div className="row">
+                <ToolkitProvider
+                  sizePerPage={50}
+                  keyField="hash"
+                  bootstrap4
+                  data={ transactionsAfterApply }
+                  columns={ cols }
+                  search={{searchFormatted: true}}
+                >
+                  {
+                    props => (
+                      <div>
+                        <BootstrapTable
+                          rowStyle={rowStyler}
+                          defaultSorted={[{dataField: 'timestamp', order: 'desc'}]}
+                          pagination={ paginationFactory() }
+                          { ...props.baseProps }
+                          wrapperClasses="table-responsive"
+                        />
+                      </div>
+                    )
+                  }
+                </ToolkitProvider>
               </div>
             </div>
           </div>

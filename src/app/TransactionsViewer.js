@@ -87,15 +87,6 @@ async function getBalanceByBlockNumber(address, blockNumber) {
 }
 
 
-
-
-
-
-const defaultSorted = [{
-  dataField: 'timestamp',
-  order: 'desc'
-}];
-
 // FIXME: Make the blockchain configurable in the UI
 const blockchain = 'Harmony';
 
@@ -116,7 +107,7 @@ const blockchain = 'Harmony';
 }
  *
  **/
-const buildColumns = (worldState) => {
+export const buildColumns = (worldState) => {
   return [
     {
       dataField: 'timestamp',
@@ -298,13 +289,11 @@ export function useTransaction(hash, worldState) {
   return [isLoading, enhanceTransaction(rawTx, rawReceipt, worldState)];
 }
 
-
 export function TransactionsViewer(props) {
   const [isLoading, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
 
-  const cols = buildColumns(props.worldState).filter(col =>
-    ['timestamp', 'input', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'receipt'].includes(col.dataField)
-  );
+  const dataFieldsToInclude = ['timestamp', 'input', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'receipt'];
+  const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
 
   return (
     <div>
@@ -342,7 +331,7 @@ export function TransactionsViewer(props) {
                             <SearchBar { ...props.searchProps } />
                           </div>
                           <BootstrapTable
-                            defaultSorted={ defaultSorted }
+                            defaultSorted={[{dataField: 'timestamp', order: 'desc'}]}
                             pagination={ paginationFactory() }
                             { ...props.baseProps }
                             wrapperClasses="table-responsive"
