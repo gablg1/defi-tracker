@@ -252,15 +252,22 @@ export function EventRuleManager(props) {
   const setRuleFields = (fieldObj) => {
     return setRule(_.extend(new Rule(), rule, fieldObj));
   };
-  const addNewRule = (e) => {
+
+  const [ruleIndexBeingEdited, setRuleIndexBeingEdited] = useState(-1);
+  const saveRule = (e) => {
     // Prevent form from submitting
     e.preventDefault();
 
     try {
-      props.worldState.addRule(rule);
+      // Add new rule
+      if (ruleIndexBeingEdited == -1) {
+        props.worldState.addRule(rule);
+      // Edit existing rule
+      } else {
+        props.worldState.rules.splice(ruleIndexBeingEdited, 1, rule);
+      }
       props.handleSave();
 
-      setRule(new Rule());
     } catch (err) {
       window.alert(`Rule creation failed: ${err.message}`);
     }
@@ -359,7 +366,7 @@ export function EventRuleManager(props) {
                 </div>
               </div>
               <div className="row" style={{marginTop: 20}}>
-                <h4 className="card-title">Add new Rule</h4>
+                <h4 className="card-title">Rule</h4>
               </div>
               <div className="row">
                 <form className="forms-sample">
@@ -368,7 +375,7 @@ export function EventRuleManager(props) {
                     <Form.Control type="text" id="exampleInputUsername1" placeholder="MyRule"
                         value={rule.name} onChange={(e) => setRuleFields({name: e.target.value})} />
                   </Form.Group>
-                  <button onClick={addNewRule} className="btn btn-primary btn-fw">Add</button>
+                  <button onClick={saveRule} className="btn btn-primary btn-fw">Save</button>
                 </form>
                 {evalError && rule.filterCode != '' &&
                   <div style={{background: 'red'}}>
