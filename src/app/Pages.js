@@ -179,15 +179,11 @@ export function StateEditor(props) {
 }
 
 export function EventRuleManager(props) {
-  const [isLoadingTxs, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
-
-  const allEvents = _.flatten(transactions.map(tx => tx.events));
-
+  // Rule Management state
   const [rule, setRule] = useState(new Rule());
   const setRuleFields = (fieldObj) => {
     return setRule(_.extend(new Rule(), rule, fieldObj));
   };
-
   const addNewRule = (e) => {
     // Prevent form from submitting
     e.preventDefault();
@@ -201,6 +197,16 @@ export function EventRuleManager(props) {
       window.alert(`Rule creation failed: ${err.message}`);
     }
   }
+
+  // Load Transactions and Events
+  const [isLoadingTxs, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
+
+  if (isLoadingTxs || isLoadingReceipts) {
+    return <div>Loading...</div>;
+  }
+
+  const allEvents = _.flatten(transactions.map(tx => tx.events));
+  console.log(allEvents);
 
   const dataFieldsToInclude = ['timestamp', 'input', 'value', 'hash', 'blockNumber', 'from', 'to', 'stateAfter'];
   const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));

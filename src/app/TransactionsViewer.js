@@ -14,12 +14,19 @@ import {GeneralLedger} from './accounting';
 
 import cachedTxDataString from './data';
 
-const cachedTxData = JSON.parse(cachedTxDataString, (key, value) => {
+const cachedTxs = JSON.parse(cachedTxDataString, (key, value) => {
   if (value.ty === 'bigint') {
     return BigInt(value.value);
   }
   return value;
 });
+
+const cachedTxsByAddress = {
+  '0xEba220F7256B2F5e5d73dB6dDA83c99c1D916570': cachedTxs,
+};
+
+let cachedReceiptsByHash = {};
+_.forEach(_.flatten(_.values(cachedTxsByAddress)), (tx) => cachedReceiptsByHash[tx.hash] = tx.receipt);
 
 const { SearchBar } = Search;
 
@@ -222,16 +229,21 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
   if (_.isEmpty(rawReceipt)) {
     return _.extend({}, tx, {receipt: rawReceipt});
   }
-  const receipt = (worldState.findContract(tx.to))
+  const contract = worldState.findContract(tx.to);
+  const receipt = (contract)
     ? _.extend({}, rawReceipt, {decodedLogs: worldState.decodeReceiptLogs(rawReceipt.logs)})
     : rawReceipt;
-  return _.extend({}, tx, {receipt: receipt, gasFeePaid: BigInt(tx.gasPrice) * BigInt(receipt.gasUsed)})
+  return _.extend({}, tx, {
+    receipt: receipt,
+    gasFeePaid: BigInt(tx.gasPrice) * BigInt(receipt.gasUsed),
+    events: receipt.decodedLogs?.map(evt => _.extend({}, evt, {tx: tx, contract: contract})),
+  })
 }
 
 export function useTransactionsForAddress(addr, worldState) {
-  const [transactions, setTransactions] = useState([]);
-  const [transactionReceipts, setTransactionReceipts] = useState({});
-  const [isLoading, setLoading] = useState(true);
+  const [transactions, setTransactions] = useState(cachedTxsByAddress[addr] || []);
+  const [transactionReceipts, setTransactionReceipts] = useState(cachedReceiptsByHash);
+  const [isLoading, setLoading] = useState(!(addr in cachedTxsByAddress));
 
   useEffect(() => {
     async function fetchReceipt(hash) {
@@ -256,11 +268,6 @@ export function useTransactionsForAddress(addr, worldState) {
     }
 
   }, [addr, isLoading]);
-
-  if (addr === '0xEba220F7256B2F5e5d73dB6dDA83c99c1D916570') {
-    return [false, false, cachedTxData];
-  }
-
 
   let enhancedTransactions = transactions.map(tx => enhanceTransaction(tx, transactionReceipts[tx.hash], worldState));
   enhancedTransactions = _.sortBy(enhancedTransactions, 'timestamp');
