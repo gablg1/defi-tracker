@@ -261,7 +261,11 @@ export function EventRuleManager(props) {
   let evalError = undefined;
   try {
     eventsAfterApply = events.map(evt => {
-      return _.extend({}, evt, {filteredByRule: rule.shouldApply(evt, evt.tx, props.worldState)});
+      const shouldApply = rule.shouldApply(evt, evt.tx, props.worldState);
+      if (shouldApply !== false && shouldApply !== true) {
+        throw new Error(`Filter function must return either true or false. Returned: ${shouldApply}`);
+      }
+      return _.extend({}, evt, {filteredByRule: shouldApply});
     });
   } catch(err) {
     evalError = err;
@@ -327,7 +331,7 @@ export function EventRuleManager(props) {
                   </Form.Group>
                   <button onClick={addNewRule} className="btn btn-primary btn-fw">Add</button>
                 </form>
-                {evalError &&
+                {evalError && rule.filterCode != '' &&
                   <div style={{background: 'red'}}>
                   {evalError.message}
                   </div>
