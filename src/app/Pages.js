@@ -261,23 +261,21 @@ export function EventRuleManager(props) {
 
   const [ruleIndexBeingEdited, setRuleIndexBeingEdited] = useState(-1);
   const saveRule = (e) => {
-    // Prevent form from submitting
     e.preventDefault();
 
-    try {
-      // Add new rule
-      if (ruleIndexBeingEdited == -1) {
-        props.worldState.addRule(rule);
-      // Edit existing rule
-      } else {
-        props.worldState.rules.splice(ruleIndexBeingEdited, 1, rule);
-      }
-      props.handleSave();
-
-    } catch (err) {
-      window.alert(`Rule creation failed: ${err.message}`);
+    if (ruleIndexBeingEdited < 0 || ruleIndexBeingEdited >= props.worldState.rules.length) {
+      window.alert(`Trying to edit rule with bad index ${ruleIndexBeingEdited}`);
     }
+
+    props.worldState.rules.splice(ruleIndexBeingEdited, 1, rule);
+    props.handleSave();
   }
+
+  const addNewRule = (e) => {
+    e.preventDefault();
+    props.worldState.addRule(rule.clone());
+    props.handleSave();
+  };
 
   // Load Transactions and Events
   const [isLoadingTxs, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
@@ -304,7 +302,7 @@ export function EventRuleManager(props) {
     return _.extend({}, evt, {effectOfRule: effect});
   });
 
-  const rowStyler = (row, rowIndex) => (row.filteredByRule === true) ? {background: 'red'} : {};
+  const rowStyler = (row, rowIndex) => (row.filteredByRule === true) ? {background: '#474747'} : {};
 
   const filterError = _.find(_.map(eventsAfterApply, 'filteredByRule'), val => val instanceof Error);
   const effectError = _.find(_.map(eventsAfterApply, 'effectOfRule'), val => val instanceof Error);
@@ -358,7 +356,11 @@ export function EventRuleManager(props) {
                     <Form.Control type="text" id="exampleInputUsername1" placeholder="MyRule"
                         value={rule.name} onChange={(e) => setRuleFields({name: e.target.value})} />
                   </Form.Group>
-                  <button onClick={saveRule} className="btn btn-primary btn-fw">Save</button>
+                  <div>
+                    <button onClick={addNewRule} className="btn btn-primary btn-fw mr-2">Add new rule</button>
+                    {ruleIndexBeingEdited >= 0 && ruleIndexBeingEdited < props.worldState.rules.length &&
+                      <button onClick={saveRule} className="btn btn-primary btn-fw">Save</button>}
+                  </div>
                 </form>
                 {filterError && rule.filterCode != '' &&
                   <div style={{background: 'red'}}>{filterError.message}</div>

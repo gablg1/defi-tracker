@@ -52,15 +52,15 @@ export const Rule = Model.register('rule', class Rule extends Model {
 
   apply(evt, tx, worldState) {
     const isMyAddr = addr => addressesEqual(worldState.defaultAddr, addr);
-    let effect;
+    let effect = {};
     try {
       effect = new Function('evt, tx, isMyAddr', this.effectCode)(evt, tx, isMyAddr);
     } catch(err) {
       return err;
     }
 
-    if (!(effect instanceof Object)) { // FIXME: || _.some(_.values(effect), v => !(v instanceof Number))) {
-      return new Error(`Effect must return an object of integers representing token deltas. Returned: ${effect}`);
+    if (!(effect instanceof Object) || _.some(_.values(effect), v => isNaN(v))) {
+      return new Error(`Effect must return an object of integers representing token deltas. Returned: ${JSON.stringify(effect)}`);
     }
     return new Balances(effect);
   }
