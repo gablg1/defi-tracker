@@ -60,7 +60,7 @@ export const Rule = Model.register('rule', class Rule extends Model {
     }
 
     if (!(effect instanceof Object) || _.some(_.values(effect), v => isNaN(v))) {
-      return new Error(`Effect must return an object of integers representing token deltas. Returned: ${JSON.stringify(effect)}`);
+      return new Error(`Effect must return an object of integers representing token deltas. Returned: ${effect}`);
     }
     return new Balances(effect);
   }
