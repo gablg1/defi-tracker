@@ -348,8 +348,11 @@ export function EventRuleManager(props) {
                       </tr>
                     </thead>
                     <tbody>
-                      {props.worldState.rules.map((rule) =>
-                        <tr key={rule.uniqueKey}>
+                      {props.worldState.rules.map((rule, i) =>
+                        <tr style={ruleIndexBeingEdited == i ? {background: 'gray'} : {}} key={rule.uniqueKey} onClick={() => {
+                          setRuleIndexBeingEdited(i);
+                          setRule(rule);
+                        }}>
                           <td>{rule.name}</td>
                           <td>{rule.filterCode}</td>
                           <td>{rule.effectCode}</td>

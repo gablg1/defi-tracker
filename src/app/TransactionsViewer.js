@@ -271,9 +271,15 @@ export function useTransactionsForAddress(addr, worldState) {
       break;
     }
 
-    gl.processBlockchainTransaction(tx);
-    const i = enhancedTransactions.indexOf(tx);
-    tx.stateAfter = gl.stateAfterTransaction(i).toJson();
+    try {
+      gl.processBlockchainTransaction(tx);
+      const i = enhancedTransactions.indexOf(tx);
+      tx.stateAfter = gl.stateAfterTransaction(i).toJson();
+    } catch(err) {
+      console.warn(err);
+      console.warn("Error while computing state. See above");
+      break;
+    }
   }
 
   const isLoadingReceipts = _.some(enhancedTransactions, tx => _.isEmpty(tx.receipt));
