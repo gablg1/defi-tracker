@@ -215,6 +215,10 @@ function formatAddress(addr, worldState) {
 }
 
 const enhanceTransaction = (tx, rawReceipt, worldState) => {
+  if (_.isEmpty(tx)) {
+    return tx;
+  }
+
   if (_.isEmpty(rawReceipt)) {
     return _.extend({}, tx, {receipt: rawReceipt});
   }
@@ -363,7 +367,7 @@ export function SingleTransactionViewer(props) {
 
   const [isLoading, transaction] = useTransaction(txHash, props.worldState);
 
-  if (isLoading) {
+  if (isLoading || _.isEmpty(transaction.receipt)) {
     return <div>Loading...</div>;
   }
 
@@ -419,7 +423,7 @@ export function SingleTransactionViewer(props) {
                     </tr>
                   </thead>
                   <tbody>
-                    {transaction.receipt?.decodedLogs.map((log, i) =>
+                    {(transaction.receipt?.decodedLogs || []).map((log, i) =>
                       <tr key={i}>
                         <td>{formatAddress(log.address, props.worldState)}</td>
                         <td>{log.name}</td>
