@@ -219,9 +219,13 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
     receipt: receipt,
     gasFeePaid: BigInt(enhancedTx.gasPrice) * BigInt(receipt.gasUsed),
     events: receipt.decodedLogs?.map(evt => {
+      let args = {};
+      for (const arg of evt.events) {
+        args[arg.name] = {type: arg.type, value: arg.value};
+      }
       return {
         name: evt.name,
-        args: evt.events,
+        args: args,
         contractAddress: evt.address,
         contract: worldState.findContract(evt.address),
         tx: enhancedTx,
