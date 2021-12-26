@@ -258,11 +258,10 @@ export function EventRuleManager(props) {
 
   let eventsAfterApply = events;
 
-  let transactionsAfterApply = transactions;
   let evalError = undefined;
   try {
-    transactionsAfterApply = transactions.map(tx => {
-      return _.extend({}, tx, {filteredByRule: rule.shouldApply(tx, tx, props.worldState)});
+    eventsAfterApply = events.map(evt => {
+      return _.extend({}, evt, {filteredByRule: rule.shouldApply(evt, evt.tx, props.worldState)});
     });
   } catch(err) {
     evalError = err;
