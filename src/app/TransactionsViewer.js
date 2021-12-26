@@ -139,9 +139,9 @@ export const buildColumns = (worldState) => {
       text: 'Method',
       sort: true,
       formatter: (cellContent, row) => {
-        return cellContent instanceof String
-          ? truncateLongAddressCopiable(cellContent)
-          : <div className="badge badge-pill badge-info">{cellContent.name}</div>;
+        return (cellContent)
+          ? <div className="badge badge-pill badge-info">{cellContent.name}</div>
+          : truncateLongAddressCopiable(row.input);
       }
     }, {
       dataField: 'value',
@@ -205,7 +205,7 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
 
   let enhancedTx = _.extend({}, tx, {
     receipt: rawReceipt,
-    methodCall: worldState.decodeContractCall(tx.input) || tx.input,
+    methodCall: worldState.decodeContractCall(tx.input),
   });
 
   if (_.isEmpty(rawReceipt)) {

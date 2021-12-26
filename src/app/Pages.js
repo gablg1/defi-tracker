@@ -6,7 +6,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import { Link } from 'react-router-dom';
 
-import {formatAddress, truncateLongString } from './utils';
+import {formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
 
 // import brace from "brace";
 
@@ -189,6 +189,15 @@ export const buildColumns = (worldState) => {
       sort: true,
       formatter: (cellContent, row) =>
         <Link to={`/tx/${cellContent}`}>{truncateLongString(cellContent.hash)}</Link>
+    }, {
+      dataField: 'methodCall',
+      text: 'Method',
+      sort: true,
+      formatter: (cellContent, row) => {
+        return (row.tx.methodCall)
+          ? <div className="badge badge-pill badge-info">{row.tx.methodCall.name}</div>
+          : truncateLongAddressCopiable(row.tx.input);
+      }
     }, {
       dataField: 'from',
       text: 'Tx From',
