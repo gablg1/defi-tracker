@@ -62,7 +62,7 @@ export class GeneralLedger {
     const btx = glTransaction.blockchainTransaction;
     const oneValue = BigInt(btx.value || 0) * sign(this.worldState.defaultAddr, btx.from, btx.to) - btx.gasFeePaid;
 
-    let effect = new Balances({one: oneValue});
+    let effect = new Balances({ONE: oneValue});
 
     for (const evt of (btx.events || [])) {
       for (const rule of this.worldState.rulesThatApply(evt, btx)) {

@@ -8,7 +8,7 @@ import _ from 'lodash';
 import {fromBech32, toBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
-import { formatAddress, assert, Copiable, transactionExplorerLink, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, addressesEqual } from './utils';
+import { addSign, formatAddress, assert, Copiable, transactionExplorerLink, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, addressesEqual } from './utils';
 
 import {GeneralLedger} from './accounting';
 
@@ -184,7 +184,7 @@ export const buildColumns = (worldState) => {
       formatter: (cellContent, row) =>
         <div>
         {_.map(cellContent, (balance, token) =>
-          <div key={token}>{formatTokenValue(balance, token)}</div>
+          <div key={token}>{token}: {addSign(formatTokenValue(balance, ''))}</div>
         )}
         </div>
     }, {
@@ -328,7 +328,7 @@ export function TransactionsViewer(props) {
     ));
   }
 
-  const dataFieldsToInclude = ['timestamp', 'methodCall', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'receipt'];
+  const dataFieldsToInclude = ['timestamp', 'methodCall', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter'];
   const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
 
   return (

@@ -6,6 +6,9 @@ import { fromBech32 } from '@harmony-js/crypto';
 
 /* global BigInt */
 
+export const addSign = (valueString) =>
+  (valueString.startsWith('+') || valueString.startsWith('-')) ? valueString : `+${valueString}`;
+
 export function formatTokenValue(value, tokenName, minFractionDigits = 2) {
   const formatedValue = (Number(value) / 10 ** 18).toLocaleString("en-US", { minimumFractionDigits: minFractionDigits });
   return `${formatedValue} ${tokenName}`;

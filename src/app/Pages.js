@@ -6,7 +6,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import { Link } from 'react-router-dom';
 
-import {formatTokenValue, Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
+import {addSign, formatTokenValue, Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
 
 // import brace from "brace";
 
@@ -25,9 +25,6 @@ import {useTransactionsForAddress } from './TransactionsViewer';
 
 
 const filterColor = '#474747';
-
-const addSign = (valueString) =>
-  (valueString.startsWith('+') || valueString.startsWith('-')) ? valueString : `+${valueString}`;
 
 export function ContractManager(props) {
   const [newContractAbi, setNewContractAbi] = useState('');
