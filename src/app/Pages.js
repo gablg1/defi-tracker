@@ -30,12 +30,14 @@ export function ContractManager(props) {
   const [contractIndexBeingEdited, setContractIndexBeingEdited] = useState(-1);
   const resetContractState = () => {
     setContractIndexBeingEdited(-1);
+    setNewContractType('Other');
     setNewContractMetadata('');
     setNewContractAbi('');
     setNewContractName('');
     setNewContractAddr('');
   };
 
+  const [newContractType, setNewContractType] = useState('Other');
   const [newContractMetadata, setNewContractMetadata] = useState('');
   const [newContractAbi, setNewContractAbi] = useState('');
   const [newContractName, setNewContractName] = useState('');
@@ -46,7 +48,7 @@ export function ContractManager(props) {
 
     try {
       props.worldState.addContract(new Contract({
-        stringifiedAbi: newContractAbi, name: newContractName,
+        stringifiedAbi: newContractAbi, name: newContractName, type: newContractType,
         address: newContractAddr, metadata: JSON.parse(newContractMetadata),
       }));
       props.handleSave();
@@ -61,7 +63,8 @@ export function ContractManager(props) {
 
     try {
       props.worldState.replaceContract(contractIndexBeingEdited, new Contract({
-        stringifiedAbi: newContractAbi, name: newContractName, address: newContractAddr, metadata: JSON.parse(newContractMetadata),
+        stringifiedAbi: newContractAbi, name: newContractName, type: newContractType,
+        address: newContractAddr, metadata: JSON.parse(newContractMetadata),
       }));
       props.handleSave();
       resetContractState();
@@ -102,6 +105,7 @@ export function ContractManager(props) {
                               setContractIndexBeingEdited(i);
                               setNewContractMetadata(JSON.stringify(contract.metadata));
                               setNewContractAbi(contract.stringifiedAbi);
+                              setNewContractType(contract.type);
                               setNewContractName(contract.name);
                               setNewContractAddr(contract.address);
                               evt.stopPropagation();
@@ -158,6 +162,34 @@ export function ContractManager(props) {
                       <Form.Control type="text" className="form-control" id="exampleInputEmail1" placeholder="one1mvcxg0r34j0zzgk2qdq76a7sn40en7fy7lytq4"
                          value={newContractAddr} onChange={(e) => setNewContractAddr(e.target.value)} />
                     </Form.Group>
+
+                    <Form.Group style={{display: 'flex'}}>
+                      <span className="form-check mr-2">
+                        <label className="form-check-label" onClick={() => setNewContractType('ERC20')}>
+                          <input type="radio" className="form-check-input" name="optionsRadios" id="optionsRadios1"
+                            checked={newContractType === 'ERC20'} readOnly />
+                          <i className="input-helper"></i>
+                          ERC20
+                        </label>
+                      </span>
+                      <span className="form-check mr-2">
+                        <label className="form-check-label" onClick={() => setNewContractType('ERC721')}>
+                          <input type="radio" className="form-check-input" name="optionsRadios" id="optionsRadios1"
+                            checked={newContractType === 'ERC721'} readOnly />
+                          <i className="input-helper"></i>
+                          ERC721
+                        </label>
+                      </span>
+                      <span className="form-check mr-2">
+                        <label className="form-check-label" onClick={() => setNewContractType('Other')}>
+                          <input type="radio" className="form-check-input" name="optionsRadios" id="optionsRadios1"
+                            checked={newContractType === 'Other'} readOnly />
+                          <i className="input-helper"></i>
+                          Other
+                        </label>
+                      </span>
+                    </Form.Group>
+
                     <div>
                       <button disabled={contractIndexBeingEdited < 0 || contractIndexBeingEdited >= props.worldState.contracts.length} onClick={saveContract}
                         className="btn btn-primary btn-fw mr-3">

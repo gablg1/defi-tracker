@@ -90,14 +90,17 @@ export const Contract = Model.register('contract', class Contract extends Model 
     stringifiedAbi: String,
     blockchain: String,
     metadata: JSON,
+    type: String,
   }
 
   static defaultProperties = {
     stringifiedAbi: '[]',
     blockchain: 'Harmony',
+    type: 'Other',
   }
 
-  static validBlockchains = ['Harmony']
+  static validBlockchains = ['Harmony'];
+  static validTypes = ['ERC20', 'ERC721', 'Other'];
 
   anyError() {
     if (_.isEmpty(this.name)) {
@@ -110,6 +113,10 @@ export const Contract = Model.register('contract', class Contract extends Model 
 
     if (!this.constructor.validBlockchains.includes(this.blockchain)) {
       return new Error(`Blockchain ${this.blockchain} is invalid`);
+    }
+
+    if (!this.constructor.validTypes.includes(this.type)) {
+      return new Error(`Type ${this.type} is invalid`);
     }
 
     try {
