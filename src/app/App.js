@@ -168,6 +168,16 @@ export const WorldState = Model.register('world-state', class WorldState extends
     this.addAllContractAbis();
   }
 
+  replaceContract(index, newContract) {
+    this.throwIfErrorFromChange(clone => {
+      clone.rules.splice(index, 1, newContract);
+      return clone;
+    });
+
+    this.contracts.splice(index, 1, newContract);
+    this.addAllContractAbis();
+  }
+
   removeContract(contract) {
     const index = this.contracts.indexOf(contract);
     if (index === -1) {

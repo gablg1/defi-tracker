@@ -27,23 +27,40 @@ import {useTransactionsForAddress } from './TransactionsViewer';
 const filterColor = '#474747';
 
 export function ContractManager(props) {
+  const [contractIndexBeingEdited, setContractIndexBeingEdited] = useState(-1);
+  const resetContractState = () => {
+    setContractIndexBeingEdited(-1);
+    setNewContractAbi('');
+    setNewContractName('');
+    setNewContractAddr('');
+  };
+
   const [newContractAbi, setNewContractAbi] = useState('');
   const [newContractName, setNewContractName] = useState('');
   const [newContractAddr, setNewContractAddr] = useState('');
 
   const addNewContract = (e) => {
-    // Prevent form from submitting
     e.preventDefault();
 
     try {
       props.worldState.addContract(new Contract({stringifiedAbi: newContractAbi, name: newContractName, address: newContractAddr}));
       props.handleSave();
+      resetContractState();
 
-      setNewContractAbi('');
-      setNewContractName('');
-      setNewContractAddr('');
     } catch (err) {
       window.alert(`Contract creation failed: ${err.message}`);
+    }
+  }
+  const saveContract = (e) => {
+    e.preventDefault();
+
+    try {
+      props.worldState.replaceContract(contractIndexBeingEdited, new Contract({stringifiedAbi: newContractAbi, name: newContractName, address: newContractAddr}));
+      props.handleSave();
+      resetContractState();
+
+    } catch (err) {
+      window.alert(`Contract save failed: ${err.message}`);
     }
   }
 
@@ -56,40 +73,49 @@ export function ContractManager(props) {
         <div className="col-12 grid-margin">
           <div className="card">
             <div className="card-body">
-              <div className="row">
-                <h4 className="card-title">Known Contracts</h4>
-              </div>
-              <div className="row">
-                <div className="table-responsive">
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Address</th>
-                        <th>Blockchain</th>
-                        <th>Delete</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {props.worldState.contracts.map((contract) =>
-                        <tr key={contract.address}>
-                          <td>{contract.name}</td>
-                          <td>{contract.address}</td>
-                          <td>{contract.blockchain}</td>
-                          <td><button onClick={() => {
-                            if (window.confirm('Are you sure you wish to delete this item?')) {
-                              props.worldState.removeContract(contract);
-                              props.handleSave();
-                            }
-                          }} className="btn btn-danger btn-sm">Delete</button></td>
+              <div onClick={resetContractState} style={{paddingBottom: 30}}>
+                <div className="row">
+                  <h4 className="card-title">Known Contracts</h4>
+                </div>
+                <div className="row">
+                  <div className="table-responsive">
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Address</th>
+                          <th>Blockchain</th>
+                          <th>Delete</th>
                         </tr>
-                      )}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {props.worldState.contracts.map((contract, i) =>
+                          <tr style={contractIndexBeingEdited === i ? {background: filterColor} : {}} key={contract.address}
+                            onClick={evt => {
+                              setContractIndexBeingEdited(i);
+                              setNewContractAbi(contract.stringifiedAbi);
+                              setNewContractName(contract.name);
+                              setNewContractAddr(contract.address);
+                              evt.stopPropagation();
+                          }}>
+                            <td>{contract.name}</td>
+                            <td>{contract.address}</td>
+                            <td>{contract.blockchain}</td>
+                            <td><button onClick={() => {
+                              if (window.confirm('Are you sure you wish to delete this item?')) {
+                                props.worldState.removeContract(contract);
+                                props.handleSave();
+                              }
+                            }} className="btn btn-danger btn-sm">Delete</button></td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
               <div className="row">
-                <h4 className="card-title">Add new Contract</h4>
+                <h4 className="card-title">Contract</h4>
               </div>
               <div className="row">
                 <div className="col-md-6 grid-margin">
@@ -121,7 +147,13 @@ export function ContractManager(props) {
                       <Form.Control type="text" className="form-control" id="exampleInputEmail1" placeholder="one1mvcxg0r34j0zzgk2qdq76a7sn40en7fy7lytq4"
                          value={newContractAddr} onChange={(e) => setNewContractAddr(e.target.value)} />
                     </Form.Group>
-                    <button onClick={addNewContract} className="btn btn-primary btn-fw">Add</button>
+                    <div>
+                      <button disabled={contractIndexBeingEdited < 0 || contractIndexBeingEdited >= props.worldState.contracts.length} onClick={saveContract}
+                        className="btn btn-primary btn-fw mr-3">
+                        Save
+                      </button>
+                      <button onClick={addNewContract} className="btn btn-primary btn-fw">Add new contract</button>
+                    </div>
                   </form>
                 </div>
               </div>
@@ -285,6 +317,7 @@ function EventRuleManagerInternal(props) {
 
     if (ruleIndexBeingEdited < 0 || ruleIndexBeingEdited >= props.worldState.rules.length) {
       window.alert(`Trying to edit rule with bad index ${ruleIndexBeingEdited}`);
+      return;
     }
 
     props.worldState.rules.splice(ruleIndexBeingEdited, 1, rule);
@@ -341,7 +374,7 @@ function EventRuleManagerInternal(props) {
         <div className="col-12 grid-margin">
           <div className="card">
             <div className="card-body">
-              <div onClick={resetRuleState}>
+              <div onClick={resetRuleState} style={{paddingBottom: 30}}>
                 <div className="row">
                   <h4 className="card-title">Existing Rules</h4>
                 </div>
@@ -374,7 +407,7 @@ function EventRuleManagerInternal(props) {
                   </div>
                 </div>
               </div>
-              <div className="row" style={{marginTop: 20}}>
+              <div className="row">
                 <h4 className="card-title">Rule</h4>
               </div>
               <div className="row mb-3">
