@@ -225,20 +225,20 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
 }
 
 export function useTransactionsForAddress(addr, worldState) {
-  const [transactions, setTransactions] = useState(worldState.cachedTxsByAddress[addr] || []);
-  const [transactionReceipts, setTransactionReceipts] = useState(worldState.cachedReceiptsByHash);
+  const [fetchedTransactions, setFetchedTransactions] = useState([]);
+  const [fetchedReceipts, setFetchedReceipts] = useState({});
   const [isLoading, setLoading] = useState(!(addr in worldState.cachedTxsByAddress));
 
   useEffect(() => {
     async function fetchReceipt(hash) {
       const receipt = await getTransactionReceipt(hash);
-      setTransactionReceipts(prevState => _.extend({}, prevState, {[hash]: receipt}));
+      setFetchedReceipts(prevState => _.extend({}, prevState, {[hash]: receipt}));
     }
 
     async function fetchTransactions() {
       const txData = await getTransactionsHistory(addr);
 
-      setTransactions(txData);
+      setFetchedTransactions(txData);
       setLoading(false);
 
       // Asynchronously fetch receipts and other metadata
@@ -253,6 +253,15 @@ export function useTransactionsForAddress(addr, worldState) {
 
   }, [addr, isLoading]);
 
+  useEffect(() => {
+    setFetchedTransactions([]);
+    setFetchedReceipts({});
+    setLoading(!(addr in worldState.cachedTxsByAddress));
+  }, [addr]);
+
+
+  const transactions = worldState.cachedTxsByAddress[addr] || fetchedTransactions;
+  const transactionReceipts = _.extend({}, fetchedReceipts, worldState.cachedReceiptsByHash);
 
   let enhancedTransactions = transactions.map(tx => enhanceTransaction(tx, transactionReceipts[tx.hash], worldState));
   enhancedTransactions = _.sortBy(enhancedTransactions, 'timestamp');
@@ -276,12 +285,13 @@ export function useTransactionsForAddress(addr, worldState) {
   const isLoadingReceipts = _.some(enhancedTransactions, tx => _.isEmpty(tx.receipt));
 
   useEffect(() => {
-    if (!isLoading && !isLoadingReceipts && worldState.shouldCacheTransactions && transactions.length > 0) {
+    if (!isLoading && !isLoadingReceipts && worldState.shouldCacheTransactions && transactions.length > 0 && !(addr in worldState.cachedTxsByAddress)) {
       worldState.cachedTxsByAddress[addr] = transactions;
       _.forEach(transactionReceipts, (receipt, hash) =>
         worldState.cachedReceiptsByHash[hash] = receipt
       );
       worldState.flushCaches();
+
       console.log(`Writing ${transactions.length} txs to caches`);
     }
   }, [isLoading, isLoadingReceipts, worldState.shouldCacheTransactions]);
