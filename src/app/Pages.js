@@ -30,11 +30,13 @@ export function ContractManager(props) {
   const [contractIndexBeingEdited, setContractIndexBeingEdited] = useState(-1);
   const resetContractState = () => {
     setContractIndexBeingEdited(-1);
+    setNewContractMetadata('');
     setNewContractAbi('');
     setNewContractName('');
     setNewContractAddr('');
   };
 
+  const [newContractMetadata, setNewContractMetadata] = useState('');
   const [newContractAbi, setNewContractAbi] = useState('');
   const [newContractName, setNewContractName] = useState('');
   const [newContractAddr, setNewContractAddr] = useState('');
@@ -43,7 +45,10 @@ export function ContractManager(props) {
     e.preventDefault();
 
     try {
-      props.worldState.addContract(new Contract({stringifiedAbi: newContractAbi, name: newContractName, address: newContractAddr}));
+      props.worldState.addContract(new Contract({
+        stringifiedAbi: newContractAbi, name: newContractName,
+        address: newContractAddr, metadata: JSON.parse(newContractMetadata),
+      }));
       props.handleSave();
       resetContractState();
 
@@ -55,7 +60,9 @@ export function ContractManager(props) {
     e.preventDefault();
 
     try {
-      props.worldState.replaceContract(contractIndexBeingEdited, new Contract({stringifiedAbi: newContractAbi, name: newContractName, address: newContractAddr}));
+      props.worldState.replaceContract(contractIndexBeingEdited, new Contract({
+        stringifiedAbi: newContractAbi, name: newContractName, address: newContractAddr, metadata: JSON.parse(newContractMetadata),
+      }));
       props.handleSave();
       resetContractState();
 
@@ -93,6 +100,7 @@ export function ContractManager(props) {
                           <tr style={contractIndexBeingEdited === i ? {background: filterColor} : {}} key={contract.address}
                             onClick={evt => {
                               setContractIndexBeingEdited(i);
+                              setNewContractMetadata(JSON.stringify(contract.metadata));
                               setNewContractAbi(contract.stringifiedAbi);
                               setNewContractName(contract.name);
                               setNewContractAddr(contract.address);
@@ -158,6 +166,28 @@ export function ContractManager(props) {
                       <button onClick={addNewContract} className="btn btn-primary btn-fw">Add new contract</button>
                     </div>
                   </form>
+                </div>
+              </div>
+              <div className="row">
+                <div className="col-md-6 grid-margin">
+                  <div className="form-group">
+                    <label>Metadata</label>
+                    <AceEditor style={{minHeight: '300px'}}
+                      mode="json"
+                      theme="monokai"
+                      name="jsonEditor"
+                      editorProps={{ $blockScrolling: true }}
+                      placeholder="JSON Metadata added here can be accessed by rules"
+                      fontSize={14}
+                      showPrintMargin={true}
+                      showGutter={true}
+                      highlightActiveLine={true}
+                      height="100%"
+                      width="100%"
+                      value={newContractMetadata}
+                      onChange={setNewContractMetadata}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

@@ -89,6 +89,7 @@ export const Contract = Model.register('contract', class Contract extends Model 
     address: String,
     stringifiedAbi: String,
     blockchain: String,
+    metadata: JSON,
   }
 
   static defaultProperties = {

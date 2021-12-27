@@ -18,6 +18,12 @@ export const deserialize = function(ty, json) {
       return json;
     }
     throw new Error("bad deserialize boolean");
+  } else if (ty === JSON) {
+    try {
+      return JSON.parse(json);
+    } catch(err) {
+      throw new Error("bad deserialize JSON");
+    }
   } else if (_.isArray(ty) && ty.length === 1) {
     typaram = ty[0];
     if (!_.isArray(json)) {
@@ -55,6 +61,11 @@ export const serialize = function(ty, value) {
       return value;
     }
     throw new Error(`bad serialize boolean ${value}`);
+  } else if (ty === JSON) {
+    if (_.isObject(value)) {
+      return JSON.stringify(value);
+    }
+    throw new Error(`bad serialize JSON ${value}`);
   } else if (_.isArray(ty) && ty.length === 1) {
     typaram = ty[0];
     if (!_.isArray(value)) {
@@ -77,6 +88,8 @@ const defaultValueForType = function(ty) {
     return 0;
   } else if (ty === Boolean) {
     return false;
+  } else if (ty === JSON) {
+    return {};
   } else if (_.isArray(ty) && ty.length === 1) {
     return [];
   } else if (ty.__isRegisteredModel) {
