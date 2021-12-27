@@ -119,21 +119,24 @@ export function ContractManager(props) {
               </div>
               <div className="row">
                 <div className="col-md-6 grid-margin">
-                  <AceEditor style={{minHeight: '300px'}}
-                    mode="json"
-                    theme="monokai"
-                    name="jsonEditor"
-                    editorProps={{ $blockScrolling: true }}
-                    placeholder="Contract ABI goes here..."
-                    fontSize={14}
-                    showPrintMargin={true}
-                    showGutter={true}
-                    highlightActiveLine={true}
-                    height="100%"
-                    width="100%"
-                    value={newContractAbi}
-                    onChange={setNewContractAbi}
-                  />
+                  <div className="form-group">
+                    <label>ABI</label>
+                    <AceEditor style={{minHeight: '300px'}}
+                      mode="json"
+                      theme="monokai"
+                      name="jsonEditor"
+                      editorProps={{ $blockScrolling: true }}
+                      placeholder="Contract ABI goes here..."
+                      fontSize={14}
+                      showPrintMargin={true}
+                      showGutter={true}
+                      highlightActiveLine={true}
+                      height="100%"
+                      width="100%"
+                      value={newContractAbi}
+                      onChange={setNewContractAbi}
+                    />
+                  </div>
                 </div>
                 <div className="col-md-6 grid-margin">
                   <form className="forms-sample">
