@@ -30,27 +30,23 @@ export function ContractManager(props) {
   const [contractIndexBeingEdited, setContractIndexBeingEdited] = useState(-1);
   const resetContractState = () => {
     setContractIndexBeingEdited(-1);
-    setNewContractType('Other');
-    setNewContractMetadata('');
-    setNewContractAbi('');
-    setNewContractName('');
-    setNewContractAddr('');
+    setEditableContract(new Contract());
+    setEditableMetadata('');
   };
 
-  const [newContractType, setNewContractType] = useState('Other');
-  const [newContractMetadata, setNewContractMetadata] = useState('');
-  const [newContractAbi, setNewContractAbi] = useState('');
-  const [newContractName, setNewContractName] = useState('');
-  const [newContractAddr, setNewContractAddr] = useState('');
+  const [editableContract, setEditableContract] = useState(new Contract());
+  const [editableMetadata, setEditableMetadata] = useState('');
+  const setEditableContractFields = (fieldObj) => {
+    return setEditableContract(_.extend(editableContract.clone(), fieldObj));
+  };
 
   const addNewContract = (e) => {
     e.preventDefault();
 
     try {
-      props.worldState.addContract(new Contract({
-        stringifiedAbi: newContractAbi, name: newContractName, type: newContractType,
-        address: newContractAddr, metadata: JSON.parse(newContractMetadata),
-      }));
+      const clone = editableContract.clone();
+      clone.metadata = _.isEmpty(editableMetadata) ? {} : JSON.parse(editableMetadata);
+      props.worldState.addContract(clone);
       props.handleSave();
       resetContractState();
 
@@ -62,10 +58,9 @@ export function ContractManager(props) {
     e.preventDefault();
 
     try {
-      props.worldState.replaceContract(contractIndexBeingEdited, new Contract({
-        stringifiedAbi: newContractAbi, name: newContractName, type: newContractType,
-        address: newContractAddr, metadata: JSON.parse(newContractMetadata),
-      }));
+      const clone = editableContract.clone();
+      clone.metadata = _.isEmpty(editableMetadata) ? {} : JSON.parse(editableMetadata);
+      props.worldState.replaceContract(contractIndexBeingEdited, clone);
       props.handleSave();
       resetContractState();
 
@@ -103,11 +98,7 @@ export function ContractManager(props) {
                           <tr style={contractIndexBeingEdited === i ? {background: filterColor} : {}} key={contract.address}
                             onClick={evt => {
                               setContractIndexBeingEdited(i);
-                              setNewContractMetadata(JSON.stringify(contract.metadata));
-                              setNewContractAbi(contract.stringifiedAbi);
-                              setNewContractType(contract.type);
-                              setNewContractName(contract.name);
-                              setNewContractAddr(contract.address);
+                              setEditableContract(contract);
                               evt.stopPropagation();
                           }}>
                             <td>{contract.name}</td>
@@ -145,8 +136,8 @@ export function ContractManager(props) {
                       highlightActiveLine={true}
                       height="100%"
                       width="100%"
-                      value={newContractAbi}
-                      onChange={setNewContractAbi}
+                      value={editableContract.stringifiedAbi}
+                      onChange={val => setEditableContractFields({stringifiedAbi: val})}
                     />
                   </div>
                 </div>
@@ -155,39 +146,45 @@ export function ContractManager(props) {
                     <Form.Group>
                       <label htmlFor="exampleInputUsername1">Contract Name</label>
                       <Form.Control type="text" id="exampleInputUsername1" placeholder="Master Gardener"
-                         value={newContractName} onChange={(e) => setNewContractName(e.target.value)} />
+                         value={editableContract.name} onChange={(e) => setEditableContractFields({name: e.target.value})} />
                     </Form.Group>
                     <Form.Group>
                       <label htmlFor="exampleInputEmail1">Contract address</label>
                       <Form.Control type="text" className="form-control" id="exampleInputEmail1" placeholder="one1mvcxg0r34j0zzgk2qdq76a7sn40en7fy7lytq4"
-                         value={newContractAddr} onChange={(e) => setNewContractAddr(e.target.value)} />
+                         value={editableContract.address} onChange={(e) => setEditableContractFields({address: e.target.value})} />
                     </Form.Group>
 
                     <Form.Group style={{display: 'flex'}}>
                       <span className="form-check mr-2">
-                        <label className="form-check-label" onClick={() => setNewContractType('ERC20')}>
+                        <label className="form-check-label" onClick={() => setEditableContractFields({type: 'ERC20'})}>
                           <input type="radio" className="form-check-input" name="optionsRadios" id="optionsRadios1"
-                            checked={newContractType === 'ERC20'} readOnly />
+                            checked={editableContract.type === 'ERC20'} readOnly />
                           <i className="input-helper"></i>
                           ERC20
                         </label>
                       </span>
                       <span className="form-check mr-2">
-                        <label className="form-check-label" onClick={() => setNewContractType('ERC721')}>
+                        <label className="form-check-label" onClick={() => setEditableContractFields({type: 'ERC721'})}>
                           <input type="radio" className="form-check-input" name="optionsRadios" id="optionsRadios1"
-                            checked={newContractType === 'ERC721'} readOnly />
+                            checked={editableContract.type === 'ERC721'} readOnly />
                           <i className="input-helper"></i>
                           ERC721
                         </label>
                       </span>
                       <span className="form-check mr-2">
-                        <label className="form-check-label" onClick={() => setNewContractType('Other')}>
+                        <label className="form-check-label" onClick={() => setEditableContractFields({type: 'Other'})}>
                           <input type="radio" className="form-check-input" name="optionsRadios" id="optionsRadios1"
-                            checked={newContractType === 'Other'} readOnly />
+                            checked={editableContract.type === 'Other'} readOnly />
                           <i className="input-helper"></i>
                           Other
                         </label>
                       </span>
+                    </Form.Group>
+
+                    <Form.Group>
+                      <label htmlFor="exampleInputUsername3">Token Name</label>
+                      <Form.Control type="text" placeholder="JEWEL"
+                         value={editableContract.tokenName} onChange={(e) => setEditableContractFields({tokenName: e.target.value})} />
                     </Form.Group>
 
                     <div>
@@ -216,8 +213,8 @@ export function ContractManager(props) {
                       highlightActiveLine={true}
                       height="100%"
                       width="100%"
-                      value={newContractMetadata}
-                      onChange={setNewContractMetadata}
+                      value={editableMetadata}
+                      onChange={setEditableMetadata}
                     />
                   </div>
                 </div>

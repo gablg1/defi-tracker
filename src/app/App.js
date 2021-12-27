@@ -91,6 +91,7 @@ export const Contract = Model.register('contract', class Contract extends Model 
     blockchain: String,
     metadata: JSON,
     type: String,
+    tokenName: String,
   }
 
   static defaultProperties = {
@@ -119,6 +120,10 @@ export const Contract = Model.register('contract', class Contract extends Model 
       return new Error(`Type ${this.type} is invalid`);
     }
 
+    if (this.typeRequiresTokenName() && _.isEmpty(this.tokenName)) {
+      return new Error(`Contract of type ${this.type} must have a tokenName`);
+    }
+
     try {
       JSON.parse(this.stringifiedAbi);
     } catch(e) {
@@ -126,6 +131,10 @@ export const Contract = Model.register('contract', class Contract extends Model 
     }
 
     return undefined;
+  }
+
+  typeRequiresTokenName() {
+    return ['ERC20', 'ERC721'].includes(this.type);
   }
 });
 
