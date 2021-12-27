@@ -163,11 +163,20 @@ export const buildColumns = (worldState) => {
       sort: true,
       formatter: (cellContent, row) => formatAddress(cellContent, worldState)
     }, {
+      dataField: 'effectOfTransaction',
+      text: 'Tx Effect',
+      formatter: (cellContent, row) =>
+        <div>
+        {_.map(cellContent.toJson(), (balance, token) =>
+          <div key={token}>{token}: {addSign(formatTokenValue(balance, ''))}</div>
+        )}
+        </div>
+    }, {
       dataField: 'stateAfter',
       text: 'State After',
       formatter: (cellContent, row) =>
         <div>
-        {_.map(cellContent, (balance, token) =>
+        {_.map(cellContent.toJson(), (balance, token) =>
           <div key={token}>{token}: {addSign(formatTokenValue(balance, ''))}</div>
         )}
         </div>
@@ -204,7 +213,7 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
   const receipt = (worldState.findContract(enhancedTx.to))
     ? _.extend({}, rawReceipt, {decodedLogs: worldState.decodeReceiptLogs(rawReceipt.logs)})
     : rawReceipt;
-  return _.extend(enhancedTx, {
+  _.extend(enhancedTx, {
     receipt: receipt,
     gasFeePaid: BigInt(enhancedTx.gasPrice) * BigInt(receipt.gasUsed),
     events: receipt.decodedLogs?.map((evt, i) => {
@@ -220,8 +229,10 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
         contract: worldState.findContract(evt.address),
         tx: enhancedTx,
       };
-    }),
+    })
   })
+
+    return _.extend(enhancedTx, {effectOfTransaction: worldState.effectOfTransaction(enhancedTx)});
 }
 
 export function useTransactionsForAddress(addr, worldState) {
@@ -277,7 +288,7 @@ export function useTransactionsForAddress(addr, worldState) {
     try {
       gl.processBlockchainTransaction(tx);
       const i = enhancedTransactions.indexOf(tx);
-      tx.stateAfter = gl.stateAfterTransaction(i).toJson();
+      tx.stateAfter = gl.stateAfterTransaction(i);
     } catch(err) {
       console.warn(err);
       console.warn("Error while computing state. See above");
@@ -338,7 +349,7 @@ export function TransactionsViewer(props) {
     ));
   }
 
-  const dataFieldsToInclude = ['timestamp', 'methodCall', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter'];
+  const dataFieldsToInclude = ['timestamp', 'methodCall', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'effectOfTransaction'];
   const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
 
   return (

@@ -10,7 +10,7 @@ import { Navigate, Routes, Route } from 'react-router-dom';
 import Spinner from '../app/shared/Spinner';
 
 import { isBech32Address } from '@harmony-js/utils';
-import { isValidEthereumAddress } from './utils';
+import { isValidEthereumAddress, assert } from './utils';
 
 import {Balances} from './accounting';
 import { addressesEqual, normalizeAddress } from './utils';
@@ -24,6 +24,19 @@ import abiDecoder from 'abi-decoder';
 
 const _knownAbis = {}
 
+const sign = (me, from, to) => {
+  const fromMe = addressesEqual(me, from);
+  const toMe = addressesEqual(me, to);
+  assert(() => fromMe || toMe);
+  if (fromMe) {
+    return BigInt(-1);
+  } else if (toMe) {
+    return BigInt(+1);
+  } else {
+    return BigInt(0);
+  }
+
+};
 
 export const Asset = Model.register('asset', class Asset extends Model {
   static properties = {
@@ -195,6 +208,20 @@ export const WorldState = Model.register('world-state', class WorldState extends
 
   rulesThatApply(evt, tx) {
     return _.filter(this.rules, r => r.shouldApply(evt, tx, this));
+  }
+
+  effectOfTransaction(btx) {
+    const oneValue = BigInt(btx.value || 0) * sign(this.defaultAddr, btx.from, btx.to) - btx.gasFeePaid;
+
+    let effect = new Balances({ONE: oneValue});
+
+    for (const evt of (btx.events || [])) {
+      for (const rule of this.rulesThatApply(evt, btx)) {
+        effect = effect.plus(rule.apply(evt, btx, this));
+      }
+    }
+
+    return effect;
   }
 
   loadCaches() {

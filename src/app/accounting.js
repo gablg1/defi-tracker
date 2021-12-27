@@ -4,23 +4,6 @@ import {ethers} from 'ethers';
 
 /* global BigInt */
 
-const bigNumberify = (val) => {
-  return BigInt(val);
-};
-
-const sign = (me, from, to) => {
-  const fromMe = addressesEqual(me, from);
-  const toMe = addressesEqual(me, to);
-  assert(() => fromMe || toMe);
-  if (fromMe) {
-    return bigNumberify(-1);
-  } else if (toMe) {
-    return bigNumberify(+1);
-  } else {
-    return bigNumberify(0);
-  }
-
-};
 
 export class Balances {
   constructor(json) {
@@ -59,18 +42,7 @@ export class GeneralLedger {
   }
 
   effectOfGLTransaction(glTransaction) {
-    const btx = glTransaction.blockchainTransaction;
-    const oneValue = BigInt(btx.value || 0) * sign(this.worldState.defaultAddr, btx.from, btx.to) - btx.gasFeePaid;
-
-    let effect = new Balances({ONE: oneValue});
-
-    for (const evt of (btx.events || [])) {
-      for (const rule of this.worldState.rulesThatApply(evt, btx)) {
-        effect = effect.plus(rule.apply(evt, btx, this.worldState));
-      }
-    }
-
-    return effect;
+    return this.worldState.effectOfTransaction(glTransaction.blockchainTransaction);
   }
 
   stateAfterTransaction(txIndex) {
