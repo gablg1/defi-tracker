@@ -239,7 +239,7 @@ export const buildColumns = (worldState) => {
       formatter: (cellContent, row) =>
         <div>
         {_.map(cellContent, (rule) =>
-          <div className="badge badge-pill badge-success">{rule.name}</div>
+          <div key={rule.name} className="badge badge-pill badge-success">{rule.name}</div>
         )}
         </div>
     }, {
