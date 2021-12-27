@@ -72,7 +72,11 @@ export function normalizeAddress(addr) {
 }
 
 export function addressesEqual(addr1, addr2) {
-  return normalizeAddress(addr1) === normalizeAddress(addr2);
+  try {
+    return normalizeAddress(addr1) === normalizeAddress(addr2);
+  } catch(err) {
+    return addr1 === addr2;
+  }
 }
 
 export function transactionExplorerLink(hash, blockchain) {

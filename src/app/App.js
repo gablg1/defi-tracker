@@ -198,7 +198,6 @@ export const WorldState = Model.register('world-state', class WorldState extends
   }
 
   loadCaches() {
-    // Load data caches
     this.cachedTxsByAddress = parseJsonWithBigInts(localStorage.getItem('__cachedTxsByAddress') || '{}');
     this.cachedReceiptsByHash = parseJsonWithBigInts(localStorage.getItem('__cachedReceiptsByHash') || '{}');
   }
@@ -206,7 +205,12 @@ export const WorldState = Model.register('world-state', class WorldState extends
   flushCaches() {
     localStorage.setItem('__cachedTxsByAddress', stringifyJsonWithBigInts(this.cachedTxsByAddress));
     localStorage.setItem('__cachedReceiptsByHash', stringifyJsonWithBigInts(this.cachedReceiptsByHash));
+  }
 
+  blowUpCaches() {
+    this.cachedTxsByAddress = {};
+    this.cachedReceiptsByHash = {};
+    this.flushCaches();
   }
 });
 
@@ -263,7 +267,7 @@ function App(props) {
 
   return (
     <div className="container-scroller">
-      <Header />
+      <Header worldState={worldState} handleSave={handleSave} />
       <div className="container-fluid page-body-wrapper">
         <div className="main-panel">
           <div className="content-wrapper">

@@ -253,6 +253,7 @@ export function useTransactionsForAddress(addr, worldState) {
 
   }, [addr, isLoading]);
 
+
   let enhancedTransactions = transactions.map(tx => enhanceTransaction(tx, transactionReceipts[tx.hash], worldState));
   enhancedTransactions = _.sortBy(enhancedTransactions, 'timestamp');
   const gl = new GeneralLedger(worldState);
@@ -274,13 +275,16 @@ export function useTransactionsForAddress(addr, worldState) {
 
   const isLoadingReceipts = _.some(enhancedTransactions, tx => _.isEmpty(tx.receipt));
 
-  if (!isLoading && !isLoadingReceipts && worldState.shouldCacheTransactions) {
-    worldState.cachedTxsByAddress[addr] = transactions;
-    _.forEach(transactionReceipts, (receipt, hash) =>
-      worldState.cachedReceiptsByHash[hash] = receipt
-    );
-    worldState.flushCaches();
-  }
+  useEffect(() => {
+    if (!isLoading && !isLoadingReceipts && worldState.shouldCacheTransactions && transactions.length > 0) {
+      worldState.cachedTxsByAddress[addr] = transactions;
+      _.forEach(transactionReceipts, (receipt, hash) =>
+        worldState.cachedReceiptsByHash[hash] = receipt
+      );
+      worldState.flushCaches();
+      console.log(`Writing ${transactions.length} txs to caches`);
+    }
+  }, [isLoading, isLoadingReceipts, worldState.shouldCacheTransactions]);
 
   return [isLoading, isLoadingReceipts, enhancedTransactions];
 }

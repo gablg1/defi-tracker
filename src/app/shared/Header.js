@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { Trans } from 'react-i18next';
 import { useLocation } from "react-router-dom";
@@ -21,128 +21,18 @@ class InnerHeader extends Component {
             <div className="navbar-menu-wrapper d-flex align-items-stretch justify-content-end">
               <ul className="navbar-nav w-100">
                 <li className="nav-item w-100">
-                  <form className="nav-link mt-2 mt-md-0 d-none d-lg-flex search">
-                    <input type="text" className="form-control" placeholder="Search here..." />
-                  </form>
-                </li>
-              </ul>
-              <ul className="navbar-nav navbar-nav-right">
-                <Dropdown alignRight as="li" className="nav-item border-left" >
-                  <Dropdown.Toggle as="a" className="nav-link count-indicator cursor-pointer">
-                    <i className="mdi mdi-email"></i>
-                    <span className="count bg-danger">5</span>
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu className="navbar-dropdown preview-list">
-                    <h6 className="p-3 mb-0"><Trans>Messages</Trans></h6>
-                    <Dropdown.Divider />
-                    <Dropdown.Item href="!#" onClick={evt =>evt.preventDefault()} className="preview-item">
-                      <div className="preview-thumbnail">
-                        <div className="preview-icon bg-dark rounded-circle">
-                          <img src={require('../../assets/images/faces/face4.jpg')} alt="profile" className="rounded-circle profile-pic" />
-                        </div>
-                      </div>
-                      <div className="preview-item-content">
-                        <p className="preview-subject ellipsis mb-1"><Trans>Mark send you a message</Trans></p>
-                        <p className="text-muted mb-0"> 1 <Trans>Minutes ago</Trans> </p>
-                      </div>
-                    </Dropdown.Item>
-                    <Dropdown.Divider />
-                    <Dropdown.Item href="!#" onClick={evt =>evt.preventDefault()} className="preview-item">
-                      <div className="preview-thumbnail">
-                        <div className="preview-icon bg-dark rounded-circle">
-                          <img src={require('../../assets/images/faces/face2.jpg')} alt="profile" className="rounded-circle profile-pic" />
-                        </div>
-                      </div>
-                      <div className="preview-item-content">
-                        <p className="preview-subject ellipsis mb-1"><Trans>Cregh send you a message</Trans></p>
-                        <p className="text-muted mb-0"> 15 <Trans>Minutes ago</Trans> </p>
-                      </div>
-                    </Dropdown.Item>
-                    <Dropdown.Divider />
-                    <Dropdown.Item href="!#" onClick={evt =>evt.preventDefault()} className="preview-item">
-                      <div className="preview-thumbnail">
-                        <div className="preview-icon bg-dark rounded-circle">
-                          <img src={require('../../assets/images/faces/face3.jpg')} alt="profile" className="rounded-circle profile-pic" />
-                        </div>
-                      </div>
-                      <div className="preview-item-content">
-                        <p className="preview-subject ellipsis mb-1"><Trans>Profile picture updated</Trans></p>
-                        <p className="text-muted mb-0"> 18 <Trans>Minutes ago</Trans> </p>
-                      </div>
-                    </Dropdown.Item>
-                    <Dropdown.Divider />
-                    <p className="p-3 mb-0 text-center">4 <Trans>new messages</Trans></p>
-                  </Dropdown.Menu>
-                </Dropdown>
-                <Dropdown alignRight as="li" className="nav-item border-left">
-                  <Dropdown.Toggle as="a" className="nav-link count-indicator cursor-pointer">
-                    <i className="mdi mdi-bell"></i>
-                    <span className="count bg-danger">7</span>
-                  </Dropdown.Toggle>
-                  <Dropdown.Menu className="dropdown-menu navbar-dropdown preview-list">
-                    <h6 className="p-3 mb-0"><Trans>Notifications</Trans></h6>
-                    <Dropdown.Divider />
-                    <Dropdown.Item className="dropdown-item preview-item" onClick={evt =>evt.preventDefault()}>
-                      <div className="preview-thumbnail">
-                        <div className="preview-icon bg-dark rounded-circle">
-                          <i className="mdi mdi-calendar text-success"></i>
-                        </div>
-                      </div>
-                      <div className="preview-item-content">
-                        <p className="preview-subject mb-1"><Trans>Event today</Trans></p>
-                        <p className="text-muted ellipsis mb-0">
-                        <Trans>Just a reminder that you have an event today</Trans>
-                        </p>
-                      </div>
-                    </Dropdown.Item>
-                    <Dropdown.Divider />
-                    <Dropdown.Item className="dropdown-item preview-item" onClick={evt =>evt.preventDefault()}>
-                      <div className="preview-thumbnail">
-                        <div className="preview-icon bg-dark rounded-circle">
-                          <i className="mdi mdi-settings text-danger"></i>
-                        </div>
-                      </div>
-                      <div className="preview-item-content">
-                        <h6 className="preview-subject mb-1"><Trans>Settings</Trans></h6>
-                        <p className="text-muted ellipsis mb-0">
-                        <Trans>Update dashboard</Trans>
-                        </p>
-                      </div>
-                    </Dropdown.Item>
-                    <Dropdown.Divider />
-                    <Dropdown.Item className="dropdown-item preview-item" onClick={evt =>evt.preventDefault()}>
-                      <div className="preview-thumbnail">
-                        <div className="preview-icon bg-dark rounded-circle">
-                          <i className="mdi mdi-link-variant text-warning"></i>
-                        </div>
-                      </div>
-                      <div className="preview-item-content">
-                        <h6 className="preview-subject mb-1"><Trans>Launch Admin</Trans></h6>
-                        <p className="text-muted ellipsis mb-0">
-                        <Trans>New admin wow</Trans>!
-                        </p>
-                      </div>
-                    </Dropdown.Item>
-                    <Dropdown.Divider />
-                    <p className="p-3 mb-0 text-center"><Trans>See all notifications</Trans></p>
-                  </Dropdown.Menu>
-                </Dropdown>
-                <li className="nav-item">
-                  <a className="nav-link cursor-pointer no-caret" href="!#">
-                    <div className="navbar-profile">
-                      <img className="img-xs rounded-circle" src={require('../../assets/images/faces/face15.jpg')} alt="profile" />
+                  <div className="input-group">
+                    <div className="input-group-prepend">
+                      <span className="input-group-text">Address</span>
                     </div>
-                  </a>
-                </li>
-                <li className="nav-item d-none d-lg-block">
-                  <a className="nav-link" href="!#" onClick={event => event.preventDefault()}>
-                    <i className="mdi mdi-view-grid"></i>
-                  </a>
+                    <Form.Control value={this.props.worldState.defaultAddr} onChange={evt => {
+                      this.props.worldState.defaultAddr = evt.target.value;
+                      this.props.handleSave();
+                    }}
+                      type="text" className="form-control" placeholder="0x123..." aria-label="Username" aria-describedby="basic-addon1" />
+                  </div>
                 </li>
               </ul>
-              <button className="navbar-toggler navbar-toggler-right d-lg-none align-self-center" type="button" onClick={this.toggleBottomMenu}>
-                <span className="ti-menu"></span>
-              </button>
             </div>
           </div>
         </nav>
