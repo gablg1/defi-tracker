@@ -27,7 +27,7 @@ async function getTransactionsHistory(address, filters) {
       params: [{
           address: checksumAddress,
           pageIndex: filters?.page || 0,
-          pageSize: filters?.pageSize || 100000,
+          pageSize: filters?.pageSize || 1000,
           fullTx: true,
           txType: filters?.type || 'ALL',
           order: filters?.order
@@ -236,7 +236,10 @@ export function useTransactionsForAddress(addr, worldState) {
     }
 
     async function fetchTransactions() {
+      console.log('Fetching transactions');
       const txData = await getTransactionsHistory(addr);
+      console.log('Fetched transactions');
+      console.log(txData);
 
       setFetchedTransactions(txData);
       setLoading(false);
