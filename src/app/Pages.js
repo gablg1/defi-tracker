@@ -181,11 +181,13 @@ export function ContractManager(props) {
                       </span>
                     </Form.Group>
 
-                    <Form.Group>
-                      <label htmlFor="exampleInputUsername3">Token Name</label>
-                      <Form.Control type="text" placeholder="JEWEL"
-                         value={editableContract.tokenName} onChange={(e) => setEditableContractFields({tokenName: e.target.value})} />
-                    </Form.Group>
+                    {editableContract.typeRequiresTokenName() &&
+                      <Form.Group>
+                        <label htmlFor="exampleInputUsername3">Token Name</label>
+                        <Form.Control type="text" placeholder="JEWEL"
+                          value={editableContract.tokenName} onChange={(e) => setEditableContractFields({tokenName: e.target.value})} />
+                      </Form.Group>
+                    }
 
                     <div>
                       <button disabled={contractIndexBeingEdited < 0 || contractIndexBeingEdited >= props.worldState.contracts.length} onClick={saveContract}
