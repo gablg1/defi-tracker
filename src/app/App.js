@@ -19,7 +19,11 @@ import {EventRuleManager, ContractManager, StateEditor} from './Pages';
 import {SingleTransactionViewer, TransactionsViewer} from './TransactionsViewer';
 import _ from 'lodash';
 import abiDecoder from 'abi-decoder';
+
+/* global BigInt */
+
 const _knownAbis = {}
+
 
 export const Asset = Model.register('asset', class Asset extends Model {
   static properties = {
@@ -109,6 +113,7 @@ export const WorldState = Model.register('world-state', class WorldState extends
     contracts: [Contract],
     rules: [Rule],
     defaultAddr: String,
+    shouldCacheTransactions: Boolean,
   }
 
   constructor(json) {
@@ -191,7 +196,32 @@ export const WorldState = Model.register('world-state', class WorldState extends
   rulesThatApply(evt, tx) {
     return _.filter(this.rules, r => r.shouldApply(evt, tx, this));
   }
+
+  loadCaches() {
+    // Load data caches
+    this.cachedTxsByAddress = parseJsonWithBigInts(localStorage.getItem('__cachedTxsByAddress') || '{}');
+    this.cachedReceiptsByHash = parseJsonWithBigInts(localStorage.getItem('__cachedReceiptsByHash') || '{}');
+  }
+
+  flushCaches() {
+    localStorage.setItem('__cachedTxsByAddress', stringifyJsonWithBigInts(this.cachedTxsByAddress));
+    localStorage.setItem('__cachedReceiptsByHash', stringifyJsonWithBigInts(this.cachedReceiptsByHash));
+
+  }
 });
+
+const parseJsonWithBigInts = (data) => {
+  return JSON.parse(data, (key, value) =>
+    value.__tyForJsonParser__ === 'bigint' ? BigInt(value.value) : value
+  );
+};
+
+const stringifyJsonWithBigInts = (json) => {
+  return JSON.stringify(json, (key, value) =>
+    typeof value === "bigint" ? {__tyForJsonParser__: 'bigint', value: value} : value
+  );
+};
+
 
 function App(props) {
   const [worldState, setWorldState] = useState(null);
@@ -219,7 +249,11 @@ function App(props) {
   // Load the world state upon page load
   useEffect(() => {
     const serializedState = JSON.parse(localStorage.getItem('__serializedWorldState') || null);
-    setWorldState(WorldState.deserialize(serializedState));
+    const worldState = WorldState.deserialize(serializedState);
+    worldState.loadCaches();
+
+
+    setWorldState(worldState);
     setWorldStateLoaded(true);
   }, [worldStateLoaded]);
 

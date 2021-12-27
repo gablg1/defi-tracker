@@ -12,22 +12,6 @@ import { addSign, formatAddress, assert, Copiable, transactionExplorerLink, Addr
 
 import {GeneralLedger} from './accounting';
 
-import cachedTxDataString from './data';
-
-const cachedTxs = JSON.parse(cachedTxDataString, (key, value) => {
-  if (value.ty === 'bigint') {
-    return BigInt(value.value);
-  }
-  return value;
-});
-
-const cachedTxsByAddress = {
-  '0xEba220F7256B2F5e5d73dB6dDA83c99c1D916570': cachedTxs,
-};
-
-let cachedReceiptsByHash = {};
-_.forEach(_.flatten(_.values(cachedTxsByAddress)), (tx) => cachedReceiptsByHash[tx.hash] = tx.receipt);
-
 const { SearchBar } = Search;
 
 /* global BigInt */
@@ -241,9 +225,9 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
 }
 
 export function useTransactionsForAddress(addr, worldState) {
-  const [transactions, setTransactions] = useState(cachedTxsByAddress[addr] || []);
-  const [transactionReceipts, setTransactionReceipts] = useState(cachedReceiptsByHash);
-  const [isLoading, setLoading] = useState(!(addr in cachedTxsByAddress));
+  const [transactions, setTransactions] = useState(worldState.cachedTxsByAddress[addr] || []);
+  const [transactionReceipts, setTransactionReceipts] = useState(worldState.cachedReceiptsByHash);
+  const [isLoading, setLoading] = useState(!(addr in worldState.cachedTxsByAddress));
 
   useEffect(() => {
     async function fetchReceipt(hash) {
@@ -289,6 +273,15 @@ export function useTransactionsForAddress(addr, worldState) {
   }
 
   const isLoadingReceipts = _.some(enhancedTransactions, tx => _.isEmpty(tx.receipt));
+
+  if (!isLoading && !isLoadingReceipts && worldState.shouldCacheTransactions) {
+    worldState.cachedTxsByAddress[addr] = transactions;
+    _.forEach(transactionReceipts, (receipt, hash) =>
+      worldState.cachedReceiptsByHash[hash] = receipt
+    );
+    worldState.flushCaches();
+  }
+
   return [isLoading, isLoadingReceipts, enhancedTransactions];
 }
 
