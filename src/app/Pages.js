@@ -261,7 +261,13 @@ export const buildColumns = (worldState) => {
   ];
 };
 
+
 export function EventRuleManager(props) {
+  const [isLoadingTxs, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
+  return <EventRuleManagerInternal {...props} isLoadingTxs={isLoadingTxs} isLoadingReceipts={isLoadingReceipts} transactions={transactions} />
+}
+
+function EventRuleManagerInternal(props) {
   // Rule Management state
   const [showOnlyAffectedEvents, setShowOnlyAffectedEvents] = useState(false);
   const [rule, setRule] = useState(new Rule());
@@ -293,8 +299,7 @@ export function EventRuleManager(props) {
     resetRuleState();
   };
 
-  // Load Transactions and Events
-  const [isLoadingTxs, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
+  const {isLoadingTxs: isLoadingTxs, isLoadingReceipts: isLoadingReceipts, transactions: transactions} = props;
 
   if (isLoadingTxs || isLoadingReceipts) {
     return <div>Loading...</div>;
