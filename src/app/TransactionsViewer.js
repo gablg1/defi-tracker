@@ -409,6 +409,10 @@ export function SingleTransactionViewer(props) {
   const cols = buildColumns(props.worldState).filter(col =>
     ['timestamp', 'methodCall', 'value', 'hash', 'blockNumber', 'from', 'to'].includes(col.dataField)
   );
+
+  const events = transaction.events.map(evt =>
+    _.extend({}, evt, {rules: props.worldState.rulesThatApply(evt, transaction)})
+  );
   return (
     <div>
       <div className="page-header">
@@ -458,14 +462,14 @@ export function SingleTransactionViewer(props) {
                     </tr>
                   </thead>
                   <tbody>
-                    {(transaction.receipt?.decodedLogs || []).map((log, i) =>
+                    {events.map((evt, i) =>
                       <tr key={i}>
-                        <td>{formatAddress(log.address, props.worldState)}</td>
-                        <td>{log.name}</td>
+                        <td>{formatAddress(evt.address, props.worldState)}</td>
+                        <td>{evt.name}</td>
                         <td>
-                        {log.events.map(e =>
+                        {evt.args.map((arg, name) =>
                           <div>
-                          {`${e.name}: ${e.value}`}
+                          {`${name}: ${arg.value}`}
                           </div>
                         )}
                         </td>
