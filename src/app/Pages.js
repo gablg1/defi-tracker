@@ -258,6 +258,10 @@ export const buildColumns = (worldState) => {
       formatter: (cellContent, row) =>
         <Link to={`/tx/${cellContent}`}>{truncateLongString(cellContent.hash)}</Link>
     }, {
+      dataField: 'timestamp',
+      text: 'evt.timestamp',
+      sort: true,
+    }, {
       dataField: 'methodCall',
       text: 'tx.methodCall',
       sort: true,
@@ -373,7 +377,8 @@ function EventRuleManagerInternal(props) {
 
   const events = _.flatten(transactions.map(tx => tx.events || []));
 
-  const cols = buildColumns(props.worldState);
+  const dataFieldsToInclude = ['tx', 'methodCall', 'from', 'to', 'name', 'contractAddress', 'args', 'rules', 'effectOfRule'];
+  const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
 
   const eventsAfterShouldApply = events.map(evt => {
     const shouldApply = rule.shouldApply(evt, evt.tx, props.worldState);

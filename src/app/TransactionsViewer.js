@@ -351,7 +351,6 @@ export function TransactionsViewer(props) {
 
   const dataFieldsToInclude = ['timestamp', 'methodCall', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'effectOfTransaction'];
   const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
-
   return (
     <div>
       <div className="page-header">
