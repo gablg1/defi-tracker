@@ -244,7 +244,7 @@ export const buildColumns = (worldState) => {
         </div>
     }, {
       dataField: 'effectOfRule',
-      text: `This Rule's Effect`,
+      text: 'Simulated Effect',
       formatter: (cellContent, row) => {
         if (cellContent instanceof Error) {
           return <div style={{background: 'purple'}}>{cellContent.message}</div>;
