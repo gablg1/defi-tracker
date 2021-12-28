@@ -1,6 +1,5 @@
 import _ from 'lodash';
-import {addressesEqual, assert} from './utils';
-import {ethers} from 'ethers';
+import {assert} from './utils';
 
 /* global BigInt */
 

@@ -400,7 +400,7 @@ function EventRuleManagerInternal(props) {
     resetRuleState();
   };
 
-  const {isLoadingTxs: isLoadingTxs, isLoadingReceipts: isLoadingReceipts, transactions: transactions} = props;
+  const {isLoadingTxs, isLoadingReceipts, transactions} = props;
 
   if (isLoadingTxs || isLoadingReceipts) {
     return <div>Loading...</div>;
@@ -457,7 +457,7 @@ function EventRuleManagerInternal(props) {
                       </thead>
                       <tbody>
                         {props.worldState.rules.map((rule, i) =>
-                          <tr style={ruleIndexBeingEdited == i ? {background: filterColor} : {}} key={rule.uniqueKey} onClick={(evt) => {
+                          <tr style={ruleIndexBeingEdited === i ? {background: filterColor} : {}} key={rule.uniqueKey} onClick={(evt) => {
                             setRuleIndexBeingEdited(i);
                             setRule(rule);
                             evt.stopPropagation();
@@ -514,7 +514,7 @@ function EventRuleManagerInternal(props) {
                       value={rule.filterCode}
                       onChange={val => setRuleFields({filterCode: val})}
                     />
-                    {filterError && rule.filterCode != '' &&
+                    {filterError && rule.filterCode !== '' &&
                       <div style={{background: 'red'}}>{filterError.message}</div>
                     }
                   </div>
@@ -537,7 +537,7 @@ function EventRuleManagerInternal(props) {
                       value={rule.effectCode}
                       onChange={val => setRuleFields({effectCode: val})}
                     />
-                    {effectError && rule.effectCode != '' &&
+                    {effectError && rule.effectCode !== '' &&
                       <div style={{background: 'red'}}>{effectError.message}</div>
                     }
                   </div>

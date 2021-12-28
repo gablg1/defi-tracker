@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Dropdown, Form } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { Trans } from 'react-i18next';
 import { useLocation } from "react-router-dom";

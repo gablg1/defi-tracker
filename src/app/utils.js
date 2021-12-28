@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { isBech32Address } from '@harmony-js/utils';
 import { fromBech32 } from '@harmony-js/crypto';
 
-/* global BigInt */
-
 export const addSign = (valueString) =>
   (valueString.startsWith('+') || valueString.startsWith('-')) ? valueString : `+${valueString}`;
 

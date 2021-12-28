@@ -5,10 +5,10 @@ import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/rea
 import { Link, useParams } from 'react-router-dom';
 
 import _ from 'lodash';
-import {fromBech32, toBech32} from '@harmony-js/crypto';
+import {fromBech32} from '@harmony-js/crypto';
 import { isBech32Address } from '@harmony-js/utils';
 import axios from 'axios';
-import { addSign, formatAddress, assert, Copiable, transactionExplorerLink, AddressExplorer, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, addressesEqual } from './utils';
+import { addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable} from './utils';
 
 import {GeneralLedger} from './accounting';
 
@@ -71,6 +71,8 @@ async function getTransactionByHash(hash) {
     } else throw new Error();
 }
 
+
+/*
 async function getBalanceByBlockNumber(address, blockNumber) {
     const data = {
         jsonrpc: '2.0',
@@ -85,6 +87,7 @@ async function getBalanceByBlockNumber(address, blockNumber) {
       return response.data.result;
     } else throw new Error();
 }
+*/
 
 
 // FIXME: Make the blockchain configurable in the UI
@@ -271,7 +274,7 @@ export function useTransactionsForAddress(addr, worldState) {
     setFetchedTransactions([]);
     setFetchedReceipts({});
     setLoading(!(addr in worldState.cachedTxsByAddress));
-  }, [addr]);
+  }, [addr, worldState.cachedTxsByAddress]);
 
 
   const transactions = worldState.cachedTxsByAddress[addr] || fetchedTransactions;
@@ -308,7 +311,7 @@ export function useTransactionsForAddress(addr, worldState) {
 
       console.log(`Writing ${transactions.length} txs to caches`);
     }
-  }, [isLoading, isLoadingReceipts, worldState.shouldCacheTransactions]);
+  }, [addr, transactionReceipts, transactions, worldState, isLoading, isLoadingReceipts, worldState.shouldCacheTransactions]);
 
   return [isLoading, isLoadingReceipts, enhancedTransactions];
 }
@@ -339,7 +342,7 @@ export function useTransaction(hash, worldState) {
 }
 
 export function TransactionsViewer(props) {
-  const [isLoading, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
+  const [, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
   const shouldWriteData = false;
   if (!isLoadingReceipts && shouldWriteData) {
     console.log(JSON.stringify(transactions, (key, value) =>

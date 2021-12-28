@@ -10,7 +10,7 @@ import { Navigate, Routes, Route } from 'react-router-dom';
 import Spinner from '../app/shared/Spinner';
 
 import { isBech32Address } from '@harmony-js/utils';
-import { isValidEthereumAddress, assert } from './utils';
+import { isValidEthereumAddress } from './utils';
 
 import {Balances} from './accounting';
 import { addressesEqual, normalizeAddress } from './utils';
@@ -55,6 +55,7 @@ export const Rule = Model.register('rule', class Rule extends Model {
     const isMyAddr = addr => addressesEqual(worldState.defaultAddr, addr);
     let ret;
     try {
+      // eslint-disable-next-line no-new-func
       ret = new Function('evt, tx, isMyAddr', this.filterCode)(evt, tx, isMyAddr);
     } catch(err) {
       return err;
@@ -70,6 +71,7 @@ export const Rule = Model.register('rule', class Rule extends Model {
     const isMyAddr = addr => addressesEqual(worldState.defaultAddr, addr);
     let effect = {};
     try {
+      // eslint-disable-next-line no-new-func
       effect = new Function('evt, tx, isMyAddr', this.effectCode)(evt, tx, isMyAddr);
     } catch(err) {
       return err;
