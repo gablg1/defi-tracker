@@ -60,6 +60,7 @@
     "node-polyfill-webpack-plugin": "^1.1.4",
     "node-sass": "^4.13.1",
     "nouislider-react": "^3.3.2",
+    "object-hash": "^2.2.0",
     "postcss": "^8.4.4",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^6.2.1",
