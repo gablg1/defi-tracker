@@ -27,7 +27,6 @@ const _knownAbis = {}
 const sign = (me, from, to) => {
   const fromMe = addressesEqual(me, from);
   const toMe = addressesEqual(me, to);
-  assert(() => fromMe || toMe);
   if (fromMe) {
     return BigInt(-1);
   } else if (toMe) {

@@ -479,7 +479,7 @@ export function SingleTransactionViewer(props) {
                         <td>{formatAddress(evt.contract.address, props.worldState)}</td>
                         <td>{evt.name}</td>
                         <td>
-                        {evt.args.map((arg, name) =>
+                        {_.map(evt.args, (arg, name) =>
                           <div>
                           {`${name}: ${arg.value}`}
                           </div>
