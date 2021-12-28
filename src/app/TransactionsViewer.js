@@ -420,9 +420,11 @@ export function SingleTransactionViewer(props) {
     ['timestamp', 'methodCall', 'value', 'hash', 'blockNumber', 'from', 'to'].includes(col.dataField)
   );
 
-  const events = transaction.events.map(evt =>
+  const events = (transaction.events || []).map(evt =>
     _.extend({}, evt, {rules: props.worldState.rulesThatApply(evt, transaction)})
   );
+
+  const eventsLoading = _.isArray(transaction.events);
   return (
     <div>
       <div className="page-header">
@@ -474,7 +476,7 @@ export function SingleTransactionViewer(props) {
                   <tbody>
                     {events.map((evt, i) =>
                       <tr key={i}>
-                        <td>{formatAddress(evt.address, props.worldState)}</td>
+                        <td>{formatAddress(evt.contract.address, props.worldState)}</td>
                         <td>{evt.name}</td>
                         <td>
                         {evt.args.map((arg, name) =>
@@ -487,6 +489,7 @@ export function SingleTransactionViewer(props) {
                     )}
                   </tbody>
                 </table>
+                {eventsLoading ? <div>Loading events...</div> : <div>Transaction has no events</div>}
               </div>
             </div>
           </div>
