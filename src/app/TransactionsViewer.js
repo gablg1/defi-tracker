@@ -5,89 +5,14 @@ import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/rea
 import { Link, useParams } from 'react-router-dom';
 
 import _ from 'lodash';
-import {fromBech32} from '@harmony-js/crypto';
-import { isBech32Address } from '@harmony-js/utils';
-import axios from 'axios';
 import { addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable} from './utils';
+import {getTransactionByHash, getTransactionsHistory, getTransactionReceipt} from './transactions-fetcher';
 
 import {GeneralLedger} from './accounting';
 
 const { SearchBar } = Search;
 
 /* global BigInt */
-
-const rpc = 'https://api.s0.t.hmny.io/';
-async function getTransactionsHistory(address, filters) {
-  const checksumAddress = isBech32Address(address) ? fromBech32(address) : address;
-
-  const data = {
-      jsonrpc: '2.0',
-      id: '1',
-      method: 'hmyv2_getTransactionsHistory',
-      params: [{
-          address: checksumAddress,
-          pageIndex: filters?.page || 0,
-          pageSize: filters?.pageSize || 1000,
-          fullTx: true,
-          txType: filters?.type || 'ALL',
-          order: filters?.order
-      }]
-  };
-
-  const response = await axios.post(rpc, data);
-
-  if (response.status === 200 && response.data) {
-      return response.data.result.transactions;
-  } else throw new Error();
-}
-
-async function getTransactionReceipt(hash) {
-    const data = {
-        jsonrpc: '2.0',
-        id: '1',
-        method: 'hmyv2_getTransactionReceipt',
-        params: [hash]
-    };
-
-    const response = await axios.post(rpc, data);
-
-    if (response.status === 200 && response.data) {
-      return response.data.result;
-    } else throw new Error();
-}
-
-async function getTransactionByHash(hash) {
-    const data = {
-        jsonrpc: '2.0',
-        id: '1',
-        method: 'hmyv2_getTransactionByHash',
-        params: [hash]
-    };
-
-    const response = await axios.post(rpc, data);
-
-    if (response.status === 200 && response.data) {
-      return response.data.result;
-    } else throw new Error();
-}
-
-
-/*
-async function getBalanceByBlockNumber(address, blockNumber) {
-    const data = {
-        jsonrpc: '2.0',
-        id: '1',
-        method: 'hmyv2_getBalanceByBlockNumber',
-        params: [toBech32(address), `0x${blockNumber.toString(16)}`]
-    };
-
-    const response = await axios.post(rpc, data);
-
-    if (response.status === 200 && response.data) {
-      return response.data.result;
-    } else throw new Error();
-}
-*/
 
 
 // FIXME: Make the blockchain configurable in the UI
