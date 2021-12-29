@@ -157,18 +157,30 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
     receipt: receipt,
     gasFeePaid: BigInt(enhancedTx.gasPrice) * BigInt(receipt.gasUsed),
     events: receipt.decodedLogs?.map((evt, i) => {
-      let args = {};
-      for (const arg of evt.events) {
-        args[arg.name] = {type: arg.type, value: arg.value};
+      if (evt.decoded) {
+        let args = {};
+        for (const arg of evt.events) {
+          args[arg.name] = {type: arg.type, value: arg.value};
+        }
+        return {
+          decoded: true,
+          timestamp: `${tx.timestamp},${i}`,
+          name: evt.name,
+          args: args,
+          contractAddress: evt.address,
+          contract: worldState.findContract(evt.address),
+          tx: enhancedTx,
+        };
+      } else {
+        return {
+          decoded: false,
+          timestamp: `${tx.timestamp},${i}`,
+          rawLog: evt,
+          contractAddress: evt.address,
+          contract: worldState.findContract(evt.address),
+          tx: enhancedTx,
+        };
       }
-      return {
-        timestamp: `${tx.timestamp},${i}`,
-        name: evt.name,
-        args: args,
-        contractAddress: evt.address,
-        contract: worldState.findContract(evt.address),
-        tx: enhancedTx,
-      };
     })
   })
 

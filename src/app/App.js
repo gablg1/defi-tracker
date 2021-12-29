@@ -21,6 +21,7 @@ import _ from 'lodash';
 import abiDecoder from 'abi-decoder';
 
 /* global BigInt */
+abiDecoder.keepNonDecodedLogs();
 
 const _knownAbis = {}
 
@@ -155,7 +156,8 @@ export const WorldState = Model.register('world-state', class WorldState extends
 
   decodeReceiptLogs(logs) {
     try {
-      return abiDecoder.decodeLogs(logs);
+      const decoded = abiDecoder.decodeLogs(logs);
+      return logs.map((log, i) => (decoded[i] === undefined ? log : _.extend(decoded[i], {decoded: true})));
     } catch(err) {
       console.warn("Error decoding logs");
       console.warn(err);
