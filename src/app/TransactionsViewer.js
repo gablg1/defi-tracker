@@ -93,22 +93,37 @@ export const buildColumns = (worldState) => {
     }, {
       dataField: 'effectOfTransaction',
       text: 'Tx Effect',
-      formatter: (cellContent, row) =>
-        <div>
-        {_.map(cellContent.toJson(), (balance, token) =>
-          <div key={token}>{token}: {addSign(formatTokenValue(balance, ''))}</div>
-        )}
-        </div>
-    }, {
+      formatter: (cellContent, row) => {
+        if (cellContent instanceof Error) {
+          return <div style={{background: 'purple'}}>{cellContent.message}</div>
+        }
+
+        return (
+          <div>
+          {_.map(cellContent.toJson(), (balance, token) =>
+            <div key={token}>{token}: {addSign(formatTokenValue(balance, ''))}</div>
+          )}
+          </div>
+        );
+    }}, {
       dataField: 'stateAfter',
       text: 'State After',
-      formatter: (cellContent, row) =>
-        <div>
-        {_.map(cellContent.toJson(), (balance, token) =>
-          <div key={token}>{token}: {addSign(formatTokenValue(balance, ''))}</div>
-        )}
-        </div>
-    }, {
+      formatter: (cellContent, row) => {
+        if (cellContent === undefined) {
+          return <div/>
+        }
+        if (cellContent instanceof Error) {
+          return <div style={{background: 'purple'}}>{cellContent.message}</div>
+        }
+
+        return (
+          <div>
+          {_.map(cellContent.toJson(), (balance, token) =>
+            <div key={token}>{token}: {addSign(formatTokenValue(balance, ''))}</div>
+          )}
+          </div>
+        );
+    }}, {
       dataField: 'receipt',
       text: 'Receipt',
       formatter: (cellContent, row) => JSON.stringify(cellContent)
