@@ -109,16 +109,13 @@ export const buildColumns = (worldState) => {
       dataField: 'stateAfter',
       text: 'State After',
       formatter: (cellContent, row) => {
-        if (cellContent === undefined) {
-          return <div/>
-        }
         if (cellContent instanceof Error) {
           return <div style={{background: 'purple'}}>{cellContent.message}</div>
         }
 
         return (
           <div>
-          {_.map(cellContent.toJson(), (balance, token) =>
+          {_.map(cellContent?.toJson() || {}, (balance, token) =>
             <div key={token}>{token}: {addSign(formatTokenValue(balance, ''))}</div>
           )}
           </div>

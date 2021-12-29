@@ -343,6 +343,21 @@ export const buildColumns = (worldState) => {
         )}
         </div>
     }, {
+      dataField: 'effectOfEvent',
+      text: 'Overall Effect',
+      formatter: (cellContent, row) => {
+        if (cellContent instanceof Error) {
+          return <div style={{background: 'purple'}}>{cellContent.message}</div>;
+        }
+        return (
+          <div>
+          {_.map(cellContent?.toJson() || {}, (effect, token) =>
+            <div key={token}>{addSign(formatTokenValue(effect, token))}</div>
+          )}
+          </div>
+        );
+      }
+    }, {
       dataField: 'effectOfRule',
       text: 'Simulated Effect',
       formatter: (cellContent, row) => {
@@ -408,12 +423,13 @@ function EventRuleManagerInternal(props) {
 
   const events = _.flatten(transactions.map(tx => tx.events || []));
 
-  const dataFieldsToInclude = ['tx', 'methodCall', 'from', 'to', 'name', 'contractAddress', 'args', 'rules', 'effectOfRule'];
+  const dataFieldsToInclude = ['tx', 'methodCall', 'from', 'to', 'name', 'contractAddress', 'args', 'rules', 'effectOfEvent', 'effectOfRule'];
   const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
 
   const eventsAfterShouldApply = events.map(evt => {
     const shouldApply = rule.shouldApply(evt, evt.tx, props.worldState);
-    return _.extend({}, evt, {filteredByRule: shouldApply});
+    const effectOfEvent = props.worldState.effectOfEvent(evt);
+    return _.extend({}, evt, {filteredByRule: shouldApply, effectOfEvent});
   });
 
   const eventsAfterApply = eventsAfterShouldApply.map(evt => {

@@ -242,18 +242,27 @@ export const WorldState = Model.register('world-state', class WorldState extends
     const oneValue = BigInt(btx.value || 0) * sign(this.defaultAddr, btx.from, btx.to) - btx.gasFeePaid;
 
     let totalEffect = new Balances({ONE: oneValue});
-
     for (const evt of (btx.events || [])) {
-      for (const rule of this.rulesThatApply(evt, btx)) {
-        const ruleEffect = rule.apply(evt, btx, this);
-        if (ruleEffect instanceof Error) {
-          return ruleEffect;
-        }
-        totalEffect = totalEffect.plus(ruleEffect);
+      const effectOfEvent = this.effectOfEvent(evt);
+      if (effectOfEvent instanceof Error) {
+        return effectOfEvent;
       }
+      totalEffect = totalEffect.plus(effectOfEvent);
     }
-
     return totalEffect;
+  }
+
+  effectOfEvent(evt) {
+    let totalEffect = new Balances({});
+
+    for (const rule of this.rulesThatApply(evt, evt.tx)) {
+      const ruleEffect = rule.apply(evt, evt.tx, this);
+      if (ruleEffect instanceof Error) {
+        return ruleEffect;
+      }
+      totalEffect = totalEffect.plus(ruleEffect);
+    }
+    return totalEffect
   }
 
   loadCaches() {
