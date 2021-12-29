@@ -364,7 +364,7 @@ export function SingleTransactionViewer(props) {
     _.extend({}, evt, {rules: props.worldState.rulesThatApply(evt, transaction)})
   );
 
-  const eventsLoading = _.isArray(transaction.events);
+  const eventsLoading = !_.isArray(transaction.events);
   return (
     <div>
       <div className="page-header">
@@ -420,7 +420,7 @@ export function SingleTransactionViewer(props) {
                         <td>{evt.name}</td>
                         <td>
                         {_.map(evt.args, (arg, name) =>
-                          <div>
+                          <div key={name}>
                           {`${name}: ${arg.value}`}
                           </div>
                         )}
