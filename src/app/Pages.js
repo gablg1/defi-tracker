@@ -287,7 +287,7 @@ export const buildColumns = (worldState) => {
       text: 'tx.hash',
       sort: true,
       formatter: (cellContent, row) =>
-        <Link to={`/tx/${cellContent}`}>{truncateLongString(cellContent.hash)}</Link>
+        <Link to={`/tx/${cellContent.hash}`}>{truncateLongString(cellContent.hash)}</Link>
     }, {
       dataField: 'timestamp',
       text: 'evt.timestamp',
