@@ -16,7 +16,7 @@ const getPageArgsHash = hash(getPageArgs);
 
 
 const rpc = 'https://api.s0.t.hmny.io/';
-export async function getTransactionsHistory(address, pageIndex = 0) {
+async function _getTransactionsHistory(address, pageIndex = 0) {
   const checksumAddress = isBech32Address(address) ? fromBech32(address) : address;
 
   const data = {
@@ -36,7 +36,7 @@ export async function getTransactionsHistory(address, pageIndex = 0) {
   } else throw new Error();
 }
 
-export async function getTransactionReceipt(hash) {
+async function _getTransactionReceipt(hash) {
     const data = {
         jsonrpc: '2.0',
         id: '1',
@@ -51,7 +51,7 @@ export async function getTransactionReceipt(hash) {
     } else throw new Error();
 }
 
-export async function getTransactionByHash(hash) {
+async function _getTransactionByHash(hash) {
     const data = {
         jsonrpc: '2.0',
         id: '1',
@@ -86,6 +86,8 @@ async function getBalanceByBlockNumber(address, blockNumber) {
 
 
 /*
+ * Cache Data models:
+ *
 txsByAddrCache = {
   [addr]: {
     [getPageArgsHash]: {
@@ -103,8 +105,7 @@ txCache = {
 let txsByAddrCache = {};
 let txCache = {};
 
-
-async function cacheAllTransactionsForAddress(addr) {
+async function cacheTransactionsForAddressUntilPageIndex(addr, pageIndex) {
   // Cache only works with this assumption
   assert(() => getPageArgs.order === 'ASC');
 
@@ -117,8 +118,12 @@ async function cacheAllTransactionsForAddress(addr) {
       txsByAddrCache[addr][getPageArgsHash] = {lastCachedPageIndex: -1, transactionHashes: {}};
     }
 
+    if (pageIndex <= txsByAddrCache[addr][getPageArgsHash].lastCachedPageIndex) {
+      break;
+    }
+
     const nextIndex = txsByAddrCache[addr][getPageArgsHash].lastCachedPageIndex + 1;
-    const page = await getTransactionsHistory(addr, nextIndex);
+    const page = await _getTransactionsHistory(addr, nextIndex);
 
     if (page.transactions.length === 0) {
       break;
@@ -140,3 +145,27 @@ async function addToCache(tx) {
   txCache[tx.hash] = {tx: tx, receipt: await getTransactionReceipt(tx.hash)};
 }
 
+
+export async function getTransactionReceipt(hash) {
+  if (hash in txCache) {
+    return txCache[hash].receipt;
+  }
+
+  return _getTransactionReceipt(hash);
+}
+
+export async function getTransactionsHistory(addr, pageIndex = 0) {
+  cacheTransactionsForAddressUntilPageIndex(addr, pageIndex);
+  return _.keys(txsByAddrCache[addr][getPageArgsHash].transactionHashes).map(hash =>
+    txCache[hash].tx
+  );
+}
+
+
+export async function getTransactionByHash(hash) {
+  if (hash in txCache) {
+    return txCache[hash].tx;
+  }
+
+  return _getTransactionByHash(hash);
+}

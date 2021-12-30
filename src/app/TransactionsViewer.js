@@ -442,7 +442,7 @@ export function SingleTransactionViewer(props) {
                   </tbody>
                 </table>
                 {eventsLoading && <div>Loading events...</div>}
-                {!eventsLoading && events.length == 0 && <div>Transaction has no events</div>}
+                {!eventsLoading && events.length === 0 && <div>Transaction has no events</div>}
               </div>
             </div>
           </div>
