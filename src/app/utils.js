@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { isBech32Address } from '@harmony-js/utils';
 import { fromBech32 } from '@harmony-js/crypto';
 
+/* global BigInt */
 export const addSign = (valueString) =>
   (valueString.startsWith('+') || valueString.startsWith('-')) ? valueString : `+${valueString}`;
 
@@ -131,3 +132,16 @@ export function formatAddress(addr, worldState) {
     } />
   );
 }
+
+
+export const parseJsonWithBigInts = (data) => {
+  return JSON.parse(data, (key, value) =>
+    value.__tyForJsonParser__ === 'bigint' ? BigInt(value.value) : value
+  );
+};
+
+export const stringifyJsonWithBigInts = (json) => {
+  return JSON.stringify(json, (key, value) =>
+    typeof value === "bigint" ? {__tyForJsonParser__: 'bigint', value: value} : value
+  );
+};

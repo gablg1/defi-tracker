@@ -110,13 +110,8 @@ async function cacheTransactionsForAddressUntilPageIndex(addr, pageIndex) {
   assert(() => getPageArgs.order === 'ASC');
 
   while (true) {
-    if (!(addr in txsByAddrCache)) {
-      txsByAddrCache[addr] = {};
-    }
-
-    if (!(getPageArgsHash in txsByAddrCache[addr])) {
-      txsByAddrCache[addr][getPageArgsHash] = {lastCachedPageIndex: -1, transactionHashes: {}};
-    }
+    txsByAddrCache[addr] ||= {};
+    txsByAddrCache[addr][getPageArgsHash] ||= {lastCachedPageIndex: -1, transactionHashes: {}};
 
     if (pageIndex <= txsByAddrCache[addr][getPageArgsHash].lastCachedPageIndex) {
       break;

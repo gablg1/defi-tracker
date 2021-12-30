@@ -13,7 +13,7 @@ import { isBech32Address } from '@harmony-js/utils';
 import { isValidEthereumAddress } from './utils';
 
 import {Balances} from './accounting';
-import { addressesEqual, normalizeAddress } from './utils';
+import {parseJsonWithBigInts, stringifyJsonWithBigInts, addressesEqual, normalizeAddress } from './utils';
 
 import {EventRuleManager, ContractManager, StateEditor} from './Pages';
 import {SingleTransactionViewer, TransactionsViewer} from './TransactionsViewer';
@@ -283,18 +283,6 @@ export const WorldState = Model.register('world-state', class WorldState extends
     this.flushCaches();
   }
 });
-
-const parseJsonWithBigInts = (data) => {
-  return JSON.parse(data, (key, value) =>
-    value.__tyForJsonParser__ === 'bigint' ? BigInt(value.value) : value
-  );
-};
-
-const stringifyJsonWithBigInts = (json) => {
-  return JSON.stringify(json, (key, value) =>
-    typeof value === "bigint" ? {__tyForJsonParser__: 'bigint', value: value} : value
-  );
-};
 
 
 function App(props) {

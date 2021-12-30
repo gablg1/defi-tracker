@@ -6,7 +6,7 @@ import { Link, useParams } from 'react-router-dom';
 import hash from 'object-hash';
 
 import _ from 'lodash';
-import { assert, addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable} from './utils';
+import { assert, addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, stringifyJsonWithBigInts, parseJsonWithBigInts} from './utils';
 import {getTransactionByHash, getTransactionsHistory, getTransactionReceipt} from './transactions-fetcher';
 
 import {Balances} from './accounting';
@@ -170,7 +170,7 @@ const _enhanceTransaction = (tx, rawReceipt, worldState) => {
           args: args,
           contractAddress: evt.address,
           contract: worldState.findContract(evt.address),
-          tx: enhancedTx,
+          tx: tx,
         };
       } else {
         return {
@@ -179,7 +179,7 @@ const _enhanceTransaction = (tx, rawReceipt, worldState) => {
           rawLog: evt,
           contractAddress: evt.address,
           contract: worldState.findContract(evt.address),
-          tx: enhancedTx,
+          tx: tx,
         };
       }
     })
@@ -188,22 +188,23 @@ const _enhanceTransaction = (tx, rawReceipt, worldState) => {
     return _.extend(enhancedTx, {effectOfTransaction: worldState.effectOfTransaction(enhancedTx)});
 }
 
-let cache = {}
+let enhanceCache = {};
 
 const enhanceTransaction = (rawTx, rawReceipt, worldState, stateAfterPrevTx) => {
-  if (rawTx.hash in cache && hash(stateAfterPrevTx) in cache[rawTx.hash]) {
-    return cache[rawTx.hash][hash(stateAfterPrevTx)];
+  if (rawTx.hash in enhanceCache && hash(stateAfterPrevTx) in enhanceCache[rawTx.hash]) {
+    return enhanceCache[rawTx.hash][hash(stateAfterPrevTx)];
   }
 
   if (_.isEmpty(rawReceipt)) {
     return rawTx;
   }
+
   let tx = _enhanceTransaction(rawTx, rawReceipt, worldState);
   // TODO try catch
   tx.stateAfter = stateAfterPrevTx ? stateAfterPrevTx.plus(worldState.effectOfTransaction(tx)) : undefined;
 
-  cache[rawTx.hash] ||= {};
-  cache[rawTx.hash][hash(stateAfterPrevTx)] = tx;
+  enhanceCache[rawTx.hash] ||= {};
+  enhanceCache[rawTx.hash][hash(stateAfterPrevTx)] = tx;
   return tx;
 }
 
@@ -244,7 +245,6 @@ export function useTransactionsForAddress(addr, worldState) {
     setFetchedReceipts({});
     setLoading(true);
   }, [addr]);
-
 
 
   const sortedTransactions = _.sortBy(fetchedTransactions, 'timestamp');
