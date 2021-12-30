@@ -3,6 +3,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min';
 import { Link, useParams } from 'react-router-dom';
+import hash from 'object-hash';
 
 import _ from 'lodash';
 import { assert, addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable} from './utils';
@@ -187,13 +188,22 @@ const _enhanceTransaction = (tx, rawReceipt, worldState) => {
     return _.extend(enhancedTx, {effectOfTransaction: worldState.effectOfTransaction(enhancedTx)});
 }
 
+let cache = {}
+
 const enhanceTransaction = (rawTx, rawReceipt, worldState, stateAfterPrevTx) => {
+  if (rawTx.hash in cache && hash(stateAfterPrevTx) in cache[rawTx.hash]) {
+    return cache[rawTx.hash][hash(stateAfterPrevTx)];
+  }
+
   if (_.isEmpty(rawReceipt)) {
     return rawTx;
   }
   let tx = _enhanceTransaction(rawTx, rawReceipt, worldState);
   // TODO try catch
   tx.stateAfter = stateAfterPrevTx ? stateAfterPrevTx.plus(worldState.effectOfTransaction(tx)) : undefined;
+
+  cache[rawTx.hash] ||= {};
+  cache[rawTx.hash][hash(stateAfterPrevTx)] = tx;
   return tx;
 }
 
@@ -241,7 +251,7 @@ export function useTransactionsForAddress(addr, worldState) {
   let prevState = new Balances({});
   let enhancedTransactions = [];
   for (const tx of sortedTransactions) {
-    const eTx = enhanceTransaction(tx, fetchedReceipts[tx.hash], worldState, prevState);
+    const eTx = enhanceTransaction(tx, fetchedReceipts[tx.hash], worldState, prevState || new Balances({}));
     enhancedTransactions.push(eTx);
     prevState = eTx.stateAfter;
   }
