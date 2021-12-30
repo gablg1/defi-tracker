@@ -102,8 +102,8 @@ txCache = {
 }
 */
 
-let txsByAddrCache = {};
-let txCache = {};
+let txsByAddrCache = JSON.parse(localStorage.getItem('__v2_txsByAddrCache') || '{}');
+let txCache = JSON.parse(localStorage.getItem('__v2_txCache') || '{}');
 
 async function cacheTransactionsForAddressUntilPageIndex(addr, pageIndex) {
   // Cache only works with this assumption
@@ -136,6 +136,9 @@ async function cacheTransactionsForAddressUntilPageIndex(addr, pageIndex) {
 
     txsByAddrCache[addr][getPageArgsHash].lastCachedPageIndex = nextIndex;
   }
+
+  localStorage.setItem('__v2_txsByAddrCache', JSON.stringify(txsByAddrCache));
+  localStorage.setItem('__v2_txCache', JSON.stringify(txCache));
 }
 
 async function addToCache(tx) {
