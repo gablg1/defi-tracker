@@ -65,3 +65,5 @@ export class GeneralLedger {
     return this.stateBeforeTransaction(this.glTransactions.length);
   }
 }
+
+

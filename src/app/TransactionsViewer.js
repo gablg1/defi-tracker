@@ -5,10 +5,10 @@ import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/rea
 import { Link, useParams } from 'react-router-dom';
 
 import _ from 'lodash';
-import { addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable} from './utils';
+import { assert, addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable} from './utils';
 import {getTransactionByHash, getTransactionsHistory, getTransactionReceipt} from './transactions-fetcher';
 
-import {GeneralLedger} from './accounting';
+import {Balances} from './accounting';
 
 const { SearchBar } = Search;
 
@@ -136,7 +136,7 @@ export const buildColumns = (worldState) => {
 };
 
 
-const enhanceTransaction = (tx, rawReceipt, worldState) => {
+const _enhanceTransaction = (tx, rawReceipt, worldState) => {
   if (_.isEmpty(tx)) {
     return tx;
   }
@@ -187,6 +187,16 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
     return _.extend(enhancedTx, {effectOfTransaction: worldState.effectOfTransaction(enhancedTx)});
 }
 
+const enhanceTransaction = (rawTx, rawReceipt, worldState, stateAfterPrevTx) => {
+  if (_.isEmpty(rawReceipt)) {
+    return rawTx;
+  }
+  let tx = _enhanceTransaction(rawTx, rawReceipt, worldState);
+  // TODO try catch
+  tx.stateAfter = stateAfterPrevTx ? stateAfterPrevTx.plus(worldState.effectOfTransaction(tx)) : undefined;
+  return tx;
+}
+
 export function useTransactionsForAddress(addr, worldState) {
   const [fetchedTransactions, setFetchedTransactions] = useState([]);
   const [fetchedReceipts, setFetchedReceipts] = useState({});
@@ -226,25 +236,14 @@ export function useTransactionsForAddress(addr, worldState) {
   }, [addr]);
 
 
-  const transactionReceipts = _.extend({}, fetchedReceipts);
 
-  let enhancedTransactions = fetchedTransactions.map(tx => enhanceTransaction(tx, transactionReceipts[tx.hash], worldState));
-  enhancedTransactions = _.sortBy(enhancedTransactions, 'timestamp');
-  const gl = new GeneralLedger(worldState);
-  for (const tx of enhancedTransactions) {
-    if (!tx.receipt) {
-      break;
-    }
-
-    try {
-      gl.processBlockchainTransaction(tx);
-      const i = enhancedTransactions.indexOf(tx);
-      tx.stateAfter = gl.stateAfterTransaction(i);
-    } catch(err) {
-      console.warn(err);
-      console.warn("Error while computing state. See above");
-      break;
-    }
+  const sortedTransactions = _.sortBy(fetchedTransactions, 'timestamp');
+  let prevState = new Balances({});
+  let enhancedTransactions = [];
+  for (const tx of sortedTransactions) {
+    const eTx = enhanceTransaction(tx, fetchedReceipts[tx.hash], worldState, prevState);
+    enhancedTransactions.push(eTx);
+    prevState = eTx.stateAfter;
   }
 
   const isLoadingReceipts = _.some(enhancedTransactions, tx => _.isEmpty(tx.receipt));
