@@ -100,7 +100,7 @@ export const buildColumns = (worldState) => {
 
         return (
           <div>
-          {_.map(cellContent.toJson(), (balance, token) =>
+          {_.map(cellContent?.toJson() || {}, (balance, token) =>
             <div key={token}>{token}: {addSign(formatTokenValue(balance, ''))}</div>
           )}
           </div>
@@ -190,7 +190,7 @@ const enhanceTransaction = (tx, rawReceipt, worldState) => {
 export function useTransactionsForAddress(addr, worldState) {
   const [fetchedTransactions, setFetchedTransactions] = useState([]);
   const [fetchedReceipts, setFetchedReceipts] = useState({});
-  const [isLoading, setLoading] = useState(!(addr in worldState.cachedTxsByAddress));
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchReceipt(hash) {
@@ -222,14 +222,13 @@ export function useTransactionsForAddress(addr, worldState) {
   useEffect(() => {
     setFetchedTransactions([]);
     setFetchedReceipts({});
-    setLoading(!(addr in worldState.cachedTxsByAddress));
-  }, [addr, worldState.cachedTxsByAddress]);
+    setLoading(true);
+  }, [addr]);
 
 
-  const transactions = worldState.cachedTxsByAddress[addr] || fetchedTransactions;
-  const transactionReceipts = _.extend({}, fetchedReceipts, worldState.cachedReceiptsByHash);
+  const transactionReceipts = _.extend({}, fetchedReceipts);
 
-  let enhancedTransactions = transactions.map(tx => enhanceTransaction(tx, transactionReceipts[tx.hash], worldState));
+  let enhancedTransactions = fetchedTransactions.map(tx => enhanceTransaction(tx, transactionReceipts[tx.hash], worldState));
   enhancedTransactions = _.sortBy(enhancedTransactions, 'timestamp');
   const gl = new GeneralLedger(worldState);
   for (const tx of enhancedTransactions) {
@@ -249,18 +248,6 @@ export function useTransactionsForAddress(addr, worldState) {
   }
 
   const isLoadingReceipts = _.some(enhancedTransactions, tx => _.isEmpty(tx.receipt));
-
-  useEffect(() => {
-    if (!isLoading && !isLoadingReceipts && worldState.shouldCacheTransactions && transactions.length > 0 && !(addr in worldState.cachedTxsByAddress)) {
-      worldState.cachedTxsByAddress[addr] = transactions;
-      _.forEach(transactionReceipts, (receipt, hash) =>
-        worldState.cachedReceiptsByHash[hash] = receipt
-      );
-      worldState.flushCaches();
-
-      console.log(`Writing ${transactions.length} txs to caches`);
-    }
-  }, [addr, transactionReceipts, transactions, worldState, isLoading, isLoadingReceipts, worldState.shouldCacheTransactions]);
 
   return [isLoading, isLoadingReceipts, enhancedTransactions];
 }

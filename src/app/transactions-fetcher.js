@@ -123,13 +123,13 @@ async function cacheTransactionsForAddressUntilPageIndex(addr, pageIndex) {
     }
 
     const nextIndex = txsByAddrCache[addr][getPageArgsHash].lastCachedPageIndex + 1;
-    const page = await _getTransactionsHistory(addr, nextIndex);
+    const pageTransactions = await _getTransactionsHistory(addr, nextIndex);
 
-    if (page.transactions.length === 0) {
+    if (pageTransactions.length === 0) {
       break;
     }
 
-    await Promise.all(page.transactions.map(async (tx) => {
+    await Promise.all(pageTransactions.map(async (tx) => {
       await addToCache(tx);
       txsByAddrCache[addr][getPageArgsHash].transactionHashes[tx.hash] = true;
     }));
@@ -155,7 +155,7 @@ export async function getTransactionReceipt(hash) {
 }
 
 export async function getTransactionsHistory(addr, pageIndex = 0) {
-  cacheTransactionsForAddressUntilPageIndex(addr, pageIndex);
+  await cacheTransactionsForAddressUntilPageIndex(addr, pageIndex);
   return _.keys(txsByAddrCache[addr][getPageArgsHash].transactionHashes).map(hash =>
     txCache[hash].tx
   );
