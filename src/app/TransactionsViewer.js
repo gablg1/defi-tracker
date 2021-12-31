@@ -184,8 +184,7 @@ const _enhanceTransaction = (tx, rawReceipt, worldState) => {
       }
     })
   })
-
-    return _.extend(enhancedTx, {effectOfTransaction: worldState.effectOfTransaction(enhancedTx)});
+  return _.extend(enhancedTx, {effectOfTransaction: worldState.effectOfTransaction(enhancedTx)});
 }
 
 let enhanceCache = {};
@@ -203,6 +202,7 @@ const enhanceTransaction = (rawTx, rawReceipt, worldState, stateAfterPrevTx) => 
 
   let tx = _enhanceTransaction(rawTx, rawReceipt, worldState);
   if (stateAfterPrevTx instanceof Error) {
+    tx.stateAfter = stateAfterPrevTx;
     enhanceCache[rawTx.hash] ||= {};
     enhanceCache[rawTx.hash][hashPrevState] = tx;
     return tx;

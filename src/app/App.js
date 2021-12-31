@@ -158,7 +158,7 @@ export const WorldState = Model.register('world-state', class WorldState extends
       return logs.map(log => {
         const contract = this.findContract(log.address);
         return contract ? decodeLog(log, JSON.parse(contract.stringifiedAbi)) : log;
-      })
+      }).filter(log => log.decoded);
     } catch(err) {
       console.warn("Error decoding logs");
       console.warn(err);
