@@ -200,6 +200,7 @@ const enhanceTransaction = (rawTx, rawReceipt, worldState, stateAfterPrevTx) => 
     return enhanceCache[rawTx.hash][hashPrevState];
   }
 
+
   let tx = _enhanceTransaction(rawTx, rawReceipt, worldState);
   if (stateAfterPrevTx instanceof Error) {
     enhanceCache[rawTx.hash] ||= {};
