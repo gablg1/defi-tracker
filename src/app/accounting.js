@@ -20,12 +20,3 @@ export class Balances {
     return this.json;
   }
 }
-
-
-class GLTransaction {
-  constructor(blockchainTransaction, worldState) {
-    this.blockchainTransaction = blockchainTransaction;
-    this.worldState = worldState;
-    this.contract = worldState.findContract(blockchainTransaction.to);
-  }
-}
