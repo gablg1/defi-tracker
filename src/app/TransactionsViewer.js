@@ -129,7 +129,7 @@ export const buildColumns = (worldState) => {
       dataField: 'inputArgs',
       text: 'Args',
       formatter: (__, row) => {
-        const call = worldState.decodeContractCall(row.input);
+        const call = worldState.decodeContractCall(row.input, row.contractAddress);
         return call ? formatContractCall(call) : truncateLongAddressCopiable(row.input);
       }
     }
@@ -144,7 +144,7 @@ const _enhanceTransaction = (tx, rawReceipt, worldState) => {
 
   let enhancedTx = _.extend({}, tx, {
     receipt: rawReceipt,
-    methodCall: worldState.decodeContractCall(tx.input),
+    methodCall: worldState.decodeContractCall(tx.input, tx.to),
   });
 
   if (_.isEmpty(rawReceipt)) {
