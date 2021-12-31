@@ -191,20 +191,26 @@ const _enhanceTransaction = (tx, rawReceipt, worldState) => {
 let enhanceCache = {};
 
 const enhanceTransaction = (rawTx, rawReceipt, worldState, stateAfterPrevTx) => {
-  if (rawTx.hash in enhanceCache && hash(stateAfterPrevTx) in enhanceCache[rawTx.hash]) {
-    return enhanceCache[rawTx.hash][hash(stateAfterPrevTx)];
-  }
-
   if (_.isEmpty(rawReceipt)) {
     return rawTx;
   }
 
+  const hashPrevState = hash(stateAfterPrevTx);
+  if (rawTx.hash in enhanceCache && hashPrevState in enhanceCache[rawTx.hash]) {
+    return enhanceCache[rawTx.hash][hashPrevState];
+  }
+
   let tx = _enhanceTransaction(rawTx, rawReceipt, worldState);
-  // TODO try catch
-  tx.stateAfter = stateAfterPrevTx ? stateAfterPrevTx.plus(worldState.effectOfTransaction(tx)) : undefined;
+  if (stateAfterPrevTx instanceof Error) {
+    enhanceCache[rawTx.hash] ||= {};
+    enhanceCache[rawTx.hash][hashPrevState] = tx;
+    return tx;
+  }
+  const effect = worldState.effectOfTransaction(tx);
+  tx.stateAfter = effect instanceof Error ? effect : stateAfterPrevTx.plus(effect);
 
   enhanceCache[rawTx.hash] ||= {};
-  enhanceCache[rawTx.hash][hash(stateAfterPrevTx)] = tx;
+  enhanceCache[rawTx.hash][hashPrevState] = tx;
   return tx;
 }
 
@@ -283,7 +289,7 @@ export function useTransaction(hash, worldState) {
 
   }, [hash, isLoading]);
 
-  return [isLoading, enhanceTransaction(rawTx, rawReceipt, worldState)];
+  return [isLoading, enhanceTransaction(rawTx, rawReceipt, worldState, new Balances({}))];
 }
 
 export function TransactionsViewer(props) {
