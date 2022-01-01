@@ -1,5 +1,5 @@
 import {ethers} from 'ethers';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Popover, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useState } from 'react';
 import { isBech32Address } from '@harmony-js/utils';
 import { fromBech32 } from '@harmony-js/crypto';
@@ -26,6 +26,24 @@ export function isValidEthereumAddress(addr) {
   } catch (e) {
     return false;
   }
+}
+
+export function InfoTooltip(props) {
+  const popover = (
+    <Popover id="popover-basic">
+      <Popover.Title as="h3">{props.title}</Popover.Title>
+      <Popover.Content>
+        {props.children}
+      </Popover.Content>
+    </Popover>
+  );
+  return (
+    <OverlayTrigger placement="bottom" overlay={popover}>
+      <span className="d-inline-block" style={{cursor: 'pointer'}}>
+        <i className="fa fa-question" style={{color: '#0090e7', fontSize: 30}}/>
+      </span>
+    </OverlayTrigger>
+  );
 }
 
 export function Copiable(props) {
@@ -145,3 +163,4 @@ export const stringifyJsonWithBigInts = (json) => {
     typeof value === "bigint" ? {__tyForJsonParser__: 'bigint', value: value} : value
   );
 };
+

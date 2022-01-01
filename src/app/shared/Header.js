@@ -57,10 +57,10 @@ class InnerHeader extends Component {
                   <span className="menu-title"><Trans>Rules</Trans></span>
                 </Link>
               </li>
-              <li className={ this.isPathActive('/state-editor') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
-                <Link className="nav-link" to="/state-editor">
+              <li className={ this.isPathActive('/price-fetchers') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
+                <Link className="nav-link" to="/price-fetchers">
                   <i className="mdi mdi mdi-texture menu-icon"></i>
-                  <span className="menu-title"><Trans>Debug</Trans></span>
+                  <span className="menu-title"><Trans>Price Fetchers</Trans></span>
                 </Link>
               </li>
             </ul>

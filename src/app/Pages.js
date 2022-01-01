@@ -6,7 +6,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import { Link } from 'react-router-dom';
 
-import {addSign, formatTokenValue, Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
+import {InfoTooltip, addSign, formatTokenValue, Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
 
 // import brace from "brace";
 
@@ -73,6 +73,9 @@ export function ContractManager(props) {
     <div>
       <div className="page-header">
         <h3 className="page-title">Contracts</h3>
+        <InfoTooltip title={'Contract Manager'}>
+          Use this page to add any smart contracts you're interested in tracking. ERC20 and ERC721 contracts represent fungible and non fungible tokens. You can also define Price Fetchers for those, to track their price changes over time in $USD and other currencies.
+        </InfoTooltip>
       </div>
       <div className="row">
         <div className="col-12 grid-margin">
@@ -454,6 +457,19 @@ function EventRuleManagerInternal(props) {
     <div>
       <div className="page-header">
         <h3 className="page-title">Event Rules</h3>
+          <InfoTooltip title={'Event Rules'}>
+            <div style={{minWidth: 300}}>
+              <div>
+                Blockchain transactions produce Events to signal when something happens - like a token or NFT changing hands. This page allows you
+                to create rules that transform these events into Balance diffs.
+              </div>
+
+              <div className="mt-2">
+              For the more technically inclined, this page allows you to implement myFilter and myBalanceEffectMaker in:
+              <p className="mt-2 text-monospace">events.filter(myFilter).map(myBalanceEffectMaker)</p>
+            </div>
+          </div>
+          </InfoTooltip>
       </div>
       <div className="row">
         <div className="col-12 grid-margin">
@@ -537,7 +553,7 @@ function EventRuleManagerInternal(props) {
                 </div>
                 <div className="col-md-6 grid-margin">
                   <div>
-                    <label>Effect</label>
+                    <label>Balance Effect</label>
                     <AceEditor style={{minHeight: '100px'}}
                       mode="javascript"
                       theme="monokai"
@@ -600,4 +616,69 @@ function EventRuleManagerInternal(props) {
   )
 }
 
+
+
+export function PriceFetcherManager(props) {
+  const [isLoadingTxs, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
+  const [contractIndexBeingEdited, setContractIndexBeingEdited] = useState(-1);
+  const assetContracts = props.worldState.contracts.filter(c => c.isAsset())
+  return (
+    <div>
+      <div className="page-header">
+        <h3 className="page-title">Historical Price Fetchers</h3>
+        <span>
+          <InfoTooltip title={'Price Fetchers'}>
+            Historical prices for ERC20 or ERC721 tokens depend heavily on the token. Use this page to create historical price fetchers for each of the tokens you're interested in.
+          </InfoTooltip>
+        </span>
+      </div>
+      <div className="row">
+        <div className="col-12 grid-margin">
+          <div className="card">
+            <div className="card-body">
+              <div className="row" style={{justifyContent: 'space-between'}}>
+                <h4 className="card-title">Asset Contracts</h4>
+              </div>
+              <div className="row">
+                <div className="table-responsive">
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Address</th>
+                        <th>Token Name</th>
+                        <th>Blockchain</th>
+                        <th>Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {assetContracts.map((contract, i) =>
+                        <tr style={contractIndexBeingEdited === i ? {background: filterColor} : {}} key={contract.address}
+                          onClick={evt => {
+                            setContractIndexBeingEdited(i);
+                            evt.stopPropagation();
+                        }}>
+                          <td>{contract.name}</td>
+                          <td>{contract.address}</td>
+                          <td>{contract.tokenName}</td>
+                          <td>{contract.blockchain}</td>
+                          <td><button onClick={() => {
+                            if (window.confirm('Are you sure you wish to delete this item?')) {
+                              props.worldState.removeContract(contract);
+                              props.handleSave();
+                            }
+                          }} className="btn btn-danger btn-sm">Delete</button></td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 

@@ -17,7 +17,7 @@ import { isValidEthereumAddress } from './utils';
 import {Balances} from './accounting';
 import {parseJsonWithBigInts, stringifyJsonWithBigInts, addressesEqual, normalizeAddress } from './utils';
 
-import {EventRuleManager, ContractManager, StateEditor} from './Pages';
+import {PriceFetcherManager, EventRuleManager, ContractManager, StateEditor} from './Pages';
 import {SingleTransactionViewer, TransactionsViewer} from './TransactionsViewer';
 import _ from 'lodash';
 
@@ -135,6 +135,10 @@ export const Contract = Model.register('contract', class Contract extends Model 
   }
 
   typeRequiresTokenName() {
+    return this.isAsset();
+  }
+
+  isAsset() {
     return ['ERC20', 'ERC721'].includes(this.type);
   }
 });
@@ -335,6 +339,7 @@ function App(props) {
                 <Route path="/transactions" element={<TransactionsViewer worldState={worldState} />} />
                 <Route path="/contracts" element={<ContractManager worldState={worldState} handleSave={handleSave} />} />
                 <Route path="/rules" element={<EventRuleManager worldState={worldState} handleSave={handleSave} />} />
+                <Route path="/price-fetchers" element={<PriceFetcherManager worldState={worldState} handleSave={handleSave} />} />
                 <Route path="/state-editor" element={<StateEditor worldState={worldState} setWorldState={setWorldState} handleSave={handleSave} />} />
                 <Route path="/tx/:txHash" element={<SingleTransactionViewer worldState={worldState} />} />
                 <Route path="/" element={<Navigate replace to="/transactions" />} />

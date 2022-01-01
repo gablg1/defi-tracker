@@ -6,7 +6,7 @@ import { Link, useParams } from 'react-router-dom';
 import hash from 'object-hash';
 
 import _ from 'lodash';
-import { assert, addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, stringifyJsonWithBigInts, parseJsonWithBigInts} from './utils';
+import { InfoTooltip, assert, addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, stringifyJsonWithBigInts, parseJsonWithBigInts} from './utils';
 import {getTransactionByHash, getTransactionsHistory, getTransactionReceipt} from './transactions-fetcher';
 
 import {Balances} from './accounting';
@@ -310,20 +310,17 @@ export function TransactionsViewer(props) {
     <div>
       <div className="page-header">
         <h3 className="page-title">
-          Data table
+          Transactions
         </h3>
-        <nav aria-label="breadcrumb">
-          <ol className="breadcrumb">
-            <li className="breadcrumb-item"><a href="!#" onClick={event => event.preventDefault()}>Tables</a></li>
-            <li className="breadcrumb-item active" aria-current="page">Data Tables</li>
-          </ol>
-        </nav>
+        <InfoTooltip title={'Transactions'}>
+          This page shows all transactions related to the address you entered. It also applies Balance Rules and Price Fetchers to derive the effect of each transaction on your overall balance.
+        </InfoTooltip>
       </div>
       <div className="row">
         <div className="col-12">
           <div className="card">
             <div className="card-body">
-              <h4 className="card-title">Data Table</h4>
+              <h4 className="card-title">Transactions</h4>
               <div className="row">
                 <div className="col-12">
                   <ToolkitProvider

@@ -127,3 +127,7 @@
 	  @include popover-variant($color);
 	}
 }
+
+.popover {
+  max-width: 500px !important;
+}
