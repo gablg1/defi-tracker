@@ -108,7 +108,7 @@ export const buildColumns = (worldState) => {
         );
     }}, {
       dataField: 'stateAfter',
-      text: 'State After',
+      text: 'Balances After',
       formatter: (cellContent, row) => {
         if (cellContent instanceof Error) {
           return <div style={{background: 'purple'}}>{cellContent.message}</div>
