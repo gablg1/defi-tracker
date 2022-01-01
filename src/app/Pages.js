@@ -622,6 +622,7 @@ export function PriceFetcherManager(props) {
   const [isLoadingTxs, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
   const [contractIndexBeingEdited, setContractIndexBeingEdited] = useState(-1);
   const assetContracts = props.worldState.contracts.filter(c => c.isAsset())
+  const contract = (contractIndexBeingEdited >= 0 && contractIndexBeingEdited < assetContracts.length) ? assetContracts[contractIndexBeingEdited] : undefined;
   return (
     <div>
       <div className="page-header">
@@ -674,6 +675,32 @@ export function PriceFetcherManager(props) {
                   </table>
                 </div>
               </div>
+
+              {contract &&
+                <div>
+                  <div className="row">
+                    <h4 className="card-title">Price Fetcher</h4>
+                  </div>
+                  <AceEditor style={{minHeight: '300px'}}
+                    mode="javascript"
+                    theme="monokai"
+                    name="jsEditor"
+                    editorProps={{ $blockScrolling: true }}
+                    placeholder="return evt.name == 'Transfer' && gltx.tx.from == myAddr;"
+                    fontSize={14}
+                    showPrintMargin={true}
+                    showGutter={true}
+                    highlightActiveLine={true}
+                    height="100%"
+                    width="100%"
+                    value={contract.priceFetcher}
+                    onChange={val => {
+                      contract.priceFetcher = val;
+                      props.handleSave();
+                    }}
+                  />
+                </div>
+              }
             </div>
           </div>
         </div>
