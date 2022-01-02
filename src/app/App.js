@@ -1,21 +1,20 @@
-import React, { useReducer, useState, useEffect } from 'react';
+import React, { useReducer, useState, useEffect, Suspense } from 'react';
 import './App.scss';
+import { Form } from 'react-bootstrap';
 import Header from './shared/Header';
 import Footer from './shared/Footer';
 import { Model } from './model';
 import abiCoder from 'web3-eth-abi';
 import { sha3, BN } from "web3-utils";
 
-import { Suspense } from 'react';
-import { useSearchParams, Navigate, Routes, Route } from 'react-router-dom';
+import { useNavigate, useSearchParams, Navigate, Routes, Route } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
 
 import { isBech32Address } from '@harmony-js/utils';
-import { isValidEthereumAddress } from './utils';
 
 import {Balances} from './accounting';
-import {parseJsonWithBigInts, stringifyJsonWithBigInts, addressesEqual, normalizeAddress } from './utils';
+import {isAddress, parseJsonWithBigInts, stringifyJsonWithBigInts, addressesEqual, normalizeAddress } from './utils';
 
 import {PriceFetcherManager, EventRuleManager, ContractManager, StateEditor} from './Pages';
 import {SingleTransactionViewer, TransactionsViewer} from './TransactionsViewer';
@@ -110,7 +109,7 @@ export const Contract = Model.register('contract', class Contract extends Model 
       return new Error("Name cannot be empty");
     }
 
-    if (!isBech32Address(this.address) && !isValidEthereumAddress(this.address)) {
+    if (!isAddress(this.address)) {
       return new Error(`Address ${this.address} is not valid`);
     }
 
@@ -291,6 +290,8 @@ export const WorldState = Model.register('world-state', class WorldState extends
 
 
 function App(props) {
+  const navigate = useNavigate();
+  const [initialAddr, setInitialAddr] = useState('');
   const [worldState, setWorldState] = useState(null);
   const [worldStateLoaded, setWorldStateLoaded] = useState(false);
 
@@ -332,6 +333,7 @@ function App(props) {
     setWorldStateLoaded(true);
   }, [worldStateLoaded]);
 
+
   if (!worldStateLoaded) {
     return <div>Loading...</div>
   }
@@ -343,6 +345,34 @@ function App(props) {
         <div className="main-panel">
           <div className="content-wrapper">
             <Suspense fallback={<Spinner/>}>
+            {(_.isEmpty(addr)) ?
+              <div className="row" style={{justifyContent: 'center'}}>
+                <div className="col-6 grid-margin">
+                  <div className="card">
+                    <div className="card-body">
+
+                <h4 className="card-title">DFK History Report Generator</h4>
+                <h6 className="text-muted font-weight-normal"> Please enter the address you're interested in</h6>
+                <Form.Group>
+                  <div className="input-group">
+                  <Form.Control type="text" className="form-control" placeholder="0x1234... or one1234..." aria-label="Recipient's username" aria-describedby="basic-addon2" value={initialAddr} onChange={evt => setInitialAddr(evt.target.value)} />
+                    <div className="input-group-append">
+                      <button className="btn btn-sm btn-primary" type="button" onClick={() => {
+                        if (!isAddress(initialAddr)) {
+                          window.alert("Invalid address. Please enter an address of type 0x1234.... or one1234...");
+                          return;
+                        }
+                        navigate(`/?addr=${initialAddr}`);
+                      }}>Search</button>
+                    </div>
+                  </div>
+                </Form.Group>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+              :
               <Routes>
                 <Route path="/transactions" element={<TransactionsViewer worldState={worldState} />} />
                 <Route path="/contracts" element={<ContractManager worldState={worldState} handleSave={handleSave} />} />
@@ -352,6 +382,7 @@ function App(props) {
                 <Route path="/tx/:txHash" element={<SingleTransactionViewer worldState={worldState} />} />
                 <Route path="/" element={<Navigate replace to={`/transactions?addr=${worldState.defaultAddr}`} />} />
               </Routes>
+            }
             </Suspense>
           </div>
           <Footer />

@@ -19,54 +19,58 @@ class InnerHeader extends Component {
                 <img src={require('../../assets/images/dfk-jewel.png')} alt="dfk" style={{marginLeft: 10}} />
               </LinkWithAddr>
             </div>
-            <div className="navbar-menu-wrapper d-flex align-items-stretch justify-content-end">
-              <ul className="navbar-nav w-100">
-                <li className="nav-item w-100">
-                  <div className="input-group">
-                    <div className="input-group-prepend">
-                      <span className="input-group-text">Address</span>
+            {!_.isEmpty(addr) &&
+              <div className="navbar-menu-wrapper d-flex align-items-stretch justify-content-end">
+                <ul className="navbar-nav w-100">
+                  <li className="nav-item w-100">
+                    <div className="input-group">
+                      <div className="input-group-prepend">
+                        <span className="input-group-text">Address</span>
+                      </div>
+                      <Form.Control value={addr} onChange={evt => {
+                        this.props.setAddr(evt.target.value);
+                        this.props.forceUpdate();
+                      }}
+                        type="text" className="form-control" placeholder="0x123..." aria-label="Username" aria-describedby="basic-addon1" />
                     </div>
-                    <Form.Control value={addr} onChange={evt => {
-                      this.props.setAddr(evt.target.value);
-                      this.props.forceUpdate();
-                    }}
-                      type="text" className="form-control" placeholder="0x123..." aria-label="Username" aria-describedby="basic-addon1" />
-                  </div>
+                  </li>
+                </ul>
+              </div>
+            }
+          </div>
+        </nav>
+        {!_.isEmpty(addr) &&
+          <nav className="bottom-navbar">
+            <div className="container">
+              <ul className="nav page-navigation" style={{justifyContent: 'left'}}>
+                <li className={ this.isPathActive('/transactions') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
+                  <LinkWithAddr addr={addr} className="nav-link" to="/transactions">
+                    <i className="mdi mdi-speedometer menu-icon"></i>
+                    <span className="menu-title"><Trans>Transactions</Trans></span>
+                  </LinkWithAddr>
+                </li>
+                <li className={ this.isPathActive('/contracts') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
+                  <LinkWithAddr addr={addr} className="nav-link" to="/contracts">
+                    <i className="mdi mdi-file-restore menu-icon"></i>
+                    <span className="menu-title">Contracts</span>
+                  </LinkWithAddr>
+                </li>
+                <li className={ this.isPathActive('/rules') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
+                  <LinkWithAddr addr={addr} className="nav-link" to="/rules">
+                    <i className="mdi mdi mdi-texture menu-icon"></i>
+                    <span className="menu-title"><Trans>Rules</Trans></span>
+                  </LinkWithAddr>
+                </li>
+                <li className={ this.isPathActive('/price-fetchers') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
+                  <LinkWithAddr addr={addr} className="nav-link" to="/price-fetchers">
+                    <i className="mdi mdi mdi-texture menu-icon"></i>
+                    <span className="menu-title"><Trans>Price Fetchers</Trans></span>
+                  </LinkWithAddr>
                 </li>
               </ul>
             </div>
-          </div>
-        </nav>
-        <nav className="bottom-navbar">
-          <div className="container">
-            <ul className="nav page-navigation" style={{justifyContent: 'left'}}>
-              <li className={ this.isPathActive('/transactions') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
-                <LinkWithAddr addr={addr} className="nav-link" to="/transactions">
-                  <i className="mdi mdi-speedometer menu-icon"></i>
-                  <span className="menu-title"><Trans>Transactions</Trans></span>
-                </LinkWithAddr>
-              </li>
-              <li className={ this.isPathActive('/contracts') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
-                <LinkWithAddr addr={addr} className="nav-link" to="/contracts">
-                  <i className="mdi mdi-file-restore menu-icon"></i>
-                  <span className="menu-title">Contracts</span>
-                </LinkWithAddr>
-              </li>
-              <li className={ this.isPathActive('/rules') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
-                <LinkWithAddr addr={addr} className="nav-link" to="/rules">
-                  <i className="mdi mdi mdi-texture menu-icon"></i>
-                  <span className="menu-title"><Trans>Rules</Trans></span>
-                </LinkWithAddr>
-              </li>
-              <li className={ this.isPathActive('/price-fetchers') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
-                <LinkWithAddr addr={addr} className="nav-link" to="/price-fetchers">
-                  <i className="mdi mdi mdi-texture menu-icon"></i>
-                  <span className="menu-title"><Trans>Price Fetchers</Trans></span>
-                </LinkWithAddr>
-              </li>
-            </ul>
-          </div>
-        </nav>
+          </nav>
+        }
       </div>
     );
   }

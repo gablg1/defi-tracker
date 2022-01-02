@@ -86,6 +86,10 @@ export function formatContractCall(decodedCall) {
   return `${decodedCall.name}(${argsSeparatedByComma})`
 }
 
+export function isAddress(addr) {
+  return isBech32Address(addr) || isValidEthereumAddress(addr);
+}
+
 export function normalizeAddress(addr) {
   return ethers.utils.getAddress(isBech32Address(addr) ? fromBech32(addr) : addr);
 }
@@ -167,7 +171,7 @@ export const stringifyJsonWithBigInts = (json) => {
 };
 
 export const LinkWithAddr = (props) => {
-  assert(() => !_.isEmpty(props.addr))
+  assert(() => props.addr !== undefined)
   const to = `${props.to}?addr=${props.addr}`;
   return <Link {..._.extend({}, props, {addr: undefined, to})} />
 }
