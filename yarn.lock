@@ -10129,6 +10129,11 @@ react-contextmenu@^2.11.0:
     classnames "^2.2.5"
     object-assign "^4.1.0"
 
+react-csv@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/react-csv/-/react-csv-2.2.1.tgz#2ec723dd3ce8069269bffb3a95d968302fc87740"
+  integrity sha512-QdImVwsFQIUcOti2dJFTLnxZ8dW/q+DDpjTmD1m1UVBxh2OaEwIBg7PSGA71m7GQEEoz8M5BfvEc1rd7q8rgPw==
+
 react-data-sort@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/react-data-sort/-/react-data-sort-1.2.1.tgz#42ae40e6a12a9313da5bb3a5d607eb94d820cf5b"

@@ -10,6 +10,8 @@ import { LinkWithAddr, InfoTooltip, assert, addSign, formatAddress, transactionE
 import {getTransactionByHash, getTransactionsHistory, getTransactionReceipt} from './transactions-fetcher';
 
 import {Balances} from './accounting';
+import { CSVLink} from "react-csv";
+
 
 const { SearchBar } = Search;
 
@@ -42,6 +44,7 @@ export const buildColumns = (worldState) => {
       dataField: 'timestamp',
       text: 'Timestamp',
       sort: true,
+      toCSV: (row) => row.timestamp,
       formatter: (cellContent, row) => {
         const date = new Date(0);
         date.setUTCSeconds(cellContent);
@@ -51,6 +54,7 @@ export const buildColumns = (worldState) => {
       dataField: 'methodCall',
       text: 'Method',
       sort: true,
+      toCSV: (row) => row.methodCall?.name ? row.methodCall.name : row.methodCall,
       formatter: (cellContent, row) => {
         return (cellContent)
           ? <div className="badge badge-pill badge-info">{cellContent.name}</div>
@@ -60,6 +64,7 @@ export const buildColumns = (worldState) => {
       dataField: 'value',
       text: 'Value',
       sort: true,
+      toCSV: row => row.value,
       formatter: (cellContent, row) => {
         return formatTokenValue(cellContent, 'ONE');
       }
@@ -67,6 +72,7 @@ export const buildColumns = (worldState) => {
       dataField: 'gasFeePaid',
       text: 'Gas Fee',
       sort: true,
+      toCSV: row => row.gasFeePaid,
       formatter: (cellContent, row) => {
         return cellContent ? formatTokenValue(cellContent, 'ONE', 5) : '';
       }
@@ -74,22 +80,26 @@ export const buildColumns = (worldState) => {
       dataField: 'hash',
       text: 'Tx Hash',
       sort: true,
+      toCSV: row => row.hash,
       formatter: (cellContent, row) => {
         return <LinkWithAddr addr={worldState.defaultAddr} to={`/tx/${cellContent}`}>{truncateLongString(cellContent)}</LinkWithAddr>
       }
     }, {
       dataField: 'blockNumber',
       text: 'Block #',
+      toCSV: row => row.blockNumber,
       sort: true
     }, {
       dataField: 'from',
       text: 'From',
       sort: true,
+      toCSV: row => row.from,
       formatter: (cellContent, row) => formatAddress(cellContent, worldState)
     }, {
       dataField: 'to',
       text: 'To',
       sort: true,
+      toCSV: row => row.to,
       formatter: (cellContent, row) => formatAddress(cellContent, worldState)
     }, {
       dataField: 'effectOfTransaction',
@@ -297,6 +307,28 @@ export function useTransaction(hash, worldState) {
   return [isLoading, enhanceTransaction(rawTx, rawReceipt, worldState, new Balances({}))];
 }
 
+const buildCSV = (worldState, transactions) => {
+  let cols = buildColumns(worldState).filter(col => col.toCSV);
+
+  const finalBalances = _.last(transactions)?.stateAfter;
+  if (finalBalances instanceof Error) {
+    cols = cols.concat([{text: 'Balances After', toCSV: () => finalBalances.message}]);
+  } else {
+    cols = cols.concat(_.map(finalBalances?.toJson() || {}, (balance, token) => {
+      return (
+        {
+          text: `${token} Balance`,
+          toCSV: (row) => (row.stateAfter === undefined) ? 0 : row.stateAfter.toJson()[token] || 0,
+        }
+      );
+    }))
+  }
+
+  return [cols.map(col => col.text)].concat(_.reverse(transactions).map(tx =>
+    cols.map(col => col.toCSV(tx))
+  ));
+}
+
 export function TransactionsViewer(props) {
   const [, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
   const shouldWriteData = false;
@@ -310,6 +342,7 @@ export function TransactionsViewer(props) {
 
   const dataFieldsToInclude = ['timestamp', 'methodCall', 'value', 'hash', 'from', 'to', 'stateAfter', 'effectOfTransaction'];
   const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
+  const csvData = buildCSV(props.worldState, transactions);
   return (
     <div>
       <div className="page-header">
@@ -324,7 +357,13 @@ export function TransactionsViewer(props) {
         <div className="col-12">
           <div className="card">
             <div className="card-body">
-              <h4 className="card-title">Transactions</h4>
+              <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                <h4 className="card-title">Transactions</h4>
+                {transactions.length > 0 &&
+                  <CSVLink filename="dfk-transactions.csv" data={csvData}>Download table data</CSVLink>
+                }
+              </div>
+
               <div className="row">
                 <div className="col-12">
                   <ToolkitProvider
