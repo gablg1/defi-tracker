@@ -100,11 +100,15 @@ export const buildColumns = (worldState) => {
         }
 
         return (
-          <div>
+          <ul className="list-arrow">
           {_.map(cellContent?.toJson() || {}, (balance, token) =>
-            <div key={token}>{token}: {addSign(formatTokenValue(balance, ''))}</div>
+            <li key={token}>
+              {token}:
+              <strong> {addSign(formatTokenValue(balance, ''))}</strong>
+            </li>
+
           )}
-          </div>
+          </ul>
         );
     }}, {
       dataField: 'stateAfter',
@@ -115,11 +119,11 @@ export const buildColumns = (worldState) => {
         }
 
         return (
-          <div>
+          <ul className="list-arrow">
           {_.map(cellContent?.toJson() || {}, (balance, token) =>
-            <div key={token}>{token}: {addSign(formatTokenValue(balance, ''))}</div>
+            <li key={token}>{token}:<strong> {addSign(formatTokenValue(balance, ''))}</strong></li>
           )}
-          </div>
+          </ul>
         );
     }}, {
       dataField: 'receipt',
@@ -304,7 +308,7 @@ export function TransactionsViewer(props) {
     ));
   }
 
-  const dataFieldsToInclude = ['timestamp', 'methodCall', 'value', 'gasFeePaid', 'hash', 'blockNumber', 'from', 'to', 'stateAfter', 'effectOfTransaction'];
+  const dataFieldsToInclude = ['timestamp', 'methodCall', 'value', 'hash', 'from', 'to', 'stateAfter', 'effectOfTransaction'];
   const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
   return (
     <div>
