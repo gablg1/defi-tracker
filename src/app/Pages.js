@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form } from 'react-bootstrap';
 import _ from 'lodash';
 import ToolkitProvider from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min';
@@ -22,6 +22,7 @@ import "brace/theme/monokai";
 import {Rule, Contract, WorldState} from './App';
 import {useTransactionsForAddress } from './TransactionsViewer';
 
+/* global BigInt */
 
 const filterColor = '#474747';
 
@@ -615,6 +616,20 @@ function EventRuleManagerInternal(props) {
   )
 }
 
+export function useTokenBalances(contracts, addr) {
+  const [balances, setBalances] = useState({});
+
+  useEffect(() => {
+    async function fetchBalance(contract) {
+      const balance = await contract.connect().methods.balanceOf(addr).call()
+      setBalances(prevState => _.extend({}, prevState, {[contract.address]: BigInt(balance)}));
+    }
+
+    _.forEach(contracts, fetchBalance);
+  }, [addr, contracts]);
+
+  return balances;
+}
 
 
 export function PriceFetcherManager(props) {
@@ -622,6 +637,8 @@ export function PriceFetcherManager(props) {
   const [contractIndexBeingEdited, setContractIndexBeingEdited] = useState(-1);
   const assetContracts = props.worldState.contracts.filter(c => c.isAsset())
   const contract = (contractIndexBeingEdited >= 0 && contractIndexBeingEdited < assetContracts.length) ? assetContracts[contractIndexBeingEdited] : undefined;
+  const balances = useTokenBalances(assetContracts, props.worldState.defaultAddr);
+
   return (
     <div>
       <div className="page-header">
@@ -646,7 +663,7 @@ export function PriceFetcherManager(props) {
                       <tr>
                         <th>Name</th>
                         <th>Address</th>
-                        <th>Token Name</th>
+                        <th>Balance</th>
                         <th>Blockchain</th>
                         <th>Delete</th>
                       </tr>
@@ -660,7 +677,10 @@ export function PriceFetcherManager(props) {
                         }}>
                           <td>{contract.name}</td>
                           <td>{contract.address}</td>
-                          <td>{contract.tokenName}</td>
+                          <td>{(contract.address in balances)
+                            ? formatTokenValue(balances[contract.address], contract.tokenName)
+                            : `?? ${contract.tokenName}`
+                          }</td>
                           <td>{contract.blockchain}</td>
                           <td><button onClick={() => {
                             if (window.confirm('Are you sure you wish to delete this item?')) {

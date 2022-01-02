@@ -6,6 +6,8 @@ import Footer from './shared/Footer';
 import { Model } from './model';
 import abiCoder from 'web3-eth-abi';
 import { sha3, BN } from "web3-utils";
+import { Harmony } from "@harmony-js/core";
+import { ChainID, ChainType } from "@harmony-js/utils";
 
 import { useNavigate, useSearchParams, Navigate, Routes, Route } from 'react-router-dom';
 
@@ -140,6 +142,19 @@ export const Contract = Model.register('contract', class Contract extends Model 
 
   isAsset() {
     return ['ERC20', 'ERC721'].includes(this.type);
+  }
+
+  connect() {
+    const rpc = 'https://api.s0.t.hmny.io/';
+    const hmy = new Harmony(rpc, {
+      chainType: ChainType.Harmony,
+      chainId: 1666600000,
+    });
+
+    return hmy.contracts.createContract(
+      JSON.parse(this.stringifiedAbi),
+      this.address
+    );
   }
 });
 
