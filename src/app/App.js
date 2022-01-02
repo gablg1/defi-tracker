@@ -7,7 +7,7 @@ import abiCoder from 'web3-eth-abi';
 import { sha3, BN } from "web3-utils";
 
 import { Suspense } from 'react';
-import { Navigate, Routes, Route } from 'react-router-dom';
+import { useSearchParams, Navigate, Routes, Route } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
 
@@ -148,7 +148,6 @@ export const WorldState = Model.register('world-state', class WorldState extends
   static properties = {
     contracts: [Contract],
     rules: [Rule],
-    defaultAddr: String,
     shouldCacheTransactions: Boolean,
   }
 
@@ -294,6 +293,14 @@ export const WorldState = Model.register('world-state', class WorldState extends
 function App(props) {
   const [worldState, setWorldState] = useState(null);
   const [worldStateLoaded, setWorldStateLoaded] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const addr = searchParams.get("addr");
+  if (worldState) {
+    worldState.defaultAddr = addr;
+  }
+  const setAddr = (newAddr) => setSearchParams({addr: newAddr});
+
   // eslint-disable-next-line no-unused-vars
   const [__, forceUpdate] = useReducer(x => x + 1, 0);
 
@@ -331,7 +338,7 @@ function App(props) {
 
   return (
     <div className="container-scroller">
-      <Header worldState={worldState} handleSave={handleSave} />
+      <Header setAddr={setAddr} worldState={worldState} forceUpdate={forceUpdate} handleSave={handleSave} />
       <div className="container-fluid page-body-wrapper">
         <div className="main-panel">
           <div className="content-wrapper">
@@ -343,7 +350,7 @@ function App(props) {
                 <Route path="/price-fetchers" element={<PriceFetcherManager worldState={worldState} handleSave={handleSave} />} />
                 <Route path="/state-editor" element={<StateEditor worldState={worldState} setWorldState={setWorldState} handleSave={handleSave} />} />
                 <Route path="/tx/:txHash" element={<SingleTransactionViewer worldState={worldState} />} />
-                <Route path="/" element={<Navigate replace to="/transactions" />} />
+                <Route path="/" element={<Navigate replace to={`/transactions?addr=${worldState.defaultAddr}`} />} />
               </Routes>
             </Suspense>
           </div>

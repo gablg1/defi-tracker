@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ToolkitProvider, { Search } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import hash from 'object-hash';
 
 import _ from 'lodash';
-import { InfoTooltip, assert, addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, stringifyJsonWithBigInts, parseJsonWithBigInts} from './utils';
+import { LinkWithAddr, InfoTooltip, assert, addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, stringifyJsonWithBigInts, parseJsonWithBigInts} from './utils';
 import {getTransactionByHash, getTransactionsHistory, getTransactionReceipt} from './transactions-fetcher';
 
 import {Balances} from './accounting';
@@ -75,7 +75,7 @@ export const buildColumns = (worldState) => {
       text: 'Tx Hash',
       sort: true,
       formatter: (cellContent, row) => {
-        return <Link to={`/tx/${cellContent}`}>{truncateLongString(cellContent)}</Link>
+        return <LinkWithAddr addr={worldState.defaultAddr} to={`/tx/${cellContent}`}>{truncateLongString(cellContent)}</LinkWithAddr>
       }
     }, {
       dataField: 'blockNumber',

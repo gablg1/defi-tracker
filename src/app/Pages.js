@@ -4,9 +4,8 @@ import _ from 'lodash';
 import ToolkitProvider from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
-import { Link } from 'react-router-dom';
 
-import {InfoTooltip, addSign, formatTokenValue, Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
+import {LinkWithAddr, InfoTooltip, addSign, formatTokenValue, Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
 
 // import brace from "brace";
 
@@ -290,7 +289,7 @@ export const buildColumns = (worldState) => {
       text: 'tx.hash',
       sort: true,
       formatter: (cellContent, row) =>
-        <Link to={`/tx/${cellContent.hash}`}>{truncateLongString(cellContent.hash)}</Link>
+        <LinkWithAddr addr={worldState.defaultAddr} to={`/tx/${cellContent.hash}`}>{truncateLongString(cellContent.hash)}</LinkWithAddr>
     }, {
       dataField: 'timestamp',
       text: 'evt.timestamp',

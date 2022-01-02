@@ -3,6 +3,8 @@ import { Popover, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useState } from 'react';
 import { isBech32Address } from '@harmony-js/utils';
 import { fromBech32 } from '@harmony-js/crypto';
+import {Link} from 'react-router-dom';
+import _ from 'lodash';
 
 /* global BigInt */
 export const addSign = (valueString) =>
@@ -163,4 +165,11 @@ export const stringifyJsonWithBigInts = (json) => {
     typeof value === "bigint" ? {__tyForJsonParser__: 'bigint', value: value} : value
   );
 };
+
+export const LinkWithAddr = (props) => {
+  assert(() => !_.isEmpty(props.addr))
+  const to = `${props.to}?addr=${props.addr}`;
+  return <Link {..._.extend({}, props, {addr: undefined, to})} />
+}
+
 
