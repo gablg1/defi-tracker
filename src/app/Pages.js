@@ -761,7 +761,7 @@ export function PriceFetcherManager(props) {
                     <div style={{background: 'red'}}>{activeFetchedPrice.message}</div>
                   }
                   {_.isNumber(activeFetchedPrice) &&
-                    <div style={{background: 'green'}}>{activeFetchedPrice}</div>
+                    <div style={{background: 'green'}}>{formatFiatValue(activeFetchedPrice * 10 ** 18)}</div>
                   }
                   </div>
                 </div>
