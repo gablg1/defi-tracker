@@ -261,7 +261,7 @@ export function StateEditor(props) {
         <InfoTooltip title={'Send your App state to a friend'}>
           <div style={{minWidth: 300}}>
             <div>
-              Use this page if you want to send your rules, contracts, and price fetchers to a friend for them to use. Just copy the below JSON code and ask others to import it in their DFK Reports App State Editor, so they can use the rules and configs you created!
+              Use this page if you want to send your rules, contracts, and price fetchers to a friend for them to use. Just copy the below JSON code and ask others to import it in their own App State Editor, so they can use the rules and configs you created!
             </div>
 
             <div className="mt-2">

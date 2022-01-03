@@ -15,7 +15,7 @@ class InnerHeader extends Component {
           <div className="container">
             <div className="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
               <LinkWithAddr addr={addr} className="navbar-brand brand-logo" to="/" style={{color: 'white', width: 200}}>
-                DFK Reports
+                DFK Balances
                 <img src={require('../../assets/images/dfk-jewel.png')} alt="dfk" style={{marginLeft: 10}} />
               </LinkWithAddr>
             </div>
