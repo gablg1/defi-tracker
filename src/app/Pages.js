@@ -446,7 +446,7 @@ function EventRuleManagerInternal(props) {
 
   const events = _.flatten(transactions.map(tx => tx.events || []));
 
-  const dataFieldsToInclude = ['tx', 'methodCall', 'from', 'to', 'name', 'contractAddress', 'args', 'rules', 'effectOfEvent', 'effectOfRule'];
+  const dataFieldsToInclude = ['tx', 'from', 'to', 'name', 'contractAddress', 'args', 'rules', 'effectOfEvent', 'effectOfRule'];
   const cols = buildColumns(props.worldState).filter(col => dataFieldsToInclude.includes(col.dataField));
 
   const eventsAfterShouldApply = events.map(evt => {
