@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import hash from 'object-hash';
 
 import _ from 'lodash';
-import { LinkWithAddr, InfoTooltip, assert, addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable, stringifyJsonWithBigInts, parseJsonWithBigInts} from './utils';
+import { LinkWithAddr, InfoTooltip, addSign, formatAddress, transactionExplorerLink, formatTokenValue, formatContractCall, truncateLongString, truncateLongAddressCopiable } from './utils';
 import {getTransactionByHash, getTransactionsHistory, getTransactionReceipt} from './transactions-fetcher';
 
 import {Balances} from './accounting';

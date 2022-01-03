@@ -7,13 +7,11 @@ import { Model } from './model';
 import abiCoder from 'web3-eth-abi';
 import { sha3, BN } from "web3-utils";
 import { Harmony } from "@harmony-js/core";
-import { ChainID, ChainType } from "@harmony-js/utils";
+import { ChainType } from "@harmony-js/utils";
 
 import { useNavigate, useSearchParams, Navigate, Routes, Route } from 'react-router-dom';
 
 import Spinner from '../app/shared/Spinner';
-
-import { isBech32Address } from '@harmony-js/utils';
 
 import {Balances} from './accounting';
 import {isAddress, parseJsonWithBigInts, stringifyJsonWithBigInts, addressesEqual, normalizeAddress } from './utils';
@@ -426,6 +424,7 @@ function _decodeLog(logItem, state) {
   let topicsIndex = 1;
 
   let dataTypes = [];
+  // eslint-disable-next-line array-callback-return
   method.inputs.map(function(input) {
     if (!input.indexed) {
       dataTypes.push(input.type);
@@ -438,6 +437,7 @@ function _decodeLog(logItem, state) {
   );
 
   // Loop topic and data to get the params
+  // eslint-disable-next-line array-callback-return
   method.inputs.map(function(param) {
     let decodedP = {
       name: param.name,
@@ -500,6 +500,7 @@ const makeAbiState = (abiArray) => {
 
   if (Array.isArray(abiArray)) {
     // Iterate new abi to generate method id"s
+    // eslint-disable-next-line array-callback-return
     abiArray.map(function(abi) {
       if (abi.name) {
         const signature = sha3(

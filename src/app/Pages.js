@@ -661,7 +661,6 @@ async function fetchPrice(code) {
 }
 
 export function PriceFetcherManager(props) {
-  const [isLoadingTxs, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
   const [contractIndexBeingEdited, setContractIndexBeingEdited] = useState(-1);
   const [fetchedPricesByAddr, setFetchedPricesByAddr] = useState({});
   const assetContracts = props.worldState.contracts.filter(c => c.isAsset())
@@ -688,7 +687,7 @@ export function PriceFetcherManager(props) {
         doFetch(addr);
       }
     });
-  }, [priceFetchersByAddr]);
+  }, [priceFetchersByAddr, fetchedPricesByAddr]);
 
   console.log(fetchedPricesByAddr);
 
