@@ -360,12 +360,13 @@ function App(props) {
           <div className="content-wrapper">
             <Suspense fallback={<Spinner/>}>
             {(_.isEmpty(addr)) ?
+              <div>
               <div className="row" style={{justifyContent: 'center'}}>
                 <div className="col-6 grid-margin">
                   <div className="card">
                     <div className="card-body">
 
-                <h4 className="card-title">DFK History Report Generator</h4>
+                <h4 className="card-title">DFK Balances Report Generator</h4>
                 <h6 className="text-muted font-weight-normal"> Please enter the address you're interested in</h6>
                 <Form.Group>
                   <div className="input-group">
@@ -386,6 +387,34 @@ function App(props) {
                   </div>
                 </div>
               </div>
+
+      <div className="row" style={{display: 'flex', justifyContent: 'center'}}>
+        <div className="col-6 grid-margin">
+          <div className="card">
+            <div className="card-body">
+              <h4 className="card-title">How it works</h4>
+              <div>
+              DFK Balances is a super customizable and extensible Financial tracker for the DeFi Kingdoms ecosystem. It allows users to easily add their own <strong>Contract definitions</strong>, <strong>Balance rules</strong>, and <strong>Price Fetchers</strong>.
+              </div>
+
+              <div className="mt-2">
+              Because smart contracts can be arbitrarily complex, the idea is to allow users to "teach" the app how to query prices and compute balances from the blockchain in arbitrary ways, so DFK Balances "learns" from its users as the DFK ecosystem becomes more complex.
+              </div>
+
+              <div className="mt-4" style={{display: 'flex', justifyContent: 'end'}}>
+                <a href="https://github.com/gablg1/defi-tracker">
+                See project on GitHub
+                </a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+              </div>
+
+
+
               :
               <Routes>
                 <Route path="/transactions" element={<TransactionsViewer worldState={worldState} />} />
