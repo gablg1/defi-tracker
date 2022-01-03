@@ -7,6 +7,7 @@ import { Model } from './model';
 import abiCoder from 'web3-eth-abi';
 import { sha3, BN } from "web3-utils";
 import { Harmony } from "@harmony-js/core";
+import defaultWorldStateJson from './default-world-state.json';
 import { ChainType } from "@harmony-js/utils";
 
 import { useNavigate, useSearchParams, Navigate, Routes, Route } from 'react-router-dom';
@@ -337,7 +338,7 @@ function App(props) {
 
   // Load the world state upon page load
   useEffect(() => {
-    const serializedState = JSON.parse(localStorage.getItem('__serializedWorldState') || null);
+    const serializedState = JSON.parse(localStorage.getItem('__serializedWorldState') || null) || defaultWorldStateJson;
     const worldState = WorldState.deserialize(serializedState);
     worldState.loadCaches();
 
