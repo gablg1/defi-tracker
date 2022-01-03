@@ -1,9 +1,8 @@
-
 ## DFK Balances
 
 DFK Balances is a super customizable and extensible Financial tracker for the DeFi Kingdoms ecosystem. It allows users to easily add their own Contract definitions, Balance rules, and Price Fetchers.
 
-Because smart contracts can be arbitrarily complex, the idea is to allow users to "teach" the app how to query prices and compute balances from the blockchain in arbitrary ways.
+Because smart contracts can be arbitrarily complex, the idea is to allow users to "teach" the app how to query prices and compute balances from the blockchain in arbitrary ways, so DFK Balances "learns" from its users as the DFK ecosystem becomes more complex.
 
 ## Defi Tracker
 In the long run, we'd like this project to accurately be able to generate accounting and financial reports for any other DeFi project as well. Ever wanted to accurately track how much money you have invested in a certain project, or all of DeFi? That's the dream.
