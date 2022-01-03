@@ -15,6 +15,12 @@ export function formatTokenValue(value, tokenName, minFractionDigits = 2) {
   return `${formatedValue} ${tokenName}`;
 }
 
+export function formatFiatValue(value, currency = 'USD', minFractionDigits = 2) {
+  assert(() => currency === 'USD')
+  const formatedValue = (Number(value) / 10 ** 18).toLocaleString("en-US", { minimumFractionDigits: minFractionDigits });
+  return `$${formatedValue}`;
+}
+
 export function assert(fn) {
   if (!fn()) {
     throw new Error("Assertion failed");

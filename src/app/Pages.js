@@ -5,7 +5,7 @@ import ToolkitProvider from 'react-bootstrap-table2-toolkit/dist/react-bootstrap
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 
-import {LinkWithAddr, InfoTooltip, addSign, formatTokenValue, Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
+import {formatFiatValue, LinkWithAddr, InfoTooltip, addSign, formatTokenValue, Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
 
 // import brace from "brace";
 
@@ -631,13 +631,46 @@ export function useTokenBalances(contracts, addr) {
   return balances;
 }
 
+async function fetchPrice(code) {
+  try {
+    const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+    return await new AsyncFunction(code)();
+  } catch(err) {
+    return err;
+  }
+}
 
 export function PriceFetcherManager(props) {
   const [isLoadingTxs, isLoadingReceipts, transactions] = useTransactionsForAddress(props.worldState.defaultAddr, props.worldState);
   const [contractIndexBeingEdited, setContractIndexBeingEdited] = useState(-1);
+  const [fetchedPricesByAddr, setFetchedPricesByAddr] = useState({});
   const assetContracts = props.worldState.contracts.filter(c => c.isAsset())
   const contract = (contractIndexBeingEdited >= 0 && contractIndexBeingEdited < assetContracts.length) ? assetContracts[contractIndexBeingEdited] : undefined;
+  const priceFetchersByAddr = _.fromPairs(_.map(assetContracts, contract => [contract.address, contract.priceFetcher]))
   const balances = useTokenBalances(assetContracts, props.worldState.defaultAddr);
+
+  const valuesByAddr = _.mapValues(fetchedPricesByAddr, (price, addr) =>
+    (_.isNumber(price) && balances[addr]) ? BigInt(price) * balances[addr] : price
+  )
+
+  const activeFetchedPrice = contract && fetchedPricesByAddr[contract.address];
+
+  useEffect(() => {
+    async function doFetch(addr) {
+      const price = await fetchPrice(priceFetchersByAddr[addr]);
+      if (price) {
+        setFetchedPricesByAddr(prevState => _.extend({}, prevState, {[addr]: price}));
+      }
+    }
+
+    _.forEach(_.keys(priceFetchersByAddr), (addr) => {
+      if (!(addr in fetchedPricesByAddr)) {
+        doFetch(addr);
+      }
+    });
+  }, [priceFetchersByAddr]);
+
+  console.log(fetchedPricesByAddr);
 
   return (
     <div>
@@ -664,6 +697,7 @@ export function PriceFetcherManager(props) {
                         <th>Name</th>
                         <th>Address</th>
                         <th>Balance</th>
+                        <th>Value</th>
                         <th>Blockchain</th>
                         <th>Delete</th>
                       </tr>
@@ -681,6 +715,7 @@ export function PriceFetcherManager(props) {
                             ? formatTokenValue(balances[contract.address], contract.tokenName)
                             : `?? ${contract.tokenName}`
                           }</td>
+                          <td>{contract.address in valuesByAddr && formatFiatValue(valuesByAddr[contract.address])}</td>
                           <td>{contract.blockchain}</td>
                           <td><button onClick={() => {
                             if (window.confirm('Are you sure you wish to delete this item?')) {
@@ -697,27 +732,38 @@ export function PriceFetcherManager(props) {
 
               {contract &&
                 <div>
-                  <div className="row">
-                    <h4 className="card-title">Price Fetcher</h4>
+                  <div className="col-md-6 grid-margin">
+                    <div className="form-group">
+                      <h4 className="card-title">Price Fetcher</h4>
+                      <AceEditor style={{minHeight: '300px'}}
+                        mode="javascript"
+                        theme="monokai"
+                        name="jsEditor"
+                        editorProps={{ $blockScrolling: true }}
+                        placeholder="return evt.name == 'Transfer' && gltx.tx.from == myAddr;"
+                        fontSize={14}
+                        showPrintMargin={true}
+                        showGutter={true}
+                        highlightActiveLine={true}
+                        height="100%"
+                        width="100%"
+                        value={contract.priceFetcher}
+                        onChange={val => {
+                          contract.priceFetcher = val;
+                          props.handleSave();
+                        }}
+                      />
+                    </div>
                   </div>
-                  <AceEditor style={{minHeight: '300px'}}
-                    mode="javascript"
-                    theme="monokai"
-                    name="jsEditor"
-                    editorProps={{ $blockScrolling: true }}
-                    placeholder="return evt.name == 'Transfer' && gltx.tx.from == myAddr;"
-                    fontSize={14}
-                    showPrintMargin={true}
-                    showGutter={true}
-                    highlightActiveLine={true}
-                    height="100%"
-                    width="100%"
-                    value={contract.priceFetcher}
-                    onChange={val => {
-                      contract.priceFetcher = val;
-                      props.handleSave();
-                    }}
-                  />
+
+                  <div className="col-md-6 grid-margin">
+                  {activeFetchedPrice instanceof Error &&
+                    <div style={{background: 'red'}}>{activeFetchedPrice.message}</div>
+                  }
+                  {_.isNumber(activeFetchedPrice) &&
+                    <div style={{background: 'green'}}>{activeFetchedPrice}</div>
+                  }
+                  </div>
                 </div>
               }
             </div>
