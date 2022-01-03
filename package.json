@@ -1,7 +1,7 @@
 {
   "name": "defi-tracker",
   "version": "1.1.0",
-  "homepage": "http://bootstrapdash.com/demo/corona/react/template/demo_5/preview",
+  "homepage": "http://dfk-balances.com/",
   "private": true,
   "dependencies": {
     "@babel/core": "^7.16.0",
