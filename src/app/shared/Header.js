@@ -67,6 +67,12 @@ class InnerHeader extends Component {
                     <span className="menu-title"><Trans>Price Fetchers</Trans></span>
                   </LinkWithAddr>
                 </li>
+                <li className={ this.isPathActive('/state-editor') ? 'nav-item menu-items active' : 'nav-item menu-items' }>
+                  <LinkWithAddr addr={addr} className="nav-link" to="/state-editor">
+                    <i className="mdi mdi mdi-texture menu-icon"></i>
+                    <span className="menu-title"><Trans>App State</Trans></span>
+                  </LinkWithAddr>
+                </li>
               </ul>
             </div>
           </nav>
@@ -88,12 +94,12 @@ class InnerHeader extends Component {
     let navbar = document.querySelector('.horizontal-menu');
     let body = document.querySelector('body');
     if ( navbar ) {
-      window.addEventListener('scroll', function() { 
-        if (window.scrollY >= 70) { 
+      window.addEventListener('scroll', function() {
+        if (window.scrollY >= 70) {
           navbar.classList.add('fixed-on-scroll');
           body.classList.add('horizontal-menu-fixed-on-scroll');
          }
-        else { 
+        else {
           navbar.classList.remove('fixed-on-scroll');
           body.classList.remove('horizontal-menu-fixed-on-scroll');
          }

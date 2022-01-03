@@ -4,6 +4,7 @@ import _ from 'lodash';
 import ToolkitProvider from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
+import defaultWorldStateJson from './default-world-state.json';
 
 import {formatFiatValue, LinkWithAddr, InfoTooltip, addSign, formatTokenValue, Copiable, formatAddress, truncateLongAddressCopiable, truncateLongString } from './utils';
 
@@ -246,10 +247,28 @@ export function StateEditor(props) {
     }
   };
 
+  const resetToDefaultState = () => {
+    const defaultWorldState = WorldState.deserialize(defaultWorldStateJson);
+    props.setWorldState(defaultWorldState);
+    props.handleSave(defaultWorldState);
+    window.alert("App state successfully reset back to defaults!");
+  }
+
   return (
     <div>
       <div className="page-header">
-        <h3 className="page-title">World State</h3>
+        <h3 className="page-title">App State Editor</h3>
+        <InfoTooltip title={'Send your App state to a friend'}>
+          <div style={{minWidth: 300}}>
+            <div>
+              Use this page if you want to send your rules, contracts, and price fetchers to a friend for them to use. Just copy the below JSON code and ask others to import it in their DFK Reports App State Editor, so they can use the rules and configs you created!
+            </div>
+
+            <div className="mt-2">
+              A more robust rules marketplace is coming soon! :)
+            </div>
+          </div>
+        </InfoTooltip>
       </div>
       <div className="row">
         <div className="col-12 grid-margin">
@@ -273,7 +292,8 @@ export function StateEditor(props) {
                 />
               </div>
               <div className="row" style={{marginTop: 50}}>
-                <button onClick={saveNewState} className="btn btn-primary btn-fw">Save new world state</button>
+                <button onClick={saveNewState} className="btn btn-primary btn-fw">Import new world state</button>
+                <button onClick={resetToDefaultState} className="ml-3 btn btn-primary btn-fw">Reset to default world state</button>
               </div>
             </div>
           </div>
