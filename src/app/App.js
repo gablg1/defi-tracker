@@ -362,7 +362,7 @@ function App(props) {
             {(_.isEmpty(addr)) ?
               <div>
               <div className="row" style={{justifyContent: 'center'}}>
-                <div className="col-6 grid-margin">
+                <div className="col-md-6 grid-margin">
                   <div className="card">
                     <div className="card-body">
 
@@ -389,7 +389,7 @@ function App(props) {
               </div>
 
       <div className="row" style={{display: 'flex', justifyContent: 'center'}}>
-        <div className="col-6 grid-margin">
+        <div className="col-md-6 grid-margin">
           <div className="card">
             <div className="card-body">
               <h4 className="card-title">How it works</h4>
