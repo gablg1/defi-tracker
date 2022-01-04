@@ -15,7 +15,7 @@ import { useNavigate, useSearchParams, Navigate, Routes, Route } from 'react-rou
 import Spinner from '../app/shared/Spinner';
 
 import {Balances} from './accounting';
-import {isAddress, parseJsonWithBigInts, stringifyJsonWithBigInts, addressesEqual, normalizeAddress } from './utils';
+import {LinkWithAddr, isAddress, parseJsonWithBigInts, stringifyJsonWithBigInts, addressesEqual, normalizeAddress } from './utils';
 
 import {PriceFetcherManager, EventRuleManager, ContractManager, StateEditor} from './Pages';
 import {SingleTransactionViewer, TransactionsViewer} from './TransactionsViewer';
@@ -382,6 +382,11 @@ function App(props) {
                     </div>
                   </div>
                 </Form.Group>
+              <div>Don't have a DFK address and still wanna check out the app?
+                <LinkWithAddr className="ml-2" addr={'0xEba220F7256B2F5e5d73dB6dDA83c99c1D916570'} to="/transactions">
+                  Click here
+                </LinkWithAddr>
+              </div>
 
                     </div>
                   </div>
