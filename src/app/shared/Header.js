@@ -11,6 +11,7 @@ class InnerHeader extends Component {
     const addr = this.props.worldState.defaultAddr || '';
     return (
       <div className="horizontal-menu">
+        {!_.isEmpty(addr) &&
         <nav className="navbar top-navbar default-layout-navbar col-lg-12 col-12 p-0 d-flex flex-row">
           <div className="container">
             <div className="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
@@ -19,7 +20,6 @@ class InnerHeader extends Component {
                 <img src={require('../../assets/images/dfk-jewel.png')} alt="dfk" style={{marginLeft: 10}} />
               </LinkWithAddr>
             </div>
-            {!_.isEmpty(addr) &&
               <div className="navbar-menu-wrapper d-flex align-items-stretch justify-content-end">
                 <ul className="navbar-nav w-100">
                   <li className="nav-item w-100">
@@ -36,9 +36,19 @@ class InnerHeader extends Component {
                   </li>
                 </ul>
               </div>
-            }
-          </div>
-        </nav>
+            </div>
+          </nav>
+        }
+        {_.isEmpty(addr) &&
+        <div style={{background: 'black', height: 70, display: 'flex', padding: 20, justifyContent: 'center'}}>
+            <div>
+              <LinkWithAddr addr={addr}  to="/" style={{fontSize: '1.5rem', color: 'white', width: 200}}>
+                DFK Balances
+                <img src={require('../../assets/images/dfk-jewel.png')} alt="dfk" style={{marginLeft: 10, height: 30}} />
+              </LinkWithAddr>
+            </div>
+        </div>
+        }
         {!_.isEmpty(addr) &&
           <nav className="bottom-navbar">
             <div className="container">
