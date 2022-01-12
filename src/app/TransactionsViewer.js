@@ -318,7 +318,15 @@ const buildCSV = (worldState, transactions) => {
       return (
         {
           text: `${token} Balance`,
-          toCSV: (row) => (row.stateAfter === undefined) ? 0 : row.stateAfter.toJson()[token] || 0,
+          toCSV: (row) => {
+            if (row.stateAfter instanceof Error ) {
+              return row.stateAfter.message;
+            } else if (row.stateAfter === undefined) {
+              return 0;
+            } else {
+              return row.stateAfter.toJson()[token] || 0;
+            }
+          }
         }
       );
     }))
